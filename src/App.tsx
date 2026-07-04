@@ -3,6 +3,8 @@ import { useChapter } from "./hooks/useChapter";
 import { useTypingSession } from "./hooks/useTypingSession";
 import { ChapterView } from "./components/ChapterView";
 import { BookChapterSelector } from "./components/BookChapterSelector";
+import { ChapterNav } from "./components/ChapterNav";
+import { LiveStats } from "./components/LiveStats";
 import { meta as nivEn } from "./bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "./bible-data/translations/krv-ko/meta";
 
@@ -16,8 +18,9 @@ function App() {
   const { data, loading, error } = useChapter(translationId, bookId, chapter);
   const verses = data?.verses ?? [];
 
-  const { session, handleInput, reset } = useTypingSession(verses);
+  const { session, handleInput, commitComposition, reset } = useTypingSession(verses);
   const [isComposing, setIsComposing] = useState(false);
+  const compositionBaselineRef = useRef("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   // New chapter/book/translation -> fresh typing session.
@@ -30,14 +33,6 @@ function App() {
   }, [bookId, chapter]);
 
   const chapterDone = session.endTime !== null;
-  const totalLetters = verses.join("").length;
-  // NOTE: chars/5 is the English WPM convention. Korean needs its own formula
-  // based on keystrokes (자소 단위) rather than characters - that's part of
-  // the KR/EN engine split, not this pass.
-  const wpm =
-    session.startTime && session.endTime
-      ? Math.round(totalLetters / 5 / ((session.endTime - session.startTime) / 1000 / 60))
-      : null;
 
   const goToChapter = (next: { translationId: string; bookId: string; chapter: number }) => {
     setTranslationId(next.translationId);
@@ -47,17 +42,34 @@ function App() {
 
   const currentTranslation = TRANSLATIONS.find((t) => t.id === translationId) ?? TRANSLATIONS[0];
   const currentBook = currentTranslation.books.find((b) => b.id === bookId) ?? currentTranslation.books[0];
+  const currentBookIndex = currentTranslation.books.findIndex((b) => b.id === currentBook.id);
+
+  // Shared by the nav buttons and Enter/Shift+Enter: steps a chapter within
+  // the current book, or rolls over into the next/previous book once one exists.
+  const stepChapter = (direction: 1 | -1) => {
+    const targetChapter = chapter + direction;
+
+    if (targetChapter >= 1 && targetChapter <= currentBook.versesPerChapter.length) {
+      goToChapter({ translationId, bookId, chapter: targetChapter });
+      return;
+    }
+
+    const targetBook = currentTranslation.books[currentBookIndex + direction];
+    if (!targetBook) return; // already at the start/end of this translation
+
+    const targetBookChapter = direction === 1 ? 1 : targetBook.versesPerChapter.length;
+    goToChapter({ translationId, bookId: targetBook.id, chapter: targetBookChapter });
+  };
+
+  const isAtStart = currentBookIndex === 0 && chapter === 1;
+  const isAtEnd =
+    currentBookIndex === currentTranslation.books.length - 1 &&
+    chapter === currentBook.versesPerChapter.length;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
-
-    const nextChapter = chapter + (e.shiftKey ? -1 : 1);
-    if (nextChapter >= 1 && nextChapter <= currentBook.versesPerChapter.length) {
-      goToChapter({ translationId, bookId, chapter: nextChapter });
-    }
-    // TODO: once each translation's meta.ts lists its full set of books,
-    // wrap to the previous/next book here the same way the old code did.
+    stepChapter(e.shiftKey ? -1 : 1);
   };
 
   if (loading) return <div id="mainBody">Loading…</div>;
@@ -65,6 +77,13 @@ function App() {
 
   return (
     <div id="mainBody">
+      <LiveStats
+        startTime={session.startTime}
+        endTime={session.endTime}
+        correctKeystrokes={session.correctKeystrokes}
+        totalKeystrokes={session.totalKeystrokes}
+      />
+
       <BookChapterSelector
         translations={TRANSLATIONS}
         translationId={translationId}
@@ -90,14 +109,26 @@ function App() {
         <input
           ref={inputRef}
           value={chapterDone ? "" : session.typed}
-          onChange={(e) => handleInput(e.target.value)}
+          onChange={(e) => handleInput(e.target.value, isComposing)}
           onKeyDown={handleKeyDown}
-          onCompositionStart={() => setIsComposing(true)}
-          onCompositionEnd={() => setIsComposing(false)}
+          onCompositionStart={() => {
+            compositionBaselineRef.current = session.typed;
+            setIsComposing(true);
+          }}
+          onCompositionEnd={(e) => {
+            setIsComposing(false);
+            commitComposition(compositionBaselineRef.current, e.currentTarget.value);
+          }}
           disabled={chapterDone}
           style={{ position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none" }}
         />
-        {chapterDone && <p>WPM: {wpm}</p>}
+
+        <ChapterNav
+          onPrev={() => stepChapter(-1)}
+          onNext={() => stepChapter(1)}
+          disablePrev={isAtStart}
+          disableNext={isAtEnd}
+        />
       </div>
     </div>
   );

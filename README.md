@@ -1,75 +1,77 @@
-# React + TypeScript + Vite
+# Data model + performance refactor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## How to integrate
 
-Currently, two official plugins are available:
+1. Copy `src/bible-data/`, `src/hooks/`, and `src/components/` into your project's `src/`.
+2. Replace your existing `src/App.tsx` with the one here (or merge — the JSX/CSS
+   class names are unchanged from your original, so `index.css`/`App.css` need no edits).
+3. You can delete `src/verseSample.ts` and `src/assets/engBib/gen.ts` once you've
+   migrated any content you still want out of them into the new JSON format.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Adding a chapter
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Drop a new file at:
 
 ```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+src/bible-data/translations/<translation-id>/books/<book-id>/<chapter-padded-2-digits>.json
 ```
+
+containing `{ "verses": ["...", "..."] }`, and add its verse count to that
+book's `versesPerChapter` array in the translation's `meta.ts`. That's it —
+`import.meta.glob` in `loader.ts` picks it up automatically, no other code changes.
+
+## Adding a whole book
+
+Add a new folder under `books/` for that translation, plus a `BookMeta` entry
+in `meta.ts`.
+
+## Adding a whole translation (including a second Korean or English translation)
+
+1. `src/bible-data/translations/<new-id>/meta.ts` + its `books/` folder.
+2. Import that `meta` and add it to the `TRANSLATIONS` array in `App.tsx`.
+
+Nothing else needs to change — this is also your future "choose a translation"
+and "toggle KR/EN" features, since `TranslationMeta.language` already tags
+which language each one is in.
+
+## New in this pass: chapter nav + live WPM/accuracy
+
+- `ChapterNav` renders Previous/Next buttons. `stepChapter()` in `App.tsx`
+  handles rolling over into the next/previous book once a translation has
+  more than one book — it already does the right thing, it just has nothing
+  to roll into yet since only Genesis is populated in the sample data.
+- `LiveStats` shows WPM and accuracy in the top-right corner, ticking every
+  250ms while you're typing. It's its own component with its own local
+  ticking state, so the 4x/second re-render it causes never touches
+  `ChapterView` or the verse list — the performance work from the last pass
+  still holds.
+- Accuracy/WPM are driven by `correctKeystrokes`/`totalKeystrokes` in
+  `useTypingSession`, scored two different ways depending on the script:
+  - **English**: scored immediately per character in `handleInput`, since
+    each keystroke is final the moment it lands.
+  - **Korean (or any IME script)**: scored once per syllable, at
+    `compositionend`, via `commitComposition`. This matters because Hangul
+    composes in place (ㄱ → 가 → 간 all replace the same slot rather than
+    appending), so grading it mid-composition would mark almost every
+    syllable "wrong" before you'd even finished typing it.
+- Backspacing is never penalized and never un-penalizes a prior mistake —
+  only forward-typed/finalized characters are scored. This means accuracy
+  reflects "how many keystrokes you got right the first time," not "what
+  does the final text look like." Known cross-browser quirk: a few browsers
+  order the final `input` event and `compositionend` event differently for
+  IME text, which can very occasionally miss scoring the very last syllable
+  of a composition — minor, but worth knowing about.
+
+## What's NOT done here (left for the next milestones)
+
+- `versesPerChapter` is only filled in for Genesis 1-2 in both sample
+  translations — populating the rest of the Bible is a data-entry job, not
+  a code change.
+- WPM is still calculated with the English `chars / 5` convention. Korean
+  needs its own formula (counting 자소/keystrokes, not characters) — that's
+  part of the KR/EN engine split.
+- Book-boundary wrapping on Enter/Shift+Enter is stubbed with a TODO since
+  each translation's book list is still incomplete in this demo.
+- No leaderboard/stats/theme work here — this pass is purely the data model
+  + the render-performance fix (memoized `VerseRow`, only the active verse
+  gets per-letter treatment).
