@@ -1,168 +1,96 @@
-import { useState, useRef, useEffect } from "react";
-import { bible } from "./verseSample";
+import { useEffect, useRef, useState } from "react";
+import { useChapter } from "./hooks/useChapter";
+import { useTypingSession } from "./hooks/useTypingSession";
+import { ChapterView } from "./components/ChapterView";
+import { BookChapterSelector } from "./components/BookChapterSelector";
+import { meta as nivEn } from "./bible-data/translations/niv-en/meta";
+import { meta as krvKo } from "./bible-data/translations/krv-ko/meta";
+
+const TRANSLATIONS = [nivEn, krvKo];
 
 function App() {
-  const [bookIndex, setBookIndex] = useState(0);
-  const [chapterIndex, setChapterIndex] = useState(0);
-  const [verseIndex, setVerseIndex] = useState(0);
-  const [typed, setTyped] = useState("");
-  const [completedTyped, setCompletedTyped] = useState<string[]>([]);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [endTime, setEndTime] = useState<number | null>(null);
+  const [translationId, setTranslationId] = useState(nivEn.id);
+  const [bookId, setBookId] = useState(nivEn.books[0].id);
+  const [chapter, setChapter] = useState(1);
 
+  const { data, loading, error } = useChapter(translationId, bookId, chapter);
+  const verses = data?.verses ?? [];
+
+  const { session, handleInput, reset } = useTypingSession(verses);
+  const [isComposing, setIsComposing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const book = bible[bookIndex];
-  const chapter = book.chapters[chapterIndex];
-  const currentVerseText = chapter.verses[verseIndex];
-  const currentLetters = currentVerseText.split("");
-  const chapterDone = endTime !== null;
+  // New chapter/book/translation -> fresh typing session.
+  useEffect(() => {
+    reset();
+  }, [translationId, bookId, chapter, reset]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  useEffect(() => {
+    inputRef.current?.focus({ preventScroll: true });
+  }, [bookId, chapter]);
 
-    if (value.length > currentLetters.length) return;
+  const chapterDone = session.endTime !== null;
+  const totalLetters = verses.join("").length;
+  // NOTE: chars/5 is the English WPM convention. Korean needs its own formula
+  // based on keystrokes (자소 단위) rather than characters - that's part of
+  // the KR/EN engine split, not this pass.
+  const wpm =
+    session.startTime && session.endTime
+      ? Math.round(totalLetters / 5 / ((session.endTime - session.startTime) / 1000 / 60))
+      : null;
 
-    if (startTime === null && value.length > 0) {
-      setStartTime(Date.now());
-    }
-
-    setTyped(value);
-
-    if (value.length === currentLetters.length && value === currentVerseText) {
-      const isLastVerse = verseIndex === chapter.verses.length - 1;
-      setCompletedTyped((prev) => [...prev, value]);
-
-      if (isLastVerse) {
-        setEndTime(Date.now());
-      } else {
-        setVerseIndex((v) => v + 1);
-        setTyped("");
-      }
-    }
+  const goToChapter = (next: { translationId: string; bookId: string; chapter: number }) => {
+    setTranslationId(next.translationId);
+    setBookId(next.bookId);
+    setChapter(next.chapter);
   };
 
-  const goToChapter = (newBookIndex: number, newChapterIndex: number) => {
-    setBookIndex(newBookIndex);
-    setChapterIndex(newChapterIndex);
-    setVerseIndex(0);
-    setTyped("");
-    setCompletedTyped([]);
-    setStartTime(null);
-    setEndTime(null);
-  };
+  const currentTranslation = TRANSLATIONS.find((t) => t.id === translationId) ?? TRANSLATIONS[0];
+  const currentBook = currentTranslation.books.find((b) => b.id === bookId) ?? currentTranslation.books[0];
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
 
-    if (e.shiftKey) {
-      if (chapterIndex > 0) {
-        goToChapter(bookIndex, chapterIndex - 1);
-      } else if (bookIndex > 0) {
-        const prevBook = bible[bookIndex - 1];
-        goToChapter(bookIndex - 1, prevBook.chapters.length - 1);
-      }
-    } else {
-      if (chapterIndex < book.chapters.length - 1) {
-        goToChapter(bookIndex, chapterIndex + 1);
-      } else if (bookIndex < bible.length - 1) {
-        goToChapter(bookIndex + 1, 0);
-      }
+    const nextChapter = chapter + (e.shiftKey ? -1 : 1);
+    if (nextChapter >= 1 && nextChapter <= currentBook.versesPerChapter.length) {
+      goToChapter({ translationId, bookId, chapter: nextChapter });
     }
+    // TODO: once each translation's meta.ts lists its full set of books,
+    // wrap to the previous/next book here the same way the old code did.
   };
 
-  const totalLetters = chapter.verses.join("").length;
-  const wpm =
-    startTime && endTime
-      ? Math.round(totalLetters / 5 / ((endTime - startTime) / 1000 / 60))
-      : null;
-
-  const [isComposing, setIsComposing] = useState(false);
-
-  useEffect(() => {
-  inputRef.current?.focus({ preventScroll: true });
-}, [bookIndex, chapterIndex]);
+  if (loading) return <div id="mainBody">Loading…</div>;
+  if (error || !data) return <div id="mainBody">Couldn't load this chapter. {error}</div>;
 
   return (
-    <div id={"mainBody"}>
-      <div id={"bookSelectCont"}>
-        <select
-          className={"bookSelect"}
-          value={bookIndex}
-          onChange={(e) => goToChapter(Number(e.target.value), 0)}
-        >
-          {bible.map((b, i) => (
-            <option className={"bookSelect"} key={i} value={i}>{b.book}</option>
-          ))}
-        </select>
+    <div id="mainBody">
+      <BookChapterSelector
+        translations={TRANSLATIONS}
+        translationId={translationId}
+        bookId={bookId}
+        chapter={chapter}
+        onChange={goToChapter}
+      />
 
-        <select
-          className={"bookSelect"}
-          value={chapterIndex}
-          onChange={(e) => goToChapter(bookIndex, Number(e.target.value))}
-        >
-          {book.chapters.map((c, i) => (
-            <option className={"bookSelect"} key={i} value={i}>{c.chapter}장</option>
-          ))}
-        </select>
-      </div>
+      <div id="secondBody" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
+        <h2 className="bookText">
+          {currentBook.name} {chapter}장
+        </h2>
 
-      <div id={"secondBody"} onClick={() => inputRef.current?.focus({ preventScroll: true })}>
-        <h2 className={"bookText"}>{book.book} {chapter.chapter}장</h2>
-        {chapter.verses.map((verse, vIndex) => {
-          const letters = verse.split("");
-          const isCurrent = vIndex === verseIndex && !chapterDone;
-          const isDone = vIndex < completedTyped.length;
+        <ChapterView
+          verses={verses}
+          verseIndex={session.verseIndex}
+          typed={session.typed}
+          completedCount={session.completedTyped.length}
+          chapterDone={chapterDone}
+          isComposing={isComposing}
+        />
 
-          return (
-            <div key={vIndex} style={{ display: "flex", gap: "8px", opacity: isCurrent || isDone ? 1 : 0.3 }}>
-              <span className={"verseNum"} style={{ color: "gray", minWidth: "20px" }}>{vIndex + 1}</span>
-              <div>
-                {letters.map((char, index) => {
-                  const activeTyped = isCurrent ? typed : completedTyped[vIndex];
-                  const composingIndex = isCurrent && isComposing ? typed.length - 1 : -1;
-                  const isComposingHere = index === composingIndex;
-
-                  let displayChar = char;
-                  let color = "#6f8cdc";
-
-                  if (isComposingHere) {
-                    displayChar = activeTyped[index];
-                    color = "#001a47"; 
-                  } else if (activeTyped && index < activeTyped.length) {
-                    color = activeTyped[index] === char ? "black" : "#d7c7ba";
-                  } 
-
-                  const showCursor = isCurrent && index === typed.length && !isComposing;
-
-                  return (
-                    <span key={index} style={{ position: "relative" }}>
-                      {showCursor && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            left: -1,
-                            bottom: 0.5,
-                            width: "2px",
-                            height: "2rem",
-                            background: "black",
-                            animation: "blink 1s step-end infinite",
-                          }}
-                        />
-                      )}
-                      <span className={"bibText"} style={{ color }}>{displayChar}</span>
-                    </span>
-                  );
-                })}            
-              </div>
-            </div>
-          );
-        })}
         <input
           ref={inputRef}
-          value={chapterDone ? "" : typed}
-          onChange={handleChange}
+          value={chapterDone ? "" : session.typed}
+          onChange={(e) => handleInput(e.target.value)}
           onKeyDown={handleKeyDown}
           onCompositionStart={() => setIsComposing(true)}
           onCompositionEnd={() => setIsComposing(false)}
@@ -171,8 +99,6 @@ function App() {
         />
         {chapterDone && <p>WPM: {wpm}</p>}
       </div>
-
-
     </div>
   );
 }
