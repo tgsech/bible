@@ -1,0 +1,53 @@
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@font-face {
+    font-family: 'MaruBuri';
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2);
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'OngleipParkDahyeon';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2411-3@1.0/Ownglyph_ParkDaHyun.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
+* {
+  background-color: #f1e4d2;
+  font-family: "MaruBuri";
+  color: #1e3a5f;
+}
+
+#mainBody {
+  padding: 20px;
+  margin: 50px;
+}
+
+#bookSelectCont {
+  text-align: center;
+  border: none;
+}
+
+.bookSelect {
+  font-size: 2rem;
+  text-align: center;
+  border: none;
+}
+
+.bookText {
+  font-size: 3rem;
+  text-align: center;
+}
+
+.verseNum {
+  font-size: 1.5rem;
+}
+
+.bibText {
+  font-size: 2rem;
+  word-break: keep-all;
+}
