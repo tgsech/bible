@@ -15,7 +15,7 @@ export const meta: TranslationMeta = {
     {
       id: "psalms",
       name: "시편",
-      versesPerChapter: [6],
+      versesPerChapter: [6, 12],
     },
 
   ],
