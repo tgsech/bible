@@ -21,7 +21,7 @@ export const meta: TranslationMeta = {
     },
 
     {
-      id: "eccles",
+      id: "ecclesiastes",
       name: "전도서",
       group: "구약성경",
       versesPerChapter: [18, 26, 22, 16, 20],
