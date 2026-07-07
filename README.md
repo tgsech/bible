@@ -62,6 +62,34 @@ which language each one is in.
   IME text, which can very occasionally miss scoring the very last syllable
   of a composition — minor, but worth knowing about.
 
+## New in this pass: Korean WPM, untypeable-character leniency, auto-scroll
+
+- **`src/typing/koreanKeystrokes.ts`** decomposes each Hangul syllable into
+  initial/medial/final jamo and counts real keystrokes (compound vowels like
+  ㅘ and compound batchim like ㄳ cost 2 keys, matching standard 2-beolsik
+  layout). `LiveStats` uses this to show Korean speed as 타/분
+  (keystrokes/minute, the conventional metric) instead of English's WPM
+  (`chars / 5`). Both share the same underlying `correctKeystrokes`/
+  `totalKeystrokes` counters - only the display formula and label differ.
+
+- **`src/typing/charMatch.ts`** is the single source of truth for "does this
+  keystroke count as correct," used by the live stats, the verse coloring,
+  and verse-completion detection alike. For non-Korean text: curly quotes
+  (" " ' ') accept their plain equivalent, and any other non-ASCII character
+  (em dashes, é/ñ/ü, ellipses, etc.) is a wildcard that accepts whatever was
+  typed. Korean is explicitly excluded from the wildcard rule - since every
+  Hangul syllable is non-ASCII, applying it there would make all Korean
+  typing auto-pass, so `language` is threaded through everywhere this matters.
+
+- **Auto-scroll**: `ChapterView` holds a ref to whichever verse row is
+  currently active and calls `scrollIntoView({ block: "nearest" })` whenever
+  `verseIndex` changes. That call is a no-op if the row's already visible
+  and scrolls the minimum distance otherwise, which is exactly "page down
+  once you hit the bottom" without any manual viewport math. `VerseRow` is
+  now `forwardRef`-wrapped so the ref can attach directly to its root
+  element without an extra wrapper `<div>`. The same pattern scrolls the
+  nav buttons into view once a chapter is completed.
+
 ## What's NOT done here (left for the next milestones)
 
 - `versesPerChapter` is only filled in for Genesis 1-2 in both sample

@@ -6,11 +6,18 @@ interface LiveStatsProps {
   endTime: number | null;
   correctKeystrokes: number;
   totalKeystrokes: number;
+  language: string;
 }
 
-function LiveStatsImpl({ startTime, endTime, correctKeystrokes, totalKeystrokes }: LiveStatsProps) {
-  // Ticks locally so WPM keeps climbing even between keystrokes, without
-  // touching any state outside this component.
+function LiveStatsImpl({
+  startTime,
+  endTime,
+  correctKeystrokes,
+  totalKeystrokes,
+  language,
+}: LiveStatsProps) {
+  // Ticks locally so the speed keeps climbing even between keystrokes,
+  // without touching any state outside this component.
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -21,17 +28,20 @@ function LiveStatsImpl({ startTime, endTime, correctKeystrokes, totalKeystrokes 
 
   const elapsedMs = startTime ? (endTime ?? now) - startTime : 0;
   const minutes = elapsedMs / 1000 / 60;
+  const isKorean = language === "ko";
 
-  // Net WPM: correct characters / 5 / minutes, the standard English convention.
-  // NOTE: this is not yet the right formula for Korean, which is conventionally
-  // measured in keystrokes/자소 rather than 5-character "words" - that's part
-  // of the Korean engine work, not this pass.
-  const wpm = minutes > 0 ? Math.round(correctKeystrokes / 5 / minutes) : 0;
+  // English: net WPM, correct chars / 5 / minutes (5 chars = 1 "word").
+  // Korean: raw keystrokes/minute (타수/분) - the conventional Korean metric,
+  // counted per jamo (see koreanKeystrokes.ts) rather than divided by 5.
+  const speed =
+    minutes > 0 ? Math.round((isKorean ? correctKeystrokes : correctKeystrokes / 5) / minutes) : 0;
   const accuracy = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 100;
 
   return (
     <div className="liveStats">
-      <div className="liveStatsValue">{wpm} WPM</div>
+      <div className="liveStatsValue">
+        {speed} {isKorean ? "타/분" : "WPM"}
+      </div>
       <div className="liveStatsValue">{accuracy}% acc</div>
     </div>
   );
