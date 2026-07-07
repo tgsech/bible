@@ -13,5 +13,12 @@ export const meta: TranslationMeta = {
       group: "구약성경",
       versesPerChapter: [31, 2],
     },
+    {
+      id: "psalms",
+      name: "시편",
+      group: "구약성경",
+      versesPerChapter: [6, 12, 8],
+    },
+
   ],
 };
