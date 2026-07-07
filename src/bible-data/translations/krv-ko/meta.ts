@@ -11,7 +11,7 @@ export const meta: TranslationMeta = {
       id: "genesis",
       name: "창세기",
       group: "구약성경",
-      versesPerChapter: [31, 2],
+      versesPerChapter: [31, 25],
     },
     {
       id: "psalms",
@@ -19,6 +19,14 @@ export const meta: TranslationMeta = {
       group: "구약성경",
       versesPerChapter: [6, 12, 8],
     },
+
+    {
+      id: "eccles",
+      name: "전도서",
+      group: "구약성경",
+      versesPerChapter: [18, 26, 22, 16, 20],
+    },
+
 
   ],
 };
