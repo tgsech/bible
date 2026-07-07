@@ -12,5 +12,11 @@ export const meta: TranslationMeta = {
       name: "창세기",
       versesPerChapter: [31, 2],
     },
+    {
+      id: "psalms",
+      name: "시편",
+      versesPerChapter: [6],
+    },
+
   ],
 };
