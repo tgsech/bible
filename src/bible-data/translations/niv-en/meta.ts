@@ -12,6 +12,7 @@ export const meta: TranslationMeta = {
     {
       id: "genesis",
       name: "Genesis",
+      group: "Old Testament",
       versesPerChapter: [31, 25],
     },
   ],

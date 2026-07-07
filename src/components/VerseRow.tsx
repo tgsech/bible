@@ -42,15 +42,15 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
         {letters.map((char, i) => {
           const isComposingHere = i === composingIndex;
           let displayChar = char;
-          let color = "#6f8cdc";
+          let color = "var(--color-untyped)";
 
           if (isComposingHere) {
             displayChar = typed[i];
-            color = "#001a47";
+            color = "var(--color-composing)";
           } else if (i < typed.length) {
             // charMatches handles curly-quote equivalence and the
             // untypeable-character wildcard (for non-Korean text).
-            color = charMatches(typed[i], char, language) ? "black" : "#d7c7ba";
+            color = charMatches(typed[i], char, language) ? "var(--color-correct)" : "var(--color-incorrect)";
           }
 
           const showCursor = i === typed.length && !isComposing;
@@ -65,7 +65,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
                     bottom: 0.5,
                     width: "2px",
                     height: "2rem",
-                    background: "black",
+                    background: "var(--color-cursor)",
                     animation: "blink 1s step-end infinite",
                   }}
                 />

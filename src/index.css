@@ -5,7 +5,7 @@
 @font-face {
     font-family: 'MaruBuri';
     src: url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2);
-    font-weight: 400;
+    font-weight: 300;
     font-display: swap;
 }
 
@@ -16,26 +16,31 @@
     font-display: swap;
 }
 
+/* Theme variables. A future theme picker only needs to override these values
+   (e.g. by writing to document.documentElement.style, or swapping a
+   data-theme stylesheet) - nothing else in the app should reference a raw
+   color or font name directly, so themes stay a config change, not a
+   component rewrite. */
+:root {
+  --color-bg: #f1e4d2;
+  --color-text: #1e3a5f;
+  --color-untyped: #6f8cdc;
+  --color-correct: #000000;
+  --color-incorrect: #d7c7ba;
+  --color-composing: #001a47;
+  --color-cursor: #000000;
+  --font-body: "MaruBuri";
+}
+
 * {
-  background-color: #f1e4d2;
-  font-family: "MaruBuri";
-  color: #1e3a5f;
+  background-color: var(--color-bg);
+  font-family: var(--font-body);
+  color: var(--color-text);
 }
 
 #mainBody {
   padding: 20px;
   margin: 50px;
-}
-
-#bookSelectCont {
-  text-align: center;
-  border: none;
-}
-
-.bookSelect {
-  font-size: 2rem;
-  text-align: center;
-  border: none;
 }
 
 .bookText {

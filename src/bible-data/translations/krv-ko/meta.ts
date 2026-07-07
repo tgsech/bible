@@ -10,13 +10,8 @@ export const meta: TranslationMeta = {
     {
       id: "genesis",
       name: "창세기",
+      group: "구약성경",
       versesPerChapter: [31, 2],
     },
-    {
-      id: "psalms",
-      name: "시편",
-      versesPerChapter: [6, 12],
-    },
-
   ],
 };

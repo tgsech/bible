@@ -90,16 +90,66 @@ which language each one is in.
   element without an extra wrapper `<div>`. The same pattern scrolls the
   nav buttons into view once a chapter is completed.
 
-## What's NOT done here (left for the next milestones)
+## New in this pass: dropdown redesign + theme foundation
+
+- **`BookMeta.group`** (e.g. "Old Testament" / "구약성경") drives `<optgroup>`
+  sections in the book dropdown, so it stays navigable once all 66 books are
+  populated instead of one flat list.
+- **`BookChapterSelector`** got its own CSS file: labeled fields, consistent
+  gaps, normalized `1.1rem` select sizing (was `2rem`, inherited from a
+  shared `.bookSelect` class not built for long book names).
+- **Fixed a real bug** in the process: the chapter heading and old dropdown
+  always appended Korean "장" regardless of language, so English chapters
+  were rendering "Genesis 1장". Now conditional on `translation.language`.
+- **Theme foundation**: `index.css` now defines `--color-bg`, `--color-text`,
+  `--color-untyped`, `--color-correct`, `--color-incorrect`,
+  `--color-composing`, `--color-cursor`, and `--font-body` as CSS custom
+  properties, and every component (including `VerseRow`'s inline per-letter
+  coloring) references them instead of hardcoded hex/font values. **This
+  file replaces your existing `src/index.css`.** A future theme switcher
+  becomes a matter of swapping these variable values (e.g. via a
+  `data-theme` attribute or writing to `document.documentElement.style`) -
+  no component changes needed when that milestone comes up.
+
+## Roadmap (captured, not yet built)
+
+Everything below was raised as future work. Grouping it here so it isn't
+lost, and so the dependencies between items are visible before any of it
+gets built:
+
+**Backend/account cluster** - these five all read/write against the same
+handful of tables once an account system exists, so they're worth designing
+as one schema rather than building local-storage versions piecemeal and
+migrating later:
+- `progress`: saved current spot per user (translationId/bookId/chapter/verseIndex) -
+  logged-out fallback via localStorage.
+- `saved_verses`: bookmarked verses per user.
+- Analytics dashboard: most frequent mistakes, average WPM/타수, books/chapters
+  completed, per-chapter progress - aggregates over the same
+  `correctKeystrokes`/mistakes data `useTypingSession` already tracks, just
+  needs a place to log completions.
+- `verse_sets` + `set_completions`: named collections ("Love Set", "Faith
+  Set") of book/chapter/verse ranges, plus which sets a user's completed -
+  needed for badges.
+- Leaderboard: rankings among logged-in users only, by WPM/타수/books
+  completed/badges - reads off the same accounts + progress tables.
+- Public profile pages (showcase badges, saved verses) - same account system,
+  a public-read view over the above.
+
+**Frontend-only, no backend needed:**
+- Completion animation when the last verse of a chapter is typed correctly.
+- Theme sets (font/background/text/error color bundles) - foundation is in
+  place as of this pass; building the actual picker UI + a few named bundles
+  is the remaining work.
+
+
+
+## What's still outstanding
 
 - `versesPerChapter` is only filled in for Genesis 1-2 in both sample
   translations — populating the rest of the Bible is a data-entry job, not
   a code change.
-- WPM is still calculated with the English `chars / 5` convention. Korean
-  needs its own formula (counting 자소/keystrokes, not characters) — that's
-  part of the KR/EN engine split.
-- Book-boundary wrapping on Enter/Shift+Enter is stubbed with a TODO since
-  each translation's book list is still incomplete in this demo.
-- No leaderboard/stats/theme work here — this pass is purely the data model
-  + the render-performance fix (memoized `VerseRow`, only the active verse
-  gets per-letter treatment).
+- Book-boundary wrapping on Enter/Shift+Enter/nav-buttons works, but only
+  Genesis exists in the sample data, so there's nothing to roll into yet.
+- No backend/leaderboard/analytics/badges here — see the Roadmap section
+  above for what those need.

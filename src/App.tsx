@@ -107,7 +107,7 @@ function App() {
 
       <div id="secondBody" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
         <h2 className="bookText">
-          {currentBook.name} {chapter}장
+          {currentBook.name} {currentTranslation.language === "ko" ? `${chapter}장` : `Chapter ${chapter}`}
         </h2>
 
         <ChapterView
