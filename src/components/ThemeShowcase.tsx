@@ -5,10 +5,10 @@ import "./ThemeShowcase.css";
 export function ThemeShowcase() {
   return (
     <section className="themeShowcase">
-      <h2 className="themeShowcaseTitle">Customize your look</h2>
+      <h2 className="themeShowcaseTitle">테마</h2>
       <div className="themeShowcaseColumns">
         <div className="themeShowcaseColumn">
-          <h3 className="themeShowcaseSubtitle">Color sets</h3>
+          <h3 className="themeShowcaseSubtitle">Color Sets</h3>
           <ColorPaletteGrid />
         </div>
         <div className="themeShowcaseColumn">
