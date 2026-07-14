@@ -43,6 +43,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
           const isComposingHere = i === composingIndex;
           let displayChar = char;
           let color = "var(--color-untyped)";
+          let isMistake = false;
 
           if (isComposingHere) {
             displayChar = typed[i];
@@ -50,10 +51,15 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
           } else if (i < typed.length) {
             // charMatches handles curly-quote equivalence and the
             // untypeable-character wildcard (for non-Korean text).
-            color = charMatches(typed[i], char, language) ? "var(--color-correct)" : "var(--color-incorrect)";
+            isMistake = !charMatches(typed[i], char, language);
+            color = isMistake ? "var(--color-incorrect)" : "var(--color-correct)";
           }
 
           const showCursor = i === typed.length && !isComposing;
+          // A mistyped space has no visible glyph, so coloring its text does
+          // nothing - give it a small underline instead so mistakes there
+          // are still noticeable without being flashy.
+          const isMistakenSpace = isMistake && char === " ";
 
           return (
             <span key={i} style={{ position: "relative" }}>
@@ -70,7 +76,16 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
                   }}
                 />
               )}
-              <span className="bibText" style={{ color }}>
+              <span
+                className="bibText"
+                style={{
+                  color,
+                  ...(isMistakenSpace && {
+                    borderBottom: "2px solid var(--color-incorrect)",
+                    paddingBottom: "1px",
+                  }),
+                }}
+              >
                 {displayChar}
               </span>
             </span>

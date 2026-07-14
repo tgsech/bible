@@ -186,6 +186,25 @@ migrating later:
   advancing via the modal's own continue button naturally shows a fresh
   modal on the next chapter's completion.
 
+## New in this pass: feedback fixes
+
+- **Enter no longer jumps chapters.** Feedback was that this was
+  unintuitive. `handleKeyDown`/`onKeyDown` were removed entirely from the
+  hidden input, so Enter now does whatever a plain, form-less `<input>`
+  does by default - nothing. Chapter navigation is exclusively the
+  `ChapterNav` buttons and the completion modal's continue button now.
+- **Pasting is blocked.** `onPaste={(e) => e.preventDefault()}` on the
+  hidden input. Copying, selecting text, and everything else about normal
+  input behavior is untouched - this only intercepts the paste event
+  itself, so it also catches right-click "Paste" and middle-click paste,
+  not just Ctrl/Cmd+V.
+- **Mistyped spaces are now visible.** A space glyph has no ink, so coloring
+  it "incorrect" was invisible - you could type the wrong character over a
+  space and never see feedback. `VerseRow` now adds a small underline
+  (`border-bottom`, themed via `--color-incorrect`) under a space
+  specifically when it's been mistyped, and only then - correct spaces and
+  every other character are unaffected.
+
 ## What's still outstanding
 
 - `versesPerChapter` is only filled in for Genesis 1-2 in both sample

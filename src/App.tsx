@@ -62,8 +62,9 @@ function App() {
     setChapter(next.chapter);
   };
 
-  // Shared by the nav buttons and Enter/Shift+Enter: steps a chapter within
-  // the current book, or rolls over into the next/previous book once one exists.
+  // Shared by the nav buttons and the completion modal's continue action:
+  // steps a chapter within the current book, or rolls over into the
+  // next/previous book once one exists.
   const stepChapter = (direction: 1 | -1) => {
     const targetChapter = chapter + direction;
 
@@ -94,12 +95,6 @@ function App() {
     } else {
       stepChapter(1);
     }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    stepChapter(e.shiftKey ? -1 : 1);
   };
 
   if (loading) return <div id="mainBody">Loading…</div>;
@@ -151,7 +146,7 @@ function App() {
           ref={inputRef}
           value={chapterDone ? "" : session.typed}
           onChange={(e) => handleInput(e.target.value, isComposing)}
-          onKeyDown={handleKeyDown}
+          onPaste={(e) => e.preventDefault()}
           onCompositionStart={() => {
             compositionBaselineRef.current = session.typed;
             setIsComposing(true);
