@@ -53,10 +53,10 @@ export const PALETTES: ColorPalette[] = [
     name: "Light",
     colors: {
       bg: "#fafafa",
-      text: "#484b6a",
-      correct: "#9394a5",
+      text: "#000000",
+      correct: "#484b6a",
       incorrect: "#BF3100",
-      untyped: "#e4e5f1",
+      untyped: "#484b6a",
       cursor: "#484b6a",
       composing: "#484b6a",
       },
