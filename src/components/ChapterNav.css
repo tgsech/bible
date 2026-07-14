@@ -1,11 +1,11 @@
 .chapterNav {
+  color: var(--color-bg);
   display: flex;
   justify-content: space-between;
   margin-top: 24px;
 }
 
 .chapterNav button {
-  color: var(--color-bg);
   font-size: 1rem;
   padding: 6px 14px;
   border-radius: 6px;
@@ -15,6 +15,7 @@
 }
 
 .chapterNav button:disabled {
+  color: var(--color-bg);
   opacity: 0.3;
   cursor: default;
 }
