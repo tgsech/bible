@@ -70,7 +70,7 @@ export const PALETTES: ColorPalette[] = [
       correct: "#f7f7f8",
       incorrect: "#F5BB00",
       untyped: "#a4a5b1",
-      cursor: "#f7f7f8",
+      cursor: "#F5BB00",
       composing: "#f7f7f8",
       },
   },
