@@ -1,0 +1,45 @@
+.fontPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 260px;
+}
+
+.fontPickerLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.fontPickerLabel select {
+  font-size: 1.1rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-text);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.fontSample {
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--color-text);
+}
+
+.fontSampleText {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  margin: 0 0 16px;
+}
+
+.fontSampleText:last-child {
+  margin-bottom: 0;
+}

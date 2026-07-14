@@ -1,0 +1,13 @@
+.backHomeLink {
+  position: fixed;
+  top: 16px;
+  left: 24px;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-decoration: none;
+  z-index: 10;
+}
+
+.backHomeLink:hover {
+  text-decoration: underline;
+}
