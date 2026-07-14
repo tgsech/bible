@@ -45,7 +45,7 @@ export const PALETTES: ColorPalette[] = [
       incorrect: "#E85D75",
       untyped: "#6f8cdc",
       cursor: "#F2F4F3",
-      composing: "#658E9C",
+      composing: "#F2F4F3",
       },
   },
 ];
