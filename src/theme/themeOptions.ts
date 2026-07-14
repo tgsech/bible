@@ -48,6 +48,33 @@ export const PALETTES: ColorPalette[] = [
       composing: "#F2F4F3",
       },
   },
+  {
+    id: "light",
+    name: "Light",
+    colors: {
+      bg: "#fafafa",
+      text: "#484b6a",
+      correct: "#9394a5",
+      incorrect: "#BF3100",
+      untyped: "#e4e5f1",
+      cursor: "#484b6a",
+      composing: "#484b6a",
+      },
+  },
+  {
+    id: "dark",
+    name: "Dark",
+    colors: {
+      bg: "#121215",
+      text: "#f7f7f8",
+      correct: "#9394a5",
+      incorrect: "#BF3100",
+      untyped: "#e4e5f1",
+      cursor: "#f7f7f8",
+      composing: "#f7f7f8",
+      },
+  },
+
 ];
 
 // The two fonts already declared via @font-face in index.css.
