@@ -11,7 +11,7 @@ export function LandingPage() {
     <div id="mainBody" className="landingPage">
       <header className="landingHeader">
         <h1 className="landingTitle">LivingWords</h1>
-        <p className="landingSubtitle">Type your way through Scripture.</p>
+        <p className="landingSubtitle">말씀과 함께 하는 삶~~~!</p>
       </header>
 
       <section className="languagePick">
