@@ -90,6 +90,28 @@ which language each one is in.
   element without an extra wrapper `<div>`. The same pattern scrolls the
   nav buttons into view once a chapter is completed.
 
+## New in this pass: completion modal
+
+- **`src/typing/stats.ts`** pulls the WPM/타수 + accuracy formula out of
+  `LiveStats` into `computeTypingStats()`, so the live corner display and
+  the completion modal's final numbers are guaranteed to agree - one
+  formula, two call sites, rather than a second copy that could quietly
+  drift out of sync.
+- **`CompletionModal`** shows when the last verse of a chapter is typed
+  correctly: a dimmed full-screen overlay, a card that pops in with a
+  slight overshoot (`cubic-bezier(0.34, 1.56, 0.64, 1)` - the "satisfying"
+  bounce), the final WPM/타수 + accuracy for that chapter, and a localized
+  message ("Done!" / "수고했어요!") based on the translation's language.
+  The continue button advances to the next chapter if one exists, or just
+  closes the modal if this was the last available chapter (there's nothing
+  to advance into yet since only Genesis is populated).
+- **`extras?: ReactNode` prop** on `CompletionModal` is intentionally unused
+  for now - it's the slot where a badge-earned indicator, a streak counter,
+  or a share button can be dropped in later without touching the modal's
+  layout, animation, or overlay logic.
+- Everything here is theme-variable driven (`--color-bg`, `--color-text`),
+  so it inherits from whatever the future theme picker sets.
+
 ## New in this pass: dropdown redesign + theme foundation
 
 - **`BookMeta.group`** (e.g. "Old Testament" / "구약성경") drives `<optgroup>`
@@ -143,6 +165,26 @@ migrating later:
   is the remaining work.
 
 
+
+## New in this pass: completion animation
+
+- **`src/typing/stats.ts`** holds `computeTypingStats`, the exact same
+  speed/accuracy formula `LiveStats` uses for its live ticking display -
+  factored out so the completion modal shows the *identical* final number,
+  not a second copy of the math that could quietly drift.
+- **`CompletionModal`** shows on chapter completion: a dimmed full-screen
+  overlay, a pop-in card (scale + fade, spring easing) with final
+  speed/accuracy and a language-appropriate message ("Done!" / "수고했어요!"),
+  and a single continue button that either advances to the next chapter or
+  closes the modal if this was the last chapter in the translation.
+- It takes an `extras` slot (currently unused) reserved for whatever comes
+  next in the roadmap - a badge earned this session, a streak counter, a
+  share button - without needing to touch the modal's layout or animation
+  when that lands.
+- Dismissing and re-triggering is tracked with a `modalDismissed` flag in
+  `App.tsx` that resets whenever the chapter/book/translation changes, so
+  advancing via the modal's own continue button naturally shows a fresh
+  modal on the next chapter's completion.
 
 ## What's still outstanding
 
