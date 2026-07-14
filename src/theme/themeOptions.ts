@@ -45,7 +45,7 @@ export const PALETTES: ColorPalette[] = [
       incorrect: "#E85D75",
       untyped: "#6f8cdc",
       cursor: "#F2F4F3",
-      composing: "#c7dbe0",
+      composing: "#658E9C",
       },
   },
 ];
@@ -54,4 +54,6 @@ export const PALETTES: ColorPalette[] = [
 export const FONTS: FontOption[] = [
   { id: "marubu", name: "MaruBuri", cssFontFamily: '"MaruBuri"' },
   { id: "ownglyph", name: "Ownglyph ParkDaHyun", cssFontFamily: '"OngleipParkDahyeon"' },
+  { id: "notosanskr", name: "Noto Sans KR", cssFontFamily: '"Noto Sans KR"' },
+  { id: "nanumsqrneo", name: "Nanum Square Neo", cssFontFamily: '"NanumSquareNeo"' },
 ];
