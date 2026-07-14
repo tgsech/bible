@@ -66,8 +66,8 @@ export const PALETTES: ColorPalette[] = [
     name: "Dark",
     colors: {
       bg: "#121215",
-      text: "#f7f7f8",
-      correct: "#9394a5",
+      text: "#a4a5b1",
+      correct: "#f7f7f8",
       incorrect: "#F5BB00",
       untyped: "#a4a5b1",
       cursor: "#f7f7f8",
