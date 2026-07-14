@@ -2,10 +2,12 @@
 
 ## How to integrate
 
-1. Copy `src/bible-data/`, `src/hooks/`, and `src/components/` into your project's `src/`.
-2. Replace your existing `src/App.tsx` with the one here (or merge — the JSX/CSS
-   class names are unchanged from your original, so `index.css`/`App.css` need no edits).
-3. You can delete `src/verseSample.ts` and `src/assets/engBib/gen.ts` once you've
+1. Run `npm install react-router-dom` in your project.
+2. Copy `src/bible-data/`, `src/hooks/`, `src/typing/`, `src/theme/`,
+   `src/components/`, and `src/pages/` into your project's `src/`.
+3. Replace your existing `src/App.tsx`, `src/main.tsx`, and `src/index.css`
+   with the ones here.
+4. You can delete `src/verseSample.ts` and `src/assets/engBib/gen.ts` once you've
    migrated any content you still want out of them into the new JSON format.
 
 ## Adding a chapter
@@ -204,6 +206,48 @@ migrating later:
   (`border-bottom`, themed via `--color-incorrect`) under a space
   specifically when it's been mistyped, and only then - correct spaces and
   every other character are unaffected.
+
+## New in this pass: landing page, routing, and theme showcase foundation
+
+**New dependency**: this pass introduces real page navigation via
+`react-router-dom`. Run `npm install react-router-dom` in your project before
+using these files.
+
+- **The app now has three pages** instead of dropping straight into the
+  typing engine: `LandingPage` (`/`), `ReadPage` (`/read/:translationId/:bookId/:chapter`,
+  the typing engine itself - moved here verbatim from the old `App.tsx`,
+  just reading its state from the URL instead of local `useState`), and a
+  placeholder `AboutPage` (`/about`) for the translation-credit accreditation
+  you mentioned wanting later. `App.tsx` is now just the router shell;
+  `main.tsx` wraps it in `BrowserRouter`.
+- **Landing page** has a language quick-pick (two buttons linking straight
+  into Genesis 1 of each translation) and a per-translation book list -
+  both link directly into `/read/...` URLs, so picking a book is one click
+  to the typing screen. A small "← Home" link was added to `ReadPage` so
+  there's a way back once you've moved past the point-and-click part.
+- **Theme showcase** (`ThemeShowcase`, at the bottom of the landing page)
+  has two halves as asked: `ColorPaletteGrid` on one side, `FontPicker` on
+  the other.
+  - Each palette card uses its own backdrop color as its background, with
+    labeled circular swatches (Text/Correct/Error/Untyped) centered
+    horizontally underneath the palette name. `PALETTES` in
+    `theme/themeOptions.ts` currently holds one entry ("Original," matching
+    the app's current look) - deliberately a small, hand-curated array you
+    add to directly, not a color-picker/builder.
+  - `FontPicker` is a dropdown over the two fonts already declared via
+    `@font-face` in `index.css`, with a live sample block below it rendered
+    in whichever font is selected - the Korean John 10:14-15 verse you gave,
+    plus the matching NIV 2011 English text (verified against NIV sources
+    rather than typed from memory, since exact wording matters for an app
+    that grades typing accuracy against it).
+  - **Selecting a palette or font actually applies it app-wide**, via
+    `ThemeContext` writing CSS custom properties onto `:root` - every
+    component that already reads `--color-*`/`--font-body` (including
+    `VerseRow`'s per-letter coloring) picks the change up with zero
+    per-component wiring. This is in-memory only for now (resets on reload) -
+    the natural place to add `localStorage` or account-synced persistence
+    once that milestone comes up, without changing how components consume
+    the theme.
 
 ## What's still outstanding
 
