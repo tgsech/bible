@@ -1,7 +1,12 @@
+#mainBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .landingPage {
   max-width: 900px;
   margin: 0 auto;
-  text-align: center;
 }
 
 .landingHeader {

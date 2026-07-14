@@ -35,6 +35,19 @@ export const PALETTES: ColorPalette[] = [
       composing: "#001a47",
     },
   },
+  {
+    id: "midnight",
+    name: "Midnight",
+    colors: {
+      bg: "#242331",
+      text: "#658E9C",
+      correct: "#F2F4F3",
+      incorrect: "#E85D75",
+      untyped: "#6f8cdc",
+      cursor: "#F2F4F3",
+      composing: "#001a47",
+      },
+  },
 ];
 
 // The two fonts already declared via @font-face in index.css.
