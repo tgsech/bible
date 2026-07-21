@@ -40,7 +40,7 @@
 
 body {
   background-color: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-correct);
 }
 
 * {
