@@ -27,15 +27,14 @@
 }
 
 
-
 :root {
-  --color-bg: #f1e4d2;
-  --color-text: #1e3a5f;
-  --color-untyped: #6f8cdc;
-  --color-correct: #000000;
-  --color-incorrect: #d7c7ba;
-  --color-composing: #001a47;
-  --color-cursor: #000000;
+  --color-bg: #F1E4D2;
+  --color-text: #A28F79;
+  --color-correct: #1E3A5F;
+  --color-incorrect: #D32F2F;
+  --color-untyped: #6F8CDC;
+  --color-cursor: #1E3A5F;
+  --color-composing: #0B2240;
   --font-body: "MaruBuri";
 }
 
