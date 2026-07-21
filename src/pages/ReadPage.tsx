@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useChapter } from "../hooks/useChapter";
 import { useTypingSession } from "../hooks/useTypingSession";
+import { useProgress } from "../hooks/useProgress";
 import { computeTypingStats } from "../typing/stats";
 import { ChapterView } from "../components/ChapterView";
 import { BookChapterSelector } from "../components/BookChapterSelector";
@@ -49,6 +50,16 @@ export function ReadPage() {
   useEffect(() => {
     inputRef.current?.focus({ preventScroll: true });
   }, [bookId, chapter]);
+
+  // Save current position (guest -> localStorage always, logged-in user ->
+  // also debounced to the server) any time the reader's actual location
+  // changes: switching chapter/book/translation, or advancing to a new
+  // verse within the current chapter.
+  const { saveProgress } = useProgress();
+  useEffect(() => {
+    if (!data) return; // don't save a position before the chapter has loaded
+    saveProgress({ translationId, bookId, chapter, verseIndex: session.verseIndex });
+  }, [translationId, bookId, chapter, session.verseIndex, data, saveProgress]);
 
   const chapterDone = session.endTime !== null;
   const showCompletionModal = chapterDone && !modalDismissed;
