@@ -1,0 +1,57 @@
+.profilePage {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 64px 24px 48px;
+}
+
+.profileSection {
+  margin-top: 32px;
+}
+
+.profileSection h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-text);
+  border-radius: 8px;
+}
+
+.statValue {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.completionsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.completionsTable th,
+.completionsTable td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--color-text);
+  font-size: 0.9rem;
+}
+
+.completionsTable th {
+  opacity: 0.7;
+  font-weight: 500;
+}

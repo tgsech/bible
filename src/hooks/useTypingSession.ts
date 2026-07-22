@@ -27,12 +27,44 @@ const initialSession: TypingSession = {
   totalKeystrokes: 0,
 };
 
+interface ResumeState {
+  verseIndex: number;
+  typed: string;
+}
+
 export function useTypingSession(verses: string[], language: string) {
   const [session, setSession] = useState<TypingSession>(initialSession);
 
-  const reset = useCallback(() => {
-    setSession(initialSession);
-  }, []);
+  // Called with no args for a genuinely fresh chapter. Called with a
+  // ResumeState to restore a previously-saved position: `completedTyped`
+  // only needs the right *length* (nothing downstream reads its contents,
+  // only .length — see ChapterView), so it's backfilled with placeholders
+  // rather than the verses' real original typed text, which was never
+  // saved. Keystroke counters intentionally stay at zero on resume: we
+  // don't have the original per-keystroke history, so this sitting's
+  // wpm/accuracy only reflects typing from the resume point forward.
+  const reset = useCallback((resume?: ResumeState) => {
+    if (!resume || resume.verseIndex === 0) {
+      setSession(initialSession);
+      return;
+    }
+    const lastIndex = Math.max(verses.length - 1, 0);
+    const clampedIndex = Math.min(resume.verseIndex, lastIndex);
+    const verseText = verses[clampedIndex] ?? "";
+    // If the resume position lands on the last verse with that verse
+    // already fully typed, this chapter was finished before — resume it
+    // as done rather than leaving the input waiting for a keystroke that
+    // can never come (there's nowhere left to type).
+    const alreadyComplete = clampedIndex === lastIndex && resume.typed.length >= verseText.length;
+
+    setSession({
+      ...initialSession,
+      verseIndex: clampedIndex,
+      typed: alreadyComplete ? "" : resume.typed,
+      completedTyped: Array(alreadyComplete ? verses.length : clampedIndex).fill(""),
+      endTime: alreadyComplete ? Date.now() : null,
+    });
+  }, [verses]);
 
   const weightOf = useCallback(
     (char: string) => (language === "ko" ? keystrokesForChar(char) : 1),

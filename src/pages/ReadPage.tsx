@@ -4,6 +4,7 @@ import { useChapter } from "../hooks/useChapter";
 import { useTypingSession } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
 import { computeTypingStats } from "../typing/stats";
+import { api } from "../lib/api";
 import { ChapterView } from "../components/ChapterView";
 import { BookChapterSelector } from "../components/BookChapterSelector";
 import { ChapterNav } from "../components/ChapterNav";
@@ -39,34 +40,91 @@ export function ReadPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const chapterNavRef = useRef<HTMLDivElement>(null);
 
-  // New chapter/book/translation -> fresh typing session and a fresh chance
-  // to see the completion modal on this chapter.
   const [modalDismissed, setModalDismissed] = useState(false);
   useEffect(() => {
-    reset();
     setModalDismissed(false);
-  }, [translationId, bookId, chapter, reset]);
+  }, [translationId, bookId, chapter]);
 
   useEffect(() => {
     inputRef.current?.focus({ preventScroll: true });
   }, [bookId, chapter]);
 
-  // Save current position (guest -> localStorage always, logged-in user ->
-  // also debounced to the server) any time the reader's actual location
-  // changes: switching chapter/book/translation, or advancing to a new
-  // verse within the current chapter.
-  const { saveProgress } = useProgress();
+  const { saveProgress, loadProgress, isLoggedIn } = useProgress();
+
+  // Every chapter switch needs one hydration pass: fetch whatever was saved
+  // for THIS specific chapter, then initialize the typing session from it
+  // instead of always starting blank. hydratedRef gates both "don't
+  // hydrate twice for the same chapter" and "don't let the save effect
+  // below fire before hydration has actually happened" (which would
+  // overwrite real saved progress with a blank state).
+  const hydratedRef = useRef(false);
   useEffect(() => {
-    if (!data) return; // don't save a position before the chapter has loaded
-    saveProgress({ translationId, bookId, chapter, verseIndex: session.verseIndex });
-  }, [translationId, bookId, chapter, session.verseIndex, data, saveProgress]);
+    hydratedRef.current = false;
+  }, [translationId, bookId, chapter]);
+
+  useEffect(() => {
+    if (!data || hydratedRef.current) return;
+    let cancelled = false;
+
+    loadProgress(translationId, bookId, chapter).then((resume) => {
+      if (cancelled) return;
+      reset(resume ? { verseIndex: resume.verseIndex, typed: resume.typedSoFar } : undefined);
+      hydratedRef.current = true;
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [data, translationId, bookId, chapter, loadProgress, reset]);
+
+  // Save current position any time it actually changes: new verse, or
+  // still typing within the current one. Gated on hydratedRef so this
+  // never fires with the pre-hydration blank state and stomps real saved
+  // progress the instant a chapter loads.
+  useEffect(() => {
+    if (!data || !hydratedRef.current) return;
+    saveProgress(translationId, bookId, chapter, {
+      verseIndex: session.verseIndex,
+      typedSoFar: session.typed,
+    });
+  }, [translationId, bookId, chapter, session.verseIndex, session.typed, data, saveProgress]);
 
   const chapterDone = session.endTime !== null;
-  const showCompletionModal = chapterDone && !modalDismissed;
+  // session.startTime only gets set by actually typing (see
+  // useTypingSession). A chapter resumed already-complete from a previous
+  // sitting has startTime: null, so this correctly skips the modal for
+  // that case while still showing it the moment someone genuinely finishes
+  // a chapter right now.
+  const showCompletionModal = chapterDone && session.startTime !== null && !modalDismissed;
+
+  // Log the completion to the account (times completed, running wpm/accuracy
+  // average, streak) exactly once per finish. completionSubmittedRef keeps a
+  // re-render from firing this twice, and it's skipped entirely for guests —
+  // there's nothing to attach a completion to without an account.
+  const completionSubmittedRef = useRef(false);
+  useEffect(() => {
+    completionSubmittedRef.current = false;
+  }, [translationId, bookId, chapter]);
 
   useEffect(() => {
-    // Bring the nav buttons / completion state into view once the last
-    // verse is finished, same "page down" behavior as advancing verses.
+    if (!chapterDone || session.startTime === null || completionSubmittedRef.current) return;
+    if (!isLoggedIn) return;
+    completionSubmittedRef.current = true;
+
+    const elapsedMs = session.endTime! - session.startTime;
+    const stats = computeTypingStats(
+      session.correctKeystrokes,
+      session.totalKeystrokes,
+      elapsedMs,
+      currentTranslation.language
+    );
+    api
+      .post("/completions", { translationId, bookId, chapter, wpm: stats.speed, accuracy: stats.accuracy })
+      .catch((err) => console.error("Failed to log completion", err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapterDone, session.startTime]);
+
+  useEffect(() => {
     if (chapterDone) {
       chapterNavRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
@@ -76,9 +134,6 @@ export function ReadPage() {
     navigate(`/read/${next.translationId}/${next.bookId}/${next.chapter}`);
   };
 
-  // Shared by the nav buttons and the completion modal's continue action:
-  // steps a chapter within the current book, or rolls over into the
-  // next/previous book once one exists.
   const stepChapter = (direction: 1 | -1) => {
     const targetChapter = chapter + direction;
 
@@ -88,7 +143,7 @@ export function ReadPage() {
     }
 
     const targetBook = currentTranslation.books[currentBookIndex + direction];
-    if (!targetBook) return; // already at the start/end of this translation
+    if (!targetBook) return;
 
     const targetBookChapter = direction === 1 ? 1 : targetBook.versesPerChapter.length;
     goToChapter({ translationId, bookId: targetBook.id, chapter: targetBookChapter });
@@ -99,16 +154,22 @@ export function ReadPage() {
     currentBookIndex === currentTranslation.books.length - 1 &&
     chapter === currentBook.versesPerChapter.length;
 
-  // If there's a next chapter, the modal's continue button advances to it
-  // (which also naturally resets modalDismissed via the effect above). If
-  // this is the last chapter available, it just closes the modal so the
-  // person can review what they typed.
   const handleModalContinue = () => {
     if (isAtEnd) {
       setModalDismissed(true);
     } else {
       stepChapter(1);
     }
+  };
+
+  // Manual "go back and rewrite" escape hatch: a finished chapter (whether
+  // just now or resumed from a prior sitting) blocks the input since
+  // there's nowhere left to type. This clears the session back to blank so
+  // they can deliberately retype it; the save effect above then persists
+  // that reset the next tick, same as any other position change.
+  const handleRetype = () => {
+    reset();
+    setModalDismissed(false);
   };
 
   if (loading) return <div id="mainBody">Loading…</div>;
@@ -184,6 +245,11 @@ export function ReadPage() {
             disablePrev={isAtStart}
             disableNext={isAtEnd}
           />
+          {chapterDone && (
+            <button type="button" onClick={handleRetype} className="retypeButton">
+              {isKorean ? "다시 쓰기" : "Retype this chapter"}
+            </button>
+          )}
         </div>
       </div>
 

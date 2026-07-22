@@ -42,6 +42,8 @@ export function LandingPage() {
       <ThemeShowcase />
 
       <footer className="landingFooter">
+        <Link to="/profile">Profile</Link>
+        {" · "}
         <Link to="/about">About &amp; translation credits</Link>
       </footer>
     </div>

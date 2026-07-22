@@ -3,6 +3,7 @@ import { ThemeProvider } from "./theme/ThemeContext";
 import { LandingPage } from "./pages/LandingPage";
 import { ReadPage } from "./pages/ReadPage";
 import { AboutPage } from "./pages/AboutPage";
+import { ProfilePage } from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/read/:translationId/:bookId/:chapter" element={<ReadPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </ThemeProvider>
   );

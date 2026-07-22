@@ -5,27 +5,48 @@ import { api } from "../lib/api";
 const GUEST_KEY = "livingwords:guest-progress";
 const SAVE_DEBOUNCE_MS = 800;
 
-interface ProgressPosition {
+export interface ChapterPosition {
+  verseIndex: number;
+  typedSoFar: string;
+}
+
+interface GuestEntry extends ChapterPosition {
   translationId: string;
   bookId: string;
   chapter: number;
-  verseIndex: number;
+  updatedAt: number;
 }
 
-function readGuestProgress(): ProgressPosition | null {
+type GuestStore = Record<string, GuestEntry>; // key: "translationId:bookId:chapter"
+
+const guestKey = (translationId: string, bookId: string, chapter: number) =>
+  `${translationId}:${bookId}:${chapter}`;
+
+function readGuestStore(): GuestStore {
   try {
     const raw = localStorage.getItem(GUEST_KEY);
-    return raw ? JSON.parse(raw) : null;
+    return raw ? JSON.parse(raw) : {};
   } catch {
-    return null; // localStorage unavailable (private browsing, quota, etc.)
+    return {};
   }
 }
 
-function writeGuestProgress(position: ProgressPosition) {
+function writeGuestEntry(entry: GuestEntry) {
   try {
-    localStorage.setItem(GUEST_KEY, JSON.stringify(position));
+    const store = readGuestStore();
+    store[guestKey(entry.translationId, entry.bookId, entry.chapter)] = entry;
+    localStorage.setItem(GUEST_KEY, JSON.stringify(store));
   } catch {
-    // not fatal — progress just won't survive a reload for this guest
+    // localStorage unavailable (private browsing, quota) — not fatal,
+    // progress just won't survive a reload for this guest
+  }
+}
+
+function clearGuestStore() {
+  try {
+    localStorage.removeItem(GUEST_KEY);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -34,54 +55,62 @@ export function useProgress() {
   const hasMergedRef = useRef(false);
   const saveTimeoutRef = useRef<number | undefined>(undefined);
 
-  // Runs once, the moment a session first appears (i.e. right after
-  // sign-in). Sends whatever was sitting in localStorage; the backend only
-  // applies it if the account has no saved progress yet, so this is safe
-  // to fire unconditionally on every login, not just the first one.
+  // Fires once, right after a session first appears. Pushes every chapter
+  // sitting in localStorage; the backend only applies entries for chapters
+  // that don't already have saved progress on the account, so this is safe
+  // to fire on every login, not just the very first one.
   useEffect(() => {
     if (!session || hasMergedRef.current) return;
     hasMergedRef.current = true;
 
-    const guest = readGuestProgress();
-    if (guest) {
-      api.post("/progress/merge", guest).catch((err) => {
-        console.error("Failed to merge guest progress", err);
-      });
-    }
+    const store = readGuestStore();
+    const entries = Object.values(store);
+    if (entries.length === 0) return;
+
+    api
+      .post("/progress/merge", entries.map(({ updatedAt: _updatedAt, ...rest }) => rest))
+      .then(() => clearGuestStore())
+      .catch((err) => console.error("Failed to merge guest progress", err));
   }, [session]);
 
-  // Always writes to localStorage immediately (so guests never lose their
-  // spot), and — only if logged in — also debounces a save to the server so
-  // rapid verse-by-verse advances don't fire a request each time.
+  // Always writes to localStorage immediately (guests never lose their
+  // spot even without an account). If logged in, also debounce-saves to
+  // the server for this specific chapter — saving Exodus never touches
+  // whatever's saved for Genesis, since each chapter is its own row.
   const saveProgress = useCallback(
-    (position: ProgressPosition) => {
-      writeGuestProgress(position);
+    (translationId: string, bookId: string, chapter: number, position: ChapterPosition) => {
+      writeGuestEntry({ translationId, bookId, chapter, ...position, updatedAt: Date.now() });
       if (!session) return;
 
       window.clearTimeout(saveTimeoutRef.current);
       saveTimeoutRef.current = window.setTimeout(() => {
-        api.put("/progress", position).catch((err) => {
-          console.error("Failed to save progress", err);
-        });
+        api
+          .put(`/progress/${translationId}/${bookId}/${chapter}`, position)
+          .catch((err) => console.error("Failed to save progress", err));
       }, SAVE_DEBOUNCE_MS);
     },
     [session]
   );
 
-  // For a future "continue where you left off" on the landing page: prefers
-  // the server's copy when logged in, falls back to the guest copy
-  // otherwise. Not wired into any UI yet — safe to call whenever that lands.
-  const loadProgress = useCallback(async (): Promise<ProgressPosition | null> => {
-    if (session) {
-      try {
-        const serverProgress = await api.get<ProgressPosition>("/progress");
-        if (serverProgress) return serverProgress;
-      } catch (err) {
-        console.error("Failed to load server progress", err);
+  // Saved position for one specific chapter — this is what ReadPage calls
+  // on mount to decide whether to resume mid-chapter. Server copy wins
+  // when logged in (a second device may have moved further); guest copy
+  // otherwise.
+  const loadProgress = useCallback(
+    async (translationId: string, bookId: string, chapter: number): Promise<ChapterPosition | null> => {
+      if (session) {
+        try {
+          const server = await api.get<ChapterPosition>(`/progress/${translationId}/${bookId}/${chapter}`);
+          if (server) return { verseIndex: server.verseIndex, typedSoFar: server.typedSoFar };
+        } catch (err) {
+          console.error("Failed to load server progress", err);
+        }
       }
-    }
-    return readGuestProgress();
-  }, [session]);
+      const guest = readGuestStore()[guestKey(translationId, bookId, chapter)];
+      return guest ? { verseIndex: guest.verseIndex, typedSoFar: guest.typedSoFar } : null;
+    },
+    [session]
+  );
 
   return { saveProgress, loadProgress, isLoggedIn: !!session };
 }
