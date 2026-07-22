@@ -4,6 +4,33 @@
   padding: 64px 24px 48px;
 }
 
+.profileHeaderRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profileSignOut {
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.profileSignOut:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.profileSignInLink {
+  color: var(--color-text);
+}
+
 .profileSection {
   margin-top: 32px;
 }

@@ -2,13 +2,43 @@ import { Link } from "react-router-dom";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import { ThemeShowcase } from "../components/ThemeShowcase";
+import { authClient, useSession } from "../lib/authClient";
 import "./LandingPage.css";
 
 const TRANSLATIONS = [nivEn, krvKo];
 
+function AuthBar() {
+  const { data: session, isPending } = useSession();
+
+  if (isPending) return null;
+
+  if (!session) {
+    return (
+      <div className="authBar">
+        <Link to="/auth" className="authBarLink">
+          Sign in
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="authBar">
+      <Link to="/profile" className="authBarLink">
+        {session.user.name}
+      </Link>
+      <button type="button" className="authBarSignOut" onClick={() => authClient.signOut()}>
+        Sign out
+      </button>
+    </div>
+  );
+}
+
 export function LandingPage() {
   return (
     <div id="mainBody" className="landingPage">
+      <AuthBar />
+
       <header className="landingHeader">
         <h1 className="landingTitle">LivingWords</h1>
         <p className="landingSubtitle">말씀과 함께하는 삶~~~!</p>

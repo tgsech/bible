@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useSession } from "../lib/authClient";
+import { authClient, useSession } from "../lib/authClient";
 import { api } from "../lib/api";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
@@ -75,6 +75,10 @@ export function ProfilePage() {
       <div id="mainBody" className="profilePage">
         <h1>Profile</h1>
         <p>Sign in to see your saved progress, stats, and completions here.</p>
+        <Link to="/auth" className="profileSignInLink">
+          Sign in
+        </Link>
+        {" · "}
         <Link to="/">← Back home</Link>
       </div>
     );
@@ -98,7 +102,12 @@ export function ProfilePage() {
         ← Home
       </Link>
 
-      <h1>{session.user.name}'s Profile</h1>
+      <div className="profileHeaderRow">
+        <h1>{session.user.name}'s Profile</h1>
+        <button type="button" className="profileSignOut" onClick={() => authClient.signOut()}>
+          Sign out
+        </button>
+      </div>
 
       <section className="profileSection">
         <h2>Currently reading</h2>

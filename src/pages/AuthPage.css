@@ -1,0 +1,118 @@
+.authPage {
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 64px 24px 48px;
+}
+
+.authTitle {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 32px;
+}
+
+.authTabs {
+  display: flex;
+  border: 1px solid var(--color-text);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.authTab {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--color-text);
+  border: none;
+  cursor: pointer;
+}
+
+.authTab--active {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.authField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.authField input {
+  font-size: 1rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-text);
+  background: var(--color-bg);
+  color: var(--color-correct);
+}
+
+.authField input:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+.authError {
+  color: var(--color-incorrect);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.authSubmit {
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid var(--color-text);
+  background: var(--color-text);
+  color: var(--color-bg);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.authSubmit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.authDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+.authDivider::before,
+.authDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-text);
+}
+
+.authGoogleButton {
+  width: 100%;
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.authGoogleButton:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
