@@ -74,6 +74,8 @@ export function LandingPage() {
       <footer className="landingFooter">
         <Link to="/profile">Profile</Link>
         {" · "}
+        <Link to="/leaderboard">Leaderboard</Link>
+        {" · "}
         <Link to="/about">About &amp; translation credits</Link>
       </footer>
     </div>

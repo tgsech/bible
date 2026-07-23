@@ -1,0 +1,84 @@
+.leaderboardPage {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 64px 24px 48px;
+}
+
+.leaderboardIntro {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.leaderboardIntro a {
+  color: inherit;
+}
+
+.boardTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.boardTab {
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.boardTab:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.boardTabActive {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.boardBlurb {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboardTable th,
+.leaderboardTable td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--color-text);
+  font-size: 0.9rem;
+}
+
+.leaderboardTable th {
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.rankCol {
+  width: 2.5em;
+}
+
+.valueCol {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.leaderboardRowSelf {
+  font-weight: 700;
+}
+
+.leaderboardRowSelf td {
+  color: var(--color-correct);
+}

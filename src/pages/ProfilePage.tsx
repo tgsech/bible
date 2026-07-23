@@ -120,6 +120,10 @@ export function ProfilePage() {
       <Link to="/" className="backHomeLink">
         ← Home
       </Link>
+      {" · "}
+      <Link to="/leaderboard" className="backHomeLink">
+        Leaderboard
+      </Link>
 
       <div className="profileHeaderRow">
         <h1>{settings.username ?? session.user.name}'s Profile</h1>
