@@ -1,0 +1,82 @@
+// Maps this app's bookId (used in URLs, file paths, and meta.ts book
+// entries - e.g. "genesis", "psalms") to the 3-letter USFM code YouVersion's
+// API addresses books by (e.g. "GEN", "PSA"). These codes are a fixed,
+// public standard (Paratext/USFM) - not something that changes - so it's
+// fine to hardcode them here.
+//
+// The keys below assume single-word lowercase ids, matching genesis/psalms/
+// ecclesiastes in your existing meta.ts files. For the numbered books
+// (1 Samuel, 2 Corinthians, etc.) I've guessed "1samuel"-style ids since
+// there's no existing example to match - rename these keys to whatever id
+// convention you actually use when you add those books.
+export const USFM_BY_BOOK_ID: Record<string, string> = {
+  // Old Testament
+  genesis: "GEN",
+  exodus: "EXO",
+  leviticus: "LEV",
+  numbers: "NUM",
+  deuteronomy: "DEU",
+  joshua: "JOS",
+  judges: "JDG",
+  ruth: "RUT",
+  "1samuel": "1SA",
+  "2samuel": "2SA",
+  "1kings": "1KI",
+  "2kings": "2KI",
+  "1chronicles": "1CH",
+  "2chronicles": "2CH",
+  ezra: "EZR",
+  nehemiah: "NEH",
+  esther: "EST",
+  job: "JOB",
+  psalms: "PSA",
+  proverbs: "PRO",
+  ecclesiastes: "ECC",
+  songofsongs: "SNG",
+  isaiah: "ISA",
+  jeremiah: "JER",
+  lamentations: "LAM",
+  ezekiel: "EZK",
+  daniel: "DAN",
+  hosea: "HOS",
+  joel: "JOL",
+  amos: "AMO",
+  obadiah: "OBA",
+  jonah: "JON",
+  micah: "MIC",
+  nahum: "NAM",
+  habakkuk: "HAB",
+  zephaniah: "ZEP",
+  haggai: "HAG",
+  zechariah: "ZEC",
+  malachi: "MAL",
+
+  // New Testament
+  matthew: "MAT",
+  mark: "MRK",
+  luke: "LUK",
+  john: "JHN",
+  acts: "ACT",
+  romans: "ROM",
+  "1corinthians": "1CO",
+  "2corinthians": "2CO",
+  galatians: "GAL",
+  ephesians: "EPH",
+  philippians: "PHP",
+  colossians: "COL",
+  "1thessalonians": "1TH",
+  "2thessalonians": "2TH",
+  "1timothy": "1TI",
+  "2timothy": "2TI",
+  titus: "TIT",
+  philemon: "PHM",
+  hebrews: "HEB",
+  james: "JAS",
+  "1peter": "1PE",
+  "2peter": "2PE",
+  "1john": "1JN",
+  "2john": "2JN",
+  "3john": "3JN",
+  jude: "JUD",
+  revelation: "REV",
+};

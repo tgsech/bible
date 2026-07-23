@@ -2,17 +2,24 @@
 // many chapters does this translation have right now", consumed by the
 // backend's leaderboard ("finished the whole Bible" board) over HTTP.
 //
-// Deliberately does NOT read meta.ts's `versesPerChapter` arrays. Those can
-// drift from what chapter files actually exist (someone adds a chapter file
-// and forgets to extend the array, or vice versa). Counting the actual
-// `books/<book>/*.json` files on disk is the same thing loader.ts's
-// `import.meta.glob` picks up, so this can never be out of sync with what
-// the app can actually load and serve.
+// For bundled translations, this deliberately does NOT read meta.ts's
+// `versesPerChapter` arrays. Those can drift from what chapter files
+// actually exist (someone adds a chapter file and forgets to extend the
+// array, or vice versa). Counting the actual `books/<book>/*.json` files on
+// disk is the same thing loader.ts's `import.meta.glob` picks up, so this
+// can never be out of sync with what the app can actually load and serve.
+//
+// API-backed translations (see niv-en/meta.ts's `youVersionId`) have no
+// `books/` directory at all - there's nothing on disk to count. For those,
+// `chapter-counts.json` sitting next to meta.ts is the actual single
+// source of truth (meta.ts imports the same file), so this script reads it
+// directly instead. It's plain JSON rather than meta.ts itself because this
+// script runs under plain `node`, which can't import a .ts file.
 //
 // Runs automatically before `dev` and `build` (see package.json's
 // `predev`/`prebuild` scripts) — nobody needs to remember to run this by
 // hand when a chapter or book is added.
-import { readdirSync, statSync, mkdirSync, writeFileSync } from "node:fs";
+import { readdirSync, statSync, existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -32,15 +39,23 @@ const entries = [];
 
 for (const translationId of readdirSync(translationsDir)) {
   const booksDir = join(translationsDir, translationId, "books");
-  if (!isDir(booksDir)) continue;
 
-  let totalChapters = 0;
-  for (const bookId of readdirSync(booksDir)) {
-    const bookDir = join(booksDir, bookId);
-    if (!isDir(bookDir)) continue;
-    totalChapters += readdirSync(bookDir).filter((f) => f.endsWith(".json")).length;
+  if (isDir(booksDir)) {
+    let totalChapters = 0;
+    for (const bookId of readdirSync(booksDir)) {
+      const bookDir = join(booksDir, bookId);
+      if (!isDir(bookDir)) continue;
+      totalChapters += readdirSync(bookDir).filter((f) => f.endsWith(".json")).length;
+    }
+    entries.push({ id: translationId, totalChapters });
+    continue;
   }
 
+  const countsPath = join(translationsDir, translationId, "chapter-counts.json");
+  if (!existsSync(countsPath)) continue; // not a translation dir at all
+
+  const counts = JSON.parse(readFileSync(countsPath, "utf-8"));
+  const totalChapters = Object.values(counts).reduce((sum, perChapter) => sum + perChapter.length, 0);
   entries.push({ id: translationId, totalChapters });
 }
 

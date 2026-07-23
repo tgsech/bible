@@ -10,6 +10,12 @@ export interface TranslationMeta {
   language: "en" | "ko" | string;
   name: string; // e.g. "New International Version"
   books: BookMeta[];
+  // Present only for translations served live from the YouVersion Platform
+  // API instead of bundled JSON files (see bible-data/loader.ts and the
+  // backend's /api/bible route). When set, this is the YouVersion "Bible
+  // version" id to request - find it via `GET /v1/bibles` once you've
+  // accepted that version's license in the YouVersion dev dashboard.
+  youVersionId?: number;
 }
 
 export interface ChapterData {
