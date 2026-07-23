@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://bible-backend.jeungyena.workers.dev";
 
 // The backend mounts every non-auth route under /api (see src/index.ts:
 // app.route('/api/profile', ...), app.route('/api/progress', ...), etc.)
