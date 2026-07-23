@@ -56,9 +56,16 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
           }
 
           const showCursor = i === typed.length && !isComposing;
-          // A mistyped space has no visible glyph, so coloring its text does
-          // nothing - give it a small underline instead so mistakes there
-          // are still noticeable without being flashy.
+          // A mistyped space has no visible glyph of its own, so a border or
+          // background on it isn't reliable by default: when that space
+          // happens to be the one a soft line-wrap breaks on, normal CSS
+          // whitespace handling collapses it to zero width at the end of
+          // the line, taking any styling on it down to invisible too -
+          // exactly the "invisible error" case. `whiteSpace: "pre"` on just
+          // this one character opts it out of that collapsing so its box
+          // keeps real width no matter where it lands, and padding turns it
+          // into a small colored chip that reads clearly as a mistake even
+          // sitting right at the edge of a line.
           const isMistakenSpace = isMistake && char === " ";
 
           return (
@@ -81,8 +88,10 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
                 style={{
                   color,
                   ...(isMistakenSpace && {
-                    borderBottom: "2px solid var(--color-incorrect)",
-                    paddingBottom: "1px",
+                    whiteSpace: "pre",
+                    backgroundColor: "var(--color-incorrect)",
+                    borderRadius: "2px",
+                    padding: "0 2px",
                   }),
                 }}
               >

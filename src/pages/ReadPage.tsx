@@ -266,6 +266,17 @@ export function ReadPage() {
             value={chapterDone ? "" : session.typed}
             onChange={(e) => handleInput(e.target.value, isComposing)}
             onPaste={(e) => e.preventDefault()}
+            onKeyDown={(e) => {
+              // The input is visually hidden - all rendering comes from
+              // `typed`/cursor position in VerseRow, not from where the
+              // browser's real caret sits inside this field. Left/right
+              // would move that real caret without moving anything the
+              // person can see, so a stray arrow-key tap silently strands
+              // future keystrokes mid-string. Block them outright.
+              if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                e.preventDefault();
+              }
+            }}
             onCompositionStart={() => {
               compositionBaselineRef.current = session.typed;
               setIsComposing(true);
