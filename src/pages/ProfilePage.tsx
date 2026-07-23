@@ -25,6 +25,7 @@ interface CompletionRow {
   translationId: string;
   bookId: string;
   chapter: number;
+  unit: "wpm" | "cpm";
   timesCompleted: number;
   bestWpm: number;
   avgWpm: number;
@@ -38,6 +39,7 @@ interface ProfileSummary {
     totalCompletions: number;
     chaptersCompleted: number;
     avgWpm: number;
+    avgCpm: number;
     avgAccuracy: number;
   };
   completions: CompletionRow[];
@@ -139,7 +141,11 @@ export function ProfilePage() {
           </div>
           <div className="statCard">
             <span className="statValue">{overall.avgWpm ? overall.avgWpm.toFixed(1) : "—"}</span>
-            <span className="statLabel">Avg speed</span>
+            <span className="statLabel">Avg WPM</span>
+          </div>
+          <div className="statCard">
+            <span className="statValue">{overall.avgCpm ? overall.avgCpm.toFixed(1) : "—"}</span>
+            <span className="statLabel">Avg 타/분</span>
           </div>
           <div className="statCard">
             <span className="statValue">
@@ -173,7 +179,9 @@ export function ProfilePage() {
                     </Link>
                   </td>
                   <td>{row.timesCompleted}</td>
-                  <td>{row.bestWpm.toFixed(1)}</td>
+                  <td>
+                    {row.bestWpm.toFixed(1)} {row.unit === "cpm" ? "타/분" : "WPM"}
+                  </td>
                   <td>{row.avgAccuracy.toFixed(1)}%</td>
                 </tr>
               ))}

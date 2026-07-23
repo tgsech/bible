@@ -119,7 +119,14 @@ export function ReadPage() {
       currentTranslation.language
     );
     api
-      .post("/completions", { translationId, bookId, chapter, wpm: stats.speed, accuracy: stats.accuracy })
+      .post("/completions", {
+        translationId,
+        bookId,
+        chapter,
+        wpm: stats.speed,
+        accuracy: stats.accuracy,
+        unit: stats.label === "타/분" ? "cpm" : "wpm",
+      })
       .catch((err) => console.error("Failed to log completion", err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterDone, session.startTime]);
