@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useChapter } from "../hooks/useChapter";
 import { useTypingSession } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
+import { useReadingProgress } from "../hooks/useReadingProgress";
+import { useReadMode } from "../hooks/useReadMode";
 import { computeTypingStats } from "../typing/stats";
 import { api } from "../lib/api";
 import { ChapterView } from "../components/ChapterView";
@@ -50,20 +52,23 @@ export function ReadPage() {
   }, [bookId, chapter]);
 
   const { saveProgress, loadProgress, isLoggedIn } = useProgress();
+  const { saveReadingPosition } = useReadingProgress();
+  const { readMode, setReadMode } = useReadMode();
 
   // Every chapter switch needs one hydration pass: fetch whatever was saved
   // for THIS specific chapter, then initialize the typing session from it
   // instead of always starting blank. hydratedRef gates both "don't
   // hydrate twice for the same chapter" and "don't let the save effect
   // below fire before hydration has actually happened" (which would
-  // overwrite real saved progress with a blank state).
+  // overwrite real saved progress with a blank state). None of this runs
+  // in read mode — there's no typing session to hydrate or save there.
   const hydratedRef = useRef(false);
   useEffect(() => {
     hydratedRef.current = false;
   }, [translationId, bookId, chapter]);
 
   useEffect(() => {
-    if (!data || hydratedRef.current) return;
+    if (!data || hydratedRef.current || readMode) return;
     let cancelled = false;
 
     loadProgress(translationId, bookId, chapter).then((resume) => {
@@ -75,19 +80,27 @@ export function ReadPage() {
     return () => {
       cancelled = true;
     };
-  }, [data, translationId, bookId, chapter, loadProgress, reset]);
+  }, [data, translationId, bookId, chapter, loadProgress, reset, readMode]);
 
   // Save current position any time it actually changes: new verse, or
   // still typing within the current one. Gated on hydratedRef so this
   // never fires with the pre-hydration blank state and stomps real saved
   // progress the instant a chapter loads.
   useEffect(() => {
-    if (!data || !hydratedRef.current) return;
+    if (!data || !hydratedRef.current || readMode) return;
     saveProgress(translationId, bookId, chapter, {
       verseIndex: session.verseIndex,
       typedSoFar: session.typed,
     });
-  }, [translationId, bookId, chapter, session.verseIndex, session.typed, data, saveProgress]);
+  }, [translationId, bookId, chapter, session.verseIndex, session.typed, data, saveProgress, readMode]);
+
+  // Read mode's own progress: just "which chapter", saved the moment the
+  // chapter loads — no hydration pass needed since there's no cursor to
+  // restore, the URL itself already says which chapter you're looking at.
+  useEffect(() => {
+    if (!data || !readMode) return;
+    saveReadingPosition(translationId, bookId, chapter);
+  }, [data, readMode, translationId, bookId, chapter, saveReadingPosition]);
 
   const chapterDone = session.endTime !== null;
   // session.startTime only gets set by actually typing (see
@@ -197,13 +210,32 @@ export function ReadPage() {
         ← Home
       </Link>
 
-      <LiveStats
-        startTime={session.startTime}
-        endTime={session.endTime}
-        correctKeystrokes={session.correctKeystrokes}
-        totalKeystrokes={session.totalKeystrokes}
-        language={currentTranslation.language}
-      />
+      {!readMode && (
+        <LiveStats
+          startTime={session.startTime}
+          endTime={session.endTime}
+          correctKeystrokes={session.correctKeystrokes}
+          totalKeystrokes={session.totalKeystrokes}
+          language={currentTranslation.language}
+        />
+      )}
+
+      <div className="readModeToggleRow">
+        <button
+          type="button"
+          className="readModeToggle"
+          onClick={() => setReadMode(!readMode)}
+          aria-pressed={readMode}
+        >
+          {readMode
+            ? isKorean
+              ? "타이핑 모드로 전환"
+              : "Switch to typing mode"
+            : isKorean
+              ? "읽기 전용 모드로 전환"
+              : "Switch to read-only mode"}
+        </button>
+      </div>
 
       <BookChapterSelector
         translations={TRANSLATIONS}
@@ -213,37 +245,39 @@ export function ReadPage() {
         onChange={goToChapter}
       />
 
-      <div id="secondBody" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
+      <div id="secondBody" onClick={() => !readMode && inputRef.current?.focus({ preventScroll: true })}>
         <h2 className="bookText">
           {currentBook.name} {isKorean ? `${chapter}장` : `Chapter ${chapter}`}
         </h2>
 
         <ChapterView
           verses={verses}
-          verseIndex={session.verseIndex}
-          typed={session.typed}
-          completedCount={session.completedTyped.length}
-          chapterDone={chapterDone}
+          verseIndex={readMode ? verses.length : session.verseIndex}
+          typed={readMode ? "" : session.typed}
+          completedCount={readMode ? verses.length : session.completedTyped.length}
+          chapterDone={readMode ? true : chapterDone}
           isComposing={isComposing}
           language={currentTranslation.language}
         />
 
-        <input
-          ref={inputRef}
-          value={chapterDone ? "" : session.typed}
-          onChange={(e) => handleInput(e.target.value, isComposing)}
-          onPaste={(e) => e.preventDefault()}
-          onCompositionStart={() => {
-            compositionBaselineRef.current = session.typed;
-            setIsComposing(true);
-          }}
-          onCompositionEnd={(e) => {
-            setIsComposing(false);
-            commitComposition(compositionBaselineRef.current, e.currentTarget.value);
-          }}
-          disabled={chapterDone}
-          style={{ position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none" }}
-        />
+        {!readMode && (
+          <input
+            ref={inputRef}
+            value={chapterDone ? "" : session.typed}
+            onChange={(e) => handleInput(e.target.value, isComposing)}
+            onPaste={(e) => e.preventDefault()}
+            onCompositionStart={() => {
+              compositionBaselineRef.current = session.typed;
+              setIsComposing(true);
+            }}
+            onCompositionEnd={(e) => {
+              setIsComposing(false);
+              commitComposition(compositionBaselineRef.current, e.currentTarget.value);
+            }}
+            disabled={chapterDone}
+            style={{ position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none" }}
+          />
+        )}
 
         <div ref={chapterNavRef}>
           <ChapterNav
@@ -252,7 +286,7 @@ export function ReadPage() {
             disablePrev={isAtStart}
             disableNext={isAtEnd}
           />
-          {chapterDone && (
+          {!readMode && chapterDone && (
             <button type="button" onClick={handleRetype} className="retypeButton">
               {isKorean ? "다시 쓰기" : "Retype this chapter"}
             </button>
@@ -260,7 +294,7 @@ export function ReadPage() {
         </div>
       </div>
 
-      {showCompletionModal && (
+      {!readMode && showCompletionModal && (
         <CompletionModal
           speed={finalStats.speed}
           accuracy={finalStats.accuracy}

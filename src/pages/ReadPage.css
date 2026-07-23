@@ -28,3 +28,32 @@
 .retypeButton:hover {
   opacity: 1;
 }
+
+.readModeToggleRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.readModeToggle {
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text);
+  opacity: 0.75;
+  transition: opacity 0.15s, background-color 0.15s;
+}
+
+.readModeToggle:hover {
+  opacity: 1;
+}
+
+.readModeToggle[aria-pressed="true"] {
+  background: var(--color-text);
+  color: var(--color-bg);
+  opacity: 1;
+}
+

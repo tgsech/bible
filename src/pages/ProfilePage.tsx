@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { authClient, useSession } from "../lib/authClient";
 import { api } from "../lib/api";
+import { ProfileSettingsForm } from "../components/ProfileSettingsForm";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import "./ProfilePage.css";
@@ -33,8 +34,23 @@ interface CompletionRow {
   lastCompletedAt: string;
 }
 
+interface ReadingPositionRow {
+  translationId: string;
+  bookId: string;
+  chapter: number;
+  updatedAt: string;
+}
+
+interface ProfileSettings {
+  userId: string;
+  username: string | null;
+  bio: string | null;
+  mood: string | null;
+}
+
 interface ProfileSummary {
   latestPosition: ProgressRow | null;
+  latestReadingPosition: ReadingPositionRow | null;
   overall: {
     totalCompletions: number;
     chaptersCompleted: number;
@@ -43,6 +59,7 @@ interface ProfileSummary {
     avgAccuracy: number;
   };
   completions: CompletionRow[];
+  settings: ProfileSettings;
 }
 
 export function ProfilePage() {
@@ -96,7 +113,7 @@ export function ProfilePage() {
     );
   }
 
-  const { latestPosition, overall, completions } = summary;
+  const { latestPosition, latestReadingPosition, overall, completions, settings } = summary;
 
   return (
     <div id="mainBody" className="profilePage">
@@ -105,14 +122,14 @@ export function ProfilePage() {
       </Link>
 
       <div className="profileHeaderRow">
-        <h1>{session.user.name}'s Profile</h1>
+        <h1>{settings.username ?? session.user.name}'s Profile</h1>
         <button type="button" className="profileSignOut" onClick={() => authClient.signOut()}>
           Sign out
         </button>
       </div>
 
       <section className="profileSection">
-        <h2>Currently reading</h2>
+        <h2>Currently typing</h2>
         {latestPosition ? (
           <p>
             <Link
@@ -125,6 +142,22 @@ export function ProfilePage() {
           </p>
         ) : (
           <p>No saved position yet — start typing a chapter to see it here.</p>
+        )}
+      </section>
+
+      <section className="profileSection">
+        <h2>Currently reading</h2>
+        {latestReadingPosition ? (
+          <p>
+            <Link
+              to={`/read/${latestReadingPosition.translationId}/${latestReadingPosition.bookId}/${latestReadingPosition.chapter}`}
+            >
+              {bookName(latestReadingPosition.translationId, latestReadingPosition.bookId)}{" "}
+              {latestReadingPosition.chapter}
+            </Link>
+          </p>
+        ) : (
+          <p>No saved reading position yet — switch to read-only mode on a chapter to see it here.</p>
         )}
       </section>
 
@@ -188,6 +221,18 @@ export function ProfilePage() {
             </tbody>
           </table>
         )}
+      </section>
+
+      <section className="profileSection">
+        <h2>Profile settings</h2>
+        <p className="settingsHint">
+          Your username shows on the leaderboard and directory instead of your account name — leave it
+          blank to just show as anonymous there.
+        </p>
+        <ProfileSettingsForm
+          settings={settings}
+          onSaved={(updated) => setSummary((prev) => (prev ? { ...prev, settings: updated } : prev))}
+        />
       </section>
     </div>
   );
