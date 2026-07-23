@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "generate:bible-meta": "node scripts/generate-bible-meta.mjs",
+    "predev": "npm run generate:bible-meta",
+    "prebuild": "npm run generate:bible-meta",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

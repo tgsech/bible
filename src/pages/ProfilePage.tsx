@@ -232,6 +232,12 @@ export function ProfilePage() {
         <p className="settingsHint">
           Your username shows on the leaderboard and directory instead of your account name — leave it
           blank to just show as anonymous there.
+          {settings.username && (
+            <>
+              {" "}
+              <Link to={`/u/${encodeURIComponent(settings.username)}`}>View your public profile →</Link>
+            </>
+          )}
         </p>
         <ProfileSettingsForm
           settings={settings}

@@ -164,7 +164,13 @@ export function LeaderboardPage() {
                 className={row.userId === session?.user.id ? "leaderboardRowSelf" : undefined}
               >
                 <td className="rankCol">{MEDALS[i] ?? i + 1}</td>
-                <td>{row.displayName}</td>
+                <td>
+                  {row.hasUsername ? (
+                    <Link to={`/u/${encodeURIComponent(row.displayName)}`}>{row.displayName}</Link>
+                  ) : (
+                    row.displayName
+                  )}
+                </td>
                 <td className="valueCol">{board.format(row)}</td>
               </tr>
             ))}

@@ -6,6 +6,7 @@ import { AboutPage } from "./pages/AboutPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AuthPage } from "./pages/AuthPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
+import { PublicProfilePage } from "./pages/PublicProfilePage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/u/:username" element={<PublicProfilePage />} />
         <Route path="/auth" element={<AuthPage />} />
       </Routes>
     </ThemeProvider>
