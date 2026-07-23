@@ -1,5 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
 
+// The backend mounts every non-auth route under /api (see src/index.ts:
+// app.route('/api/profile', ...), app.route('/api/progress', ...), etc.)
+// so every call through this helper needs that prefix — callers just pass
+// the route-local path, e.g. api.get("/profile/summary").
+const API_BASE = `${API_URL}/api`;
+
 class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -9,7 +15,7 @@ class ApiError extends Error {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T | null> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     // This is what lets the browser attach Better Auth's session cookie.
     // Every request to the backend needs this, not just the auth ones —
