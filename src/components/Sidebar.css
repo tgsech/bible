@@ -4,13 +4,17 @@
 
   width: var(--sidebar-width);
   flex: 0 0 var(--sidebar-width);
-  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   box-sizing: border-box;
   border-right: 1px solid var(--color-text);
   display: flex;
   flex-direction: column;
   padding: 16px 12px 20px;
   gap: 16px;
+  overflow-y: auto;
   transition: width 0.2s ease, flex-basis 0.2s ease, padding 0.2s ease;
 }
 
