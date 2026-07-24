@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useChapter } from "../hooks/useChapter";
 import { useTypingSession } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
@@ -53,7 +53,7 @@ export function ReadPage() {
 
   const { saveProgress, loadProgress, isLoggedIn } = useProgress();
   const { saveReadingPosition } = useReadingProgress();
-  const { readMode, setReadMode } = useReadMode();
+  const { readMode } = useReadMode();
 
   // Every chapter switch needs one hydration pass: fetch whatever was saved
   // for THIS specific chapter, then initialize the typing session from it
@@ -206,10 +206,6 @@ export function ReadPage() {
 
   return (
     <div id="mainBody">
-      <Link to="/" className="backHomeLink">
-        ← Home
-      </Link>
-
       {!readMode && (
         <LiveStats
           startTime={session.startTime}
@@ -219,23 +215,6 @@ export function ReadPage() {
           language={currentTranslation.language}
         />
       )}
-
-      <div className="readModeToggleRow">
-        <button
-          type="button"
-          className="readModeToggle"
-          onClick={() => setReadMode(!readMode)}
-          aria-pressed={readMode}
-        >
-          {readMode
-            ? isKorean
-              ? "타이핑 모드로 전환"
-              : "Switch to typing mode"
-            : isKorean
-              ? "읽기 전용 모드로 전환"
-              : "Switch to read-only mode"}
-        </button>
-      </div>
 
       <BookChapterSelector
         translations={TRANSLATIONS}

@@ -3,41 +3,6 @@
   margin: 0 auto;
 }
 
-.authBar {
-  position: fixed;
-  top: 16px;
-  right: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.95rem;
-  z-index: 10;
-}
-
-.authBarLink {
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-.authBarLink:hover {
-  text-decoration: underline;
-}
-
-.authBarSignOut {
-  font-size: 0.85rem;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--color-text);
-  background: transparent;
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.authBarSignOut:hover {
-  background: var(--color-text);
-  color: var(--color-bg);
-}
-
 .landingHeader {
   text-align: center;
   margin-bottom: 40px;
@@ -113,14 +78,3 @@
   text-decoration: underline;
 }
 
-.landingFooter {
-  text-align: center;
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 1px solid var(--color-text);
-  font-size: 0.9rem;
-}
-
-.landingFooter a {
-  color: var(--color-text);
-}

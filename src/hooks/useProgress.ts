@@ -10,6 +10,14 @@ export interface ChapterPosition {
   typedSoFar: string;
 }
 
+export interface LatestPosition {
+  translationId: string;
+  bookId: string;
+  chapter: number;
+  verseIndex: number;
+  typedSoFar: string;
+}
+
 interface GuestEntry extends ChapterPosition {
   translationId: string;
   bookId: string;
@@ -112,5 +120,34 @@ export function useProgress() {
     [session]
   );
 
-  return { saveProgress, loadProgress, isLoggedIn: !!session };
+  // Most recent "currently typing" position across every book - what the
+  // sidebar's TYPE ENGINE shortcut jumps to. Server's /progress/latest wins
+  // when logged in; for guests, the freshest entry in localStorage by
+  // updatedAt. Returns null if this person has never typed anything yet.
+  const getLatestProgress = useCallback(async (): Promise<LatestPosition | null> => {
+    if (session) {
+      try {
+        const row = await api.get<LatestPosition>("/progress/latest");
+        if (row) return row;
+      } catch (err) {
+        console.error("Failed to load latest progress", err);
+      }
+      return null;
+    }
+
+    const store = readGuestStore();
+    const entries = Object.values(store);
+    if (entries.length === 0) return null;
+
+    const latest = entries.reduce((a, b) => (b.updatedAt > a.updatedAt ? b : a));
+    return {
+      translationId: latest.translationId,
+      bookId: latest.bookId,
+      chapter: latest.chapter,
+      verseIndex: latest.verseIndex,
+      typedSoFar: latest.typedSoFar,
+    };
+  }, [session]);
+
+  return { saveProgress, loadProgress, getLatestProgress, isLoggedIn: !!session };
 }

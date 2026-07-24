@@ -1,0 +1,19 @@
+.memoryToolPage {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.memoryToolPage h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.memoryToolPage p {
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+
+.memoryToolPage a {
+  color: var(--color-text);
+}

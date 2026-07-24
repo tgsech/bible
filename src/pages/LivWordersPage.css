@@ -1,0 +1,19 @@
+.livWordersPage {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.livWordersPage h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.livWordersPage p {
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+
+.livWordersPage a {
+  color: var(--color-text);
+}
