@@ -96,13 +96,9 @@ export function PublicProfilePage() {
 
   return (
     <div id="mainBody" className="publicProfilePage">
-      <Link to="/leaderboard" className="backHomeLink">
-        ← Leaderboard
-      </Link>
-
       <h1>{profile.username}</h1>
-      {profile.mood && <p className="publicProfileMood">{profile.mood}</p>}
-      {profile.bio && <p className="publicProfileBio">{profile.bio}</p>}
+      {profile.bio && <p className="publicProfileBio">About Me: {profile.bio}</p>}
+      {profile.mood && <p className="publicProfileMood">Mood: {profile.mood}</p>}
 
       <section className="profileSection">
         <h2>Stats</h2>
