@@ -68,4 +68,10 @@ a {
 .bibText {
   font-size: 2rem;
   word-break: keep-all;
+  margin-left: 20px;
+}
+
+.bibTextActive {
+  font-size: 2rem;
+  word-break: keep-all;
 }

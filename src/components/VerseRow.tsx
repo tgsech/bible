@@ -21,7 +21,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
   if (status !== "active") {
     return (
       <div ref={ref} style={{ display: "flex", gap: "8px", opacity: status === "pending" ? 0.3 : 1 }}>
-        <span className="verseNum" style={{ color: "gray", minWidth: "20px" }}>
+        <span className="verseNum" style={{ color: "gray"}}>
           {index + 1}
         </span>
         <span className="bibText">{text}</span>
@@ -35,7 +35,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
 
   return (
     <div ref={ref} style={{ display: "flex", gap: "8px" }}>
-      <span className="verseNum" style={{ color: "gray", minWidth: "20px" }}>
+      <span className="verseNum" style={{ color: "gray", marginRight: "20px"}}>
         {index + 1}
       </span>
       <div>
@@ -84,7 +84,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
                 />
               )}
               <span
-                className="bibText"
+                className="bibTextActive"
                 style={{
                   color,
                   ...(isMistakenSpace && {
