@@ -1,6 +1,7 @@
 #mainBody {
   max-width: 900px;
   margin: 0 auto;
+  margin-bottom: 50px;
 }
 
 .landingHeader {
@@ -63,7 +64,8 @@
   padding: 0;
   margin: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }

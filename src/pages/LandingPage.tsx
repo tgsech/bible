@@ -9,17 +9,17 @@ export function LandingPage() {
   return (
     <div id="mainBody" className="landingPage">
       <header className="landingHeader">
-        <h1 className="landingTitle">LivingWords</h1>
+        <h1 className="landingTitle">LivingWords - 살아있는 말씀</h1>
         <p className="landingSubtitle">말씀과 함께하는 삶~~~!</p>
       </header>
 
-      <section className="languagePick">
+      {/* <section className="languagePick">
         {TRANSLATIONS.map((t) => (
           <Link key={t.id} className="languagePickButton" to={`/read/${t.id}/${t.books[0].id}/1`}>
             {t.language === "ko" ? "한국어" : "English"}
           </Link>
         ))}
-      </section>
+      </section> */}
 
       <section className="bookLists">
         {TRANSLATIONS.map((t) => (
@@ -29,7 +29,7 @@ export function LandingPage() {
               {t.books.map((b) => (
                 <li key={b.id}>
                   <Link className="bookListLink" to={`/read/${t.id}/${b.id}/1`}>
-                    {b.name}
+                     {b.name} |
                   </Link>
                 </li>
               ))}
