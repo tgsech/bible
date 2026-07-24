@@ -43,9 +43,13 @@ export function AuthPage() {
 
   const handleGoogle = async () => {
     setError(null);
-    // Redirects to Google, then back to "/" on success — nothing else to
-    // do here on the client side.
-    await authClient.signIn.social({ provider: "google", callbackURL: "/" });
+    // callbackURL must be absolute, not "/" - the actual redirect after
+    // Google's OAuth callback happens server-side, on the backend
+    // (api.tgsech.ca/api/auth/callback/google), so a relative path
+    // resolves against *that* origin, not the frontend's. window.location
+    // .origin rather than a hardcoded domain so this also works against
+    // localhost in dev.
+    await authClient.signIn.social({ provider: "google", callbackURL: `${window.location.origin}/` });
   };
 
   if (sessionPending) {
