@@ -114,10 +114,6 @@ export function LeaderboardPage() {
 
   return (
     <div id="mainBody" className="leaderboardPage">
-      <Link to="/" className="backHomeLink">
-        ← Home
-      </Link>
-
       <h1>Leaderboard</h1>
       <p className="leaderboardIntro">
         Ranked by public username where set, otherwise by sign-up name. Want to show up under a

@@ -97,8 +97,6 @@ export function ProfilePage() {
         <Link to="/auth" className="profileSignInLink">
           Sign in
         </Link>
-        {" · "}
-        <Link to="/">← Back home</Link>
       </div>
     );
   }
@@ -117,15 +115,6 @@ export function ProfilePage() {
 
   return (
     <div id="mainBody" className="profilePage">
-      <Link to="/" className="backHomeLink">
-        ← Home
-      </Link>
-      
-      {/* {" · "} */}
-      {/* <Link to="/leaderboard" className="backHomeLink">
-        Leaderboard
-      </Link> */}
-
       <div className="profileHeaderRow">
         <h1>{settings.username ?? session.user.name}'s Profile</h1>
         <button type="button" className="profileSignOut" onClick={() => authClient.signOut()}>
