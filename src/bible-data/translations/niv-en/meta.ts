@@ -28,5 +28,23 @@ export const meta: TranslationMeta = {
       group: "Old Testament",
       versesPerChapter: chapterCounts.genesis,
     },
+    {
+      id: "psalms",
+      name: "Psalm",
+      group: "Old Testament",
+      versesPerChapter: chapterCounts.psalms,
+    },
+    {
+      id: "proverbs",
+      name: "Proverbs",
+      group: "Old Testament",
+      versesPerChapter: chapterCounts.proverbs,
+    },
+    {
+      id: "john",
+      name: "John",
+      group: "New Testament",
+      versesPerChapter: chapterCounts.john,
+    },
   ],
 };
