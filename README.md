@@ -13,9 +13,26 @@ until they sign in, then merged once).
 
 ```bash
 npm install
-cp .env.example .env   # if present — VITE_API_URL, etc.
 npm run dev
 ```
+
+## Environment
+
+`VITE_API_URL` (which backend to talk to) is baked in at build time by
+Vite — there's no runtime lookup, so whatever the value is *when you build*
+is what ships. That's split across two committed, non-gitignored files so
+dev and prod can't collide:
+
+- **`.env.development`** — `http://localhost:8787`, loaded by `npm run dev`
+- **`.env.production`** — the real API, loaded by `npm run build` (and
+  therefore `npm run deploy`), regardless of what either of the above says
+
+Deliberately *not* one shared `.env` you hand-edit back and forth between
+local dev and deploys — that's exactly how a deploy quietly ships pointed
+at `localhost` (this happened once; see git history / ask if it's
+happening again). Personal overrides (e.g. a staging backend) go in
+`.env.local`, which is gitignored and wins over both of the above — copy
+`.env.example` to get started with one.
 
 `npm run dev` and `npm run build` both regenerate `public/bible-meta.json`
 first (see below) — nothing extra to remember when adding Bible content.

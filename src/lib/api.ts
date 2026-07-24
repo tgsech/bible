@@ -1,6 +1,13 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
-console.log("VITE_API_URL raw:", import.meta.env.VITE_API_URL);
-console.log("Final API_URL:", API_URL);
+// Baked in at build time by Vite - see .env.production / .env.development
+// in the repo root for why there are two files instead of one .env that
+// gets hand-edited back and forth. `npm run build` (what `deploy` runs)
+// always loads .env.production regardless of what .env/.env.local
+// currently contain, so this can't accidentally ship pointed at localhost
+// the way a single shared .env file could.
+export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+if (import.meta.env.DEV) {
+  console.log("[api] backend:", API_URL);
+}
 // The backend mounts every non-auth route under /api (see src/index.ts:
 // app.route('/api/profile', ...), app.route('/api/progress', ...), etc.)
 // so every call through this helper needs that prefix — callers just pass

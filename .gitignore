@@ -27,5 +27,11 @@ dist-ssr
 .wrangler
 .dev.vars*
 !.dev.vars.example
-.env*
+
+# .env.development and .env.production are committed on purpose (see
+# README's "Environment" section) - only the personal/machine-specific
+# ones are ignored here.
+.env
+.env.local
+.env.*.local
 !.env.example

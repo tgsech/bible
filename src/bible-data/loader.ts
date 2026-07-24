@@ -1,6 +1,7 @@
 import type { ChapterData } from "./types";
 import { meta as nivEn } from "./translations/niv-en/meta";
 import { USFM_BY_BOOK_ID } from "./usfmBookIds";
+import { api } from "../lib/api";
 
 // Vite turns every matched file into its own lazily-loaded chunk.
 // Nothing here is downloaded until a specific chapter is requested,
@@ -26,7 +27,7 @@ const API_TRANSLATIONS: Record<string, true> = {
   [nivEn.id]: true,
 };
 
-const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://localhost:8787"}/api`;
+// const API_BASE = `${import.meta.env.VITE_API_URL ?? "http://localhost:8787"}/api`;
 
 async function loadChapterFromApi(
   translationId: string,
@@ -38,13 +39,11 @@ async function loadChapterFromApi(
     throw new Error(`No USFM code mapped for book "${bookId}" (see usfmBookIds.ts)`);
   }
 
-  const res = await fetch(`${API_BASE}/bible/${translationId}/${usfm}/${chapter}`);
-  if (!res.ok) {
-    throw new Error(
-      `Failed to load ${translationId} / ${bookId} / chapter ${chapter} (${res.status})`
-    );
+  const data = await api.get<ChapterData>(`/bible/${translationId}/${usfm}/${chapter}`);
+  if (!data) {
+    throw new Error(`Empty response loading ${translationId} / ${bookId} / chapter ${chapter}`);
   }
-  return res.json();
+  return data;
 }
 
 export async function loadChapter(
