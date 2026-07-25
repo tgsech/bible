@@ -7,11 +7,11 @@
 .themeShowcaseTitle {
   text-align: center;
   font-size: 1.75rem;
-  margin-bottom: 32px;
+  margin-bottom: 25px;
 }
 
 .themeShowcaseColumns {
-  display: flex;
+  /* display: flex; */
   justify-content: center;
   gap: 48px;
   flex-wrap: wrap;
@@ -19,11 +19,11 @@
 
 .themeShowcaseColumn {
   flex: 1 1 320px;
-  max-width: 480px;
+  margin-bottom: 100px;
 }
 
 .themeShowcaseSubtitle {
   font-size: 1.1rem;
   margin-bottom: 16px;
-  text-align: center;
+  text-align: left;
 }

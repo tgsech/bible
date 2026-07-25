@@ -30,14 +30,14 @@ export function ColorPaletteGrid() {
             onClick={() => setPaletteId(p.id)}
             aria-pressed={isSelected}
           >
-            <span className="paletteName" style={{ color: p.colors.text }}>
+            <span className="paletteName" style={{ color: p.colors.correct }}>
               {p.name}
             </span>
             <div className="paletteSwatches">
               {SWATCH_FIELDS.map(({ key, labelKey }) => (
                 <div key={key} className="paletteSwatch">
                   <span className="paletteSwatchCircle" style={{ backgroundColor: p.colors[key] }} />
-                  <span className="paletteSwatchLabel" style={{ color: p.colors.text }}>
+                  <span className="paletteSwatchLabel" style={{ color: p.colors.correct }}>
                     {t(labelKey)}
                   </span>
                 </div>

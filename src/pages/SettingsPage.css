@@ -1,5 +1,5 @@
 .settingsPage {
-  max-width: 900px;
+  min-width: 1010px;
   margin: 0 auto;
   padding: 64px 24px 48px;
   text-align: center;
