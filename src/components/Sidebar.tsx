@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { authClient, useSession } from "../lib/authClient";
 import { useProgress } from "../hooks/useProgress";
 import { useReadMode } from "../hooks/useReadMode";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./Sidebar.css";
 
 const COLLAPSED_KEY = "livingwords:sidebar-collapsed";
@@ -25,6 +26,7 @@ export function Sidebar() {
   const { data: session } = useSession();
   const { getLatestProgress } = useProgress();
   const { readMode, setReadMode } = useReadMode();
+  const { lang, setLang, t } = useLanguage();
   const navigate = useNavigate();
 
   const toggleCollapsed = () => {
@@ -53,7 +55,7 @@ export function Sidebar() {
         type="button"
         className="sidebarToggle"
         onClick={toggleCollapsed}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
         aria-expanded={!collapsed}
       >
         <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true">
@@ -65,37 +67,37 @@ export function Sidebar() {
         <div className="sidebarGroup">
           <div className="sidebarProfileItem">
             <NavLink to="/profile" className={navClass}>
-              <span className="sidebarLabel">PROFILE</span>
+              <span className="sidebarLabel">{t("sidebar.profile")}</span>
             </NavLink>
             {session && (
               <button
                 type="button"
                 className="sidebarSignOut"
                 onClick={() => authClient.signOut()}
-                title="Sign out"
+                title={t("sidebar.signOut")}
               >
-                Sign out
+                {t("sidebar.signOut")}
               </button>
             )}
           </div>
 
           <NavLink to="/" end className={navClass}>
-            <span className="sidebarLabel">HOME</span>
+            <span className="sidebarLabel">{t("sidebar.home")}</span>
           </NavLink>
           <NavLink to="/leaderboard" className={navClass}>
-            <span className="sidebarLabel">LEADERBOARD</span>
+            <span className="sidebarLabel">{t("sidebar.leaderboard")}</span>
           </NavLink>
           <NavLink to="/directory" className={navClass}>
-            <span className="sidebarLabel">LIVWORDERS</span>
+            <span className="sidebarLabel">{t("sidebar.livworders")}</span>
           </NavLink>
           <button type="button" className="sidebarLink" onClick={handleTypeEngine}>
-            <span className="sidebarLabel">TYPE ENGINE</span>
+            <span className="sidebarLabel">{t("sidebar.typeEngine")}</span>
           </button>
           <NavLink to="/memory" className={navClass}>
-            <span className="sidebarLabel">MEM TOOL</span>
+            <span className="sidebarLabel">{t("sidebar.memTool")}</span>
           </NavLink>
           <NavLink to="/about" className={navClass}>
-            <span className="sidebarLabel">ABOUT</span>
+            <span className="sidebarLabel">{t("sidebar.about")}</span>
           </NavLink>
         </div>
 
@@ -105,15 +107,34 @@ export function Sidebar() {
           onClick={() => setReadMode(!readMode)}
           aria-pressed={readMode}
         >
-          <span className="sidebarLabel">{readMode ? "READING" : "TYPING"}</span>
+          <span className="sidebarLabel">{readMode ? t("sidebar.reading") : t("sidebar.typing")}</span>
         </button>
 
         <div className="sidebarBottom">
+          <div className="sidebarLangToggle" role="group" aria-label={t("sidebar.langToggleLabel")}>
+            <button
+              type="button"
+              className={`sidebarLangOption${lang === "en" ? " sidebarLangOption--active" : ""}`}
+              onClick={() => setLang("en")}
+              aria-pressed={lang === "en"}
+            >
+              {t("sidebar.langEnglish")}
+            </button>
+            <button
+              type="button"
+              className={`sidebarLangOption${lang === "ko" ? " sidebarLangOption--active" : ""}`}
+              onClick={() => setLang("ko")}
+              aria-pressed={lang === "ko"}
+            >
+              {t("sidebar.langKorean")}
+            </button>
+          </div>
+
           <NavLink to="/settings" className={navClass}>
-            <span className="sidebarLabel">SETTINGS</span>
+            <span className="sidebarLabel">{t("sidebar.settings")}</span>
           </NavLink>
           <div className="sidebarBrand">
-            <span className="sidebarLabel">LIVINGWORDS</span>
+            <span className="sidebarLabel">{t("sidebar.brand")}</span>
           </div>
         </div>
       </div>

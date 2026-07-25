@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./CompletionModal.css";
 
 interface CompletionModalProps {
@@ -26,6 +27,7 @@ export function CompletionModal({
   extras,
 }: CompletionModalProps) {
   const message = language === "ko" ? "수고했어요!" : "Done!";
+  const { t } = useLanguage();
 
   return (
     <div className="completionOverlay" role="dialog" aria-modal="true">
@@ -39,7 +41,7 @@ export function CompletionModal({
           </div>
           <div className="completionStat">
             <span className="completionStatValue">{accuracy}%</span>
-            <span className="completionStatLabel">Accuracy</span>
+            <span className="completionStatLabel">{t("completion.accuracy")}</span>
           </div>
         </div>
 

@@ -1,19 +1,21 @@
 import { PALETTES } from "../theme/themeOptions";
 import { useTheme } from "../theme/ThemeContext";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./ColorPaletteGrid.css";
 
 // Order matters here: these are the swatches shown on every palette card,
-// in display order, each paired with its label and the palette color key it
-// pulls from.
-const SWATCH_FIELDS: { key: "text" | "correct" | "incorrect" | "untyped"; label: string }[] = [
-  { key: "text", label: "Text" },
-  { key: "correct", label: "Correct" },
-  { key: "incorrect", label: "Error" },
-  { key: "untyped", label: "Untyped" },
+// in display order, each paired with its translation key and the palette
+// color key it pulls from.
+const SWATCH_FIELDS: { key: "text" | "correct" | "incorrect" | "untyped"; labelKey: string }[] = [
+  { key: "text", labelKey: "palette.text" },
+  { key: "correct", labelKey: "palette.correct" },
+  { key: "incorrect", labelKey: "palette.incorrect" },
+  { key: "untyped", labelKey: "palette.untyped" },
 ];
 
 export function ColorPaletteGrid() {
   const { palette, setPaletteId } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <div className="paletteGrid">
@@ -32,11 +34,11 @@ export function ColorPaletteGrid() {
               {p.name}
             </span>
             <div className="paletteSwatches">
-              {SWATCH_FIELDS.map(({ key, label }) => (
+              {SWATCH_FIELDS.map(({ key, labelKey }) => (
                 <div key={key} className="paletteSwatch">
                   <span className="paletteSwatchCircle" style={{ backgroundColor: p.colors[key] }} />
                   <span className="paletteSwatchLabel" style={{ color: p.colors.text }}>
-                    {label}
+                    {t(labelKey)}
                   </span>
                 </div>
               ))}

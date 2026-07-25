@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api, ApiError } from "../lib/api";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface ProfileSettings {
   userId: string;
@@ -28,6 +29,7 @@ export function ProfileSettingsForm({ settings, onSaved }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedJustNow, setSavedJustNow] = useState(false);
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +50,7 @@ export function ProfileSettingsForm({ settings, onSaved }: Props) {
         setSavedJustNow(true);
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong saving that.");
+      setError(err instanceof ApiError ? err.message : t("form.error"));
     } finally {
       setSaving(false);
     }
@@ -57,43 +59,43 @@ export function ProfileSettingsForm({ settings, onSaved }: Props) {
   return (
     <form className="settingsForm" onSubmit={handleSubmit}>
       <label className="settingsField">
-        <span>Username</span>
+        <span>{t("form.username")}</span>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Shown on the leaderboard and directory instead of your name"
+          placeholder={t("form.usernamePlaceholder")}
           maxLength={20}
         />
       </label>
 
       <label className="settingsField">
-        <span>About me</span>
+        <span>{t("form.aboutMe")}</span>
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          placeholder="A short bio for your public card"
+          placeholder={t("form.aboutMePlaceholder")}
           maxLength={280}
           rows={3}
         />
       </label>
 
       <label className="settingsField">
-        <span>Current mood</span>
+        <span>{t("form.moodLabel")}</span>
         <input
           type="text"
           value={mood}
           onChange={(e) => setMood(e.target.value)}
-          placeholder="e.g. Slowly making it through Psalms 🌱"
+          placeholder={t("form.moodPlaceholder")}
           maxLength={80}
         />
       </label>
 
       {error && <p className="settingsError">{error}</p>}
-      {savedJustNow && !error && <p className="settingsSaved">Saved!</p>}
+      {savedJustNow && !error && <p className="settingsSaved">{t("common.saved")}</p>}
 
       <button type="submit" className="settingsSaveButton" disabled={saving}>
-        {saving ? "Saving…" : "Save"}
+        {saving ? t("common.saving") : t("common.save")}
       </button>
     </form>
   );

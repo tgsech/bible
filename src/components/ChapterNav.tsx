@@ -1,3 +1,4 @@
+import { useLanguage } from "../i18n/LanguageContext";
 import "./ChapterNav.css";
 
 interface ChapterNavProps {
@@ -8,13 +9,14 @@ interface ChapterNavProps {
 }
 
 export function ChapterNav({ onPrev, onNext, disablePrev, disableNext }: ChapterNavProps) {
+  const { t } = useLanguage();
   return (
     <div className="chapterNav">
       <button type="button" onClick={onPrev} disabled={disablePrev}>
-        ◀ Previous Chapter
+        {t("nav.prev")}
       </button>
       <button type="button" onClick={onNext} disabled={disableNext}>
-        Next Chapter ▶
+        {t("nav.next")}
       </button>
     </div>
   );

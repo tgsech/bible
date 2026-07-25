@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError } from "../lib/api";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./PublicProfilePage.css";
 
 interface Badge {
@@ -33,6 +34,7 @@ export function PublicProfilePage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!username) return;
@@ -67,7 +69,7 @@ export function PublicProfilePage() {
   if (loading) {
     return (
       <div id="mainBody" className="publicProfilePage">
-        <p>Loading…</p>
+        <p>{t("common.loading")}</p>
       </div>
     );
   }
@@ -76,10 +78,10 @@ export function PublicProfilePage() {
     return (
       <div id="mainBody" className="publicProfilePage">
         <Link to="/leaderboard" className="backHomeLink">
-          ← Leaderboard
+          {t("publicProfile.backLeaderboard")}
         </Link>
-        <h1>No profile here</h1>
-        <p>Nobody's claimed the username "{username}", or they haven't set one publicly.</p>
+        <h1>{t("publicProfile.notFoundTitle")}</h1>
+        <p>{t("publicProfile.notFoundBody", { username: username ?? "" })}</p>
       </div>
     );
   }
@@ -87,7 +89,9 @@ export function PublicProfilePage() {
   if (error || !profile) {
     return (
       <div id="mainBody" className="publicProfilePage">
-        <p>Couldn't load this profile. {error}</p>
+        <p>
+          {t("publicProfile.loadErrorPrefix")} {error}
+        </p>
       </div>
     );
   }
@@ -97,45 +101,53 @@ export function PublicProfilePage() {
   return (
     <div id="mainBody" className="publicProfilePage">
       <h1>{profile.username}</h1>
-      {profile.bio && <p className="publicProfileBio">About Me: {profile.bio}</p>}
-      {profile.mood && <p className="publicProfileMood">Mood: {profile.mood}</p>}
+      {profile.bio && (
+        <p className="publicProfileBio">
+          {t("publicProfile.aboutMe")} {profile.bio}
+        </p>
+      )}
+      {profile.mood && (
+        <p className="publicProfileMood">
+          {t("publicProfile.mood")} {profile.mood}
+        </p>
+      )}
 
       <section className="profileSection">
-        <h2>Stats</h2>
+        <h2>{t("publicProfile.stats")}</h2>
         <div className="statGrid">
           <div className="statCard">
             <span className="statValue">{stats.chaptersCompleted}</span>
-            <span className="statLabel">Chapters finished</span>
+            <span className="statLabel">{t("profile.chaptersFinished")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{streak.current}</span>
-            <span className="statLabel">Current streak</span>
+            <span className="statLabel">{t("publicProfile.currentStreak")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{streak.longest}</span>
-            <span className="statLabel">Longest streak</span>
+            <span className="statLabel">{t("publicProfile.longestStreak")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{stats.avgWpm ? stats.avgWpm.toFixed(1) : "—"}</span>
-            <span className="statLabel">Avg WPM</span>
+            <span className="statLabel">{t("profile.avgWpm")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{stats.avgCpm ? stats.avgCpm.toFixed(1) : "—"}</span>
-            <span className="statLabel">Avg 타/분</span>
+            <span className="statLabel">{t("profile.avgCpm")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">
               {stats.avgAccuracy ? `${stats.avgAccuracy.toFixed(1)}%` : "—"}
             </span>
-            <span className="statLabel">Avg accuracy</span>
+            <span className="statLabel">{t("profile.avgAccuracy")}</span>
           </div>
         </div>
       </section>
 
       <section className="profileSection">
-        <h2>Badges</h2>
+        <h2>{t("publicProfile.badges")}</h2>
         {badges.length === 0 ? (
-          <p>No badges earned yet.</p>
+          <p>{t("publicProfile.noBadges")}</p>
         ) : (
           <ul className="badgeList">
             {badges.map((badge) => (

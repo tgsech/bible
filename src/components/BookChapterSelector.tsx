@@ -1,5 +1,6 @@
 import "./BookChapterSelector.css";
 import type { BookMeta, TranslationMeta } from "../bible-data/types";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface Props {
   translations: TranslationMeta[];
@@ -12,6 +13,7 @@ interface Props {
 export function BookChapterSelector({ translations, translationId, bookId, chapter, onChange }: Props) {
   const translation = translations.find((t) => t.id === translationId) ?? translations[0];
   const book = translation.books.find((b) => b.id === bookId) ?? translation.books[0];
+  const { t } = useLanguage();
 
   // Group books by their `group` label (e.g. "Old Testament"/"New Testament")
   // so the dropdown stays navigable once all 66 books are populated - a flat
@@ -26,11 +28,11 @@ export function BookChapterSelector({ translations, translationId, bookId, chapt
   return (
     <div className="bookChapterSelector">
       <label className="selectField">
-        <span className="selectLabel">Translation</span>
+        <span className="selectLabel">{t("selector.translation")}</span>
         <select
           value={translation.id}
           onChange={(e) => {
-            const nextTranslation = translations.find((t) => t.id === e.target.value)!;
+            const nextTranslation = translations.find((tr) => tr.id === e.target.value)!;
             onChange({
               translationId: nextTranslation.id,
               bookId: nextTranslation.books[0].id,
@@ -38,16 +40,16 @@ export function BookChapterSelector({ translations, translationId, bookId, chapt
             });
           }}
         >
-          {translations.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
+          {translations.map((tr) => (
+            <option key={tr.id} value={tr.id}>
+              {tr.name}
             </option>
           ))}
         </select>
       </label>
 
       <label className="selectField">
-        <span className="selectLabel">Book</span>
+        <span className="selectLabel">{t("selector.book")}</span>
         <select
           value={book.id}
           onChange={(e) =>
@@ -67,7 +69,7 @@ export function BookChapterSelector({ translations, translationId, bookId, chapt
       </label>
 
       <label className="selectField selectField--narrow">
-        <span className="selectLabel">Chapter</span>
+        <span className="selectLabel">{t("selector.chapter")}</span>
         <select
           value={chapter}
           onChange={(e) =>

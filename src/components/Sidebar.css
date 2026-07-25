@@ -144,6 +144,38 @@
   color: var(--color-bg);
 }
 
+.sidebarLangToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--color-text);
+}
+
+.sidebarLangOption {
+  flex: 1;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sidebarLangOption:hover {
+  opacity: 0.75;
+}
+
+.sidebarLangOption--active {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
 .sidebarBottom {
   margin-top: auto;
   display: flex;

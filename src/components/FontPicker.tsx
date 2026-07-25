@@ -1,5 +1,6 @@
 import { FONTS } from "../theme/themeOptions";
 import { useTheme } from "../theme/ThemeContext";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./FontPicker.css";
 
 const KOREAN_SAMPLE =
@@ -16,11 +17,12 @@ const ENGLISH_SAMPLE =
 
 export function FontPicker() {
   const { font, setFontId } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <div className="fontPicker">
       <label className="fontPickerLabel">
-        <span>Font</span>
+        <span>{t("settings.font")}</span>
         <select value={font.id} onChange={(e) => setFontId(e.target.value)}>
           {FONTS.map((f) => (
             <option key={f.id} value={f.id}>

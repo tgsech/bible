@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authClient, useSession } from "../lib/authClient";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./AuthPage.css";
 
 type Mode = "signin" | "signup";
@@ -8,6 +9,7 @@ type Mode = "signin" | "signup";
 export function AuthPage() {
   const navigate = useNavigate();
   const { data: session, isPending: sessionPending } = useSession();
+  const { t } = useLanguage();
 
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
@@ -34,7 +36,7 @@ export function AuthPage() {
     setLoading(false);
 
     if (authError) {
-      setError(authError.message ?? "Something went wrong. Please try again.");
+      setError(authError.message ?? t("auth.genericError"));
       return;
     }
 
@@ -55,7 +57,7 @@ export function AuthPage() {
   if (sessionPending) {
     return (
       <div id="mainBody" className="authPage">
-        <p>Loading…</p>
+        <p>{t("common.loading")}</p>
       </div>
     );
   }
@@ -64,10 +66,10 @@ export function AuthPage() {
     return (
       <div id="mainBody" className="authPage">
         <Link to="/" className="backHomeLink">
-          ← Home
+          {t("common.home")}
         </Link>
-        <p>You're already signed in as {session.user.name}.</p>
-        <Link to="/">← Back home</Link>
+        <p>{t("auth.alreadySignedIn", { name: session.user.name })}</p>
+        <Link to="/">{t("common.backHome")}</Link>
       </div>
     );
   }
@@ -75,10 +77,10 @@ export function AuthPage() {
   return (
     <div id="mainBody" className="authPage">
       <Link to="/" className="backHomeLink">
-        ← Home
+        {t("common.home")}
       </Link>
 
-      <h1 className="authTitle">LivingWords</h1>
+      <h1 className="authTitle">{t("auth.brand")}</h1>
 
       <div className="authTabs">
         <button
@@ -86,21 +88,21 @@ export function AuthPage() {
           className={`authTab${mode === "signin" ? " authTab--active" : ""}`}
           onClick={() => switchMode("signin")}
         >
-          Sign in
+          {t("auth.signInTab")}
         </button>
         <button
           type="button"
           className={`authTab${mode === "signup" ? " authTab--active" : ""}`}
           onClick={() => switchMode("signup")}
         >
-          Sign up
+          {t("auth.signUpTab")}
         </button>
       </div>
 
       <form className="authForm" onSubmit={handleSubmit}>
         {mode === "signup" && (
           <label className="authField">
-            <span>Name</span>
+            <span>{t("auth.name")}</span>
             <input
               type="text"
               value={name}
@@ -112,7 +114,7 @@ export function AuthPage() {
         )}
 
         <label className="authField">
-          <span>Email</span>
+          <span>{t("auth.email")}</span>
           <input
             type="email"
             value={email}
@@ -123,7 +125,7 @@ export function AuthPage() {
         </label>
 
         <label className="authField">
-          <span>Password</span>
+          <span>{t("auth.password")}</span>
           <input
             type="password"
             value={password}
@@ -137,16 +139,16 @@ export function AuthPage() {
         {error && <p className="authError">{error}</p>}
 
         <button type="submit" className="authSubmit" disabled={loading}>
-          {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+          {loading ? t("auth.pleaseWait") : mode === "signup" ? t("auth.createAccount") : t("auth.signInTab")}
         </button>
       </form>
 
       <div className="authDivider">
-        <span>or</span>
+        <span>{t("auth.or")}</span>
       </div>
 
       <button type="button" className="authGoogleButton" onClick={handleGoogle}>
-        Continue with Google
+        {t("auth.continueGoogle")}
       </button>
     </div>
   );

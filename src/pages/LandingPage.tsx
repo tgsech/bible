@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./LandingPage.css";
 
 const TRANSLATIONS = [nivEn, krvKo];
 
 export function LandingPage() {
+  const { t } = useLanguage();
   return (
     <div id="mainBody" className="landingPage">
       <header className="landingHeader">
         <h1 className="landingTitle">LivingWords - 살아있는 말씀</h1>
-        <p className="landingSubtitle">말씀과 함께하는 삶~~~!</p>
+        <p className="landingSubtitle">{t("landing.subtitle")}</p>
       </header>
 
       {/* <section className="languagePick">

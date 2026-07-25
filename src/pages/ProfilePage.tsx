@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { ProfileSettingsForm } from "../components/ProfileSettingsForm";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./ProfilePage.css";
 
 const TRANSLATIONS = [nivEn, krvKo];
@@ -67,6 +68,7 @@ export function ProfilePage() {
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!session) {
@@ -84,7 +86,7 @@ export function ProfilePage() {
   if (sessionPending || loading) {
     return (
       <div id="mainBody" className="profilePage">
-        <p>Loading…</p>
+        <p>{t("common.loading")}</p>
       </div>
     );
   }
@@ -92,10 +94,10 @@ export function ProfilePage() {
   if (!session) {
     return (
       <div id="mainBody" className="profilePage">
-        <h1>Profile</h1>
-        <p>Sign in to see your saved progress, stats, and completions here.</p>
+        <h1>{t("profile.title")}</h1>
+        <p>{t("profile.signInPrompt")}</p>
         <Link to="/auth" className="profileSignInLink">
-          Sign in
+          {t("common.signIn")}
         </Link>
       </div>
     );
@@ -104,9 +106,11 @@ export function ProfilePage() {
   if (error || !summary) {
     return (
       <div id="mainBody" className="profilePage">
-        <h1>Profile</h1>
-        <p>Couldn't load your profile. {error}</p>
-        <Link to="/">← Back home</Link>
+        <h1>{t("profile.title")}</h1>
+        <p>
+          {t("profile.loadErrorPrefix")} {error}
+        </p>
+        <Link to="/">{t("common.backHome")}</Link>
       </div>
     );
   }
@@ -116,14 +120,14 @@ export function ProfilePage() {
   return (
     <div id="mainBody" className="profilePage">
       <div className="profileHeaderRow">
-        <h1>{settings.username ?? session.user.name}'s Profile</h1>
+        <h1>{t("profile.possessiveTitle", { name: settings.username ?? session.user.name })}</h1>
         <button type="button" className="profileSignOut" onClick={() => authClient.signOut()}>
-          Sign out
+          {t("sidebar.signOut")}
         </button>
       </div>
 
       <section className="profileSection">
-        <h2>Currently typing</h2>
+        <h2>{t("profile.currentlyTyping")}</h2>
         {latestPosition ? (
           <p>
             <Link
@@ -132,15 +136,15 @@ export function ProfilePage() {
               {bookName(latestPosition.translationId, latestPosition.bookId)} {latestPosition.chapter}
             </Link>
             {" — "}
-            verse {latestPosition.verseIndex + 1}
+            {t("profile.verse")} {latestPosition.verseIndex + 1}
           </p>
         ) : (
-          <p>No saved position yet — start typing a chapter to see it here.</p>
+          <p>{t("profile.noSavedPosition")}</p>
         )}
       </section>
 
       <section className="profileSection">
-        <h2>Currently reading</h2>
+        <h2>{t("profile.currentlyReading")}</h2>
         {latestReadingPosition ? (
           <p>
             <Link
@@ -151,50 +155,50 @@ export function ProfilePage() {
             </Link>
           </p>
         ) : (
-          <p>No saved reading position yet — switch to read-only mode on a chapter to see it here.</p>
+          <p>{t("profile.noSavedReadingPosition")}</p>
         )}
       </section>
 
       <section className="profileSection">
-        <h2>Overall stats</h2>
+        <h2>{t("profile.overallStats")}</h2>
         <div className="statGrid">
           <div className="statCard">
             <span className="statValue">{overall.totalCompletions}</span>
-            <span className="statLabel">Total completions</span>
+            <span className="statLabel">{t("profile.totalCompletions")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{overall.chaptersCompleted}</span>
-            <span className="statLabel">Chapters finished</span>
+            <span className="statLabel">{t("profile.chaptersFinished")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{overall.avgWpm ? overall.avgWpm.toFixed(1) : "—"}</span>
-            <span className="statLabel">Avg WPM</span>
+            <span className="statLabel">{t("profile.avgWpm")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">{overall.avgCpm ? overall.avgCpm.toFixed(1) : "—"}</span>
-            <span className="statLabel">Avg 타/분</span>
+            <span className="statLabel">{t("profile.avgCpm")}</span>
           </div>
           <div className="statCard">
             <span className="statValue">
               {overall.avgAccuracy ? `${overall.avgAccuracy.toFixed(1)}%` : "—"}
             </span>
-            <span className="statLabel">Avg accuracy</span>
+            <span className="statLabel">{t("profile.avgAccuracy")}</span>
           </div>
         </div>
       </section>
 
       <section className="profileSection">
-        <h2>Completed chapters</h2>
+        <h2>{t("profile.completedChapters")}</h2>
         {completions.length === 0 ? (
-          <p>Finish a chapter and it'll show up here.</p>
+          <p>{t("profile.noCompletions")}</p>
         ) : (
           <table className="completionsTable">
             <thead>
               <tr>
-                <th>Chapter</th>
-                <th>Times completed</th>
-                <th>Best speed</th>
-                <th>Avg accuracy</th>
+                <th>{t("profile.chapterCol")}</th>
+                <th>{t("profile.timesCompletedCol")}</th>
+                <th>{t("profile.bestSpeedCol")}</th>
+                <th>{t("profile.avgAccuracyCol")}</th>
               </tr>
             </thead>
             <tbody>
@@ -218,14 +222,13 @@ export function ProfilePage() {
       </section>
 
       <section className="profileSection">
-        <h2>Profile settings</h2>
+        <h2>{t("profile.profileSettings")}</h2>
         <p className="settingsHint">
-          Your username shows on the leaderboard and directory instead of your account name — leave it
-          blank to just show as anonymous there.
+          {t("profile.settingsHint")}
           {settings.username && (
             <>
               {" "}
-              <Link to={`/u/${encodeURIComponent(settings.username)}`}>View your public profile →</Link>
+              <Link to={`/u/${encodeURIComponent(settings.username)}`}>{t("profile.viewPublic")}</Link>
             </>
           )}
         </p>

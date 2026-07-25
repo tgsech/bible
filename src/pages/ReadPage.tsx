@@ -14,6 +14,7 @@ import { LiveStats } from "../components/LiveStats";
 import { CompletionModal } from "../components/CompletionModal";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./ReadPage.css";
 
 const TRANSLATIONS = [nivEn, krvKo];
@@ -21,6 +22,7 @@ const TRANSLATIONS = [nivEn, krvKo];
 export function ReadPage() {
   const params = useParams<{ translationId: string; bookId: string; chapter: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const translationId = params.translationId ?? nivEn.id;
   const bookId = params.bookId ?? nivEn.books[0].id;
@@ -192,8 +194,13 @@ export function ReadPage() {
     setModalDismissed(false);
   };
 
-  if (loading) return <div id="mainBody">Loading…</div>;
-  if (error || !data) return <div id="mainBody">Couldn't load this chapter. {error}</div>;
+  if (loading) return <div id="mainBody">{t("common.loading")}</div>;
+  if (error || !data)
+    return (
+      <div id="mainBody">
+        {t("read.loadErrorPrefix")} {error}
+      </div>
+    );
 
   const elapsedMs = session.startTime && session.endTime ? session.endTime - session.startTime : 0;
   const finalStats = computeTypingStats(

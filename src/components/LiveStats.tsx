@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { computeTypingStats } from "../typing/stats";
+import { useLanguage } from "../i18n/LanguageContext";
 import "./LiveStats.css";
 
 interface LiveStatsProps {
@@ -20,6 +21,7 @@ function LiveStatsImpl({
   // Ticks locally so the speed keeps climbing even between keystrokes,
   // without touching any state outside this component.
   const [now, setNow] = useState(() => Date.now());
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (startTime === null || endTime !== null) return;
@@ -40,7 +42,9 @@ function LiveStatsImpl({
       <div className="liveStatsValue">
         {speed} {label}
       </div>
-      <div className="liveStatsValue">{accuracy}% acc</div>
+      <div className="liveStatsValue">
+        {accuracy}% {t("livestats.acc")}
+      </div>
     </div>
   );
 }
