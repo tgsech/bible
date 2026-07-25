@@ -1,31 +1,52 @@
+/* Cursor blinking */
 @keyframes blink {
   50% { opacity: 0; }
 }
 
+/*  바탕체s */
 @font-face {
     font-family: 'MaruBuri';
     src: url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2);
     font-weight: 300;
     font-display: swap;
 }
+@font-face {
+    font-family: 'ChosunIlboMyungjo';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Chosunilbo_myungjo.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
 
+/* 귀염체s */
 @font-face {
     font-family: 'OngleipParkDahyeon';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2411-3@1.0/Ownglyph_ParkDaHyun.woff2') format('woff2');
     font-weight: normal;
     font-display: swap;
 }
+@font-face {
+    font-family: 'OngleipKonkon';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
 
+/* 고딕s */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
-
-
 @font-face {
     font-family: 'NanumSquareNeo';
-    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-aLt.woff2);
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2);
     font-weight: 700;
     font-display: swap;
 }
 
+/* 픽셀체s */
+@font-face {
+    font-family: 'Umdot';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/Umdot12.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
 
 :root {
   --color-bg: #F1E4D2;

@@ -173,7 +173,7 @@
 
 .sidebarLangOption--active {
   background: var(--color-untyped);
-  color: var(--color-bg);
+  color: var(--color-correct);
 }
 
 .sidebarBottom {
