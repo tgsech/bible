@@ -38,6 +38,7 @@
   line-height: 1.6;
   white-space: pre-line;
   margin: 0 0 16px;
+  text-align: left;
 }
 
 .fontSampleText:last-child {
