@@ -1,0 +1,62 @@
+.directoryCard {
+  display: block;
+  border: 1px solid var(--color-text);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--color-correct);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.directoryCard:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.directoryCard:hover .directoryCardName,
+.directoryCard:hover .directoryCardBio,
+.directoryCard:hover .directoryCardMood,
+.directoryCard:hover .directoryCardTeam {
+  color: var(--color-bg);
+}
+
+.directoryCardNames {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.directoryCardUsername {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.directoryCardName {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.directoryCardBio {
+  font-size: 0.82rem;
+  margin-top: 6px;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.directoryCardMood {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+.directoryCardTeam {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  opacity: 0.65;
+}

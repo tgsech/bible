@@ -12,6 +12,7 @@ import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { PublicProfilePage } from "./pages/PublicProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { LivWordersPage } from "./pages/LivWordersPage";
+import { TeamDetailPage } from "./pages/TeamDetailPage";
 import { MemoryToolPage } from "./pages/MemoryToolPage";
 import "./AppShell.css";
 
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/directory" element={<LivWordersPage />} />
+                <Route path="/team/:id" element={<TeamDetailPage />} />
                 <Route path="/memory" element={<MemoryToolPage />} />
               </Routes>
             </main>

@@ -14,10 +14,25 @@ interface LeaderboardRow {
   chaptersInUnit?: number;
 }
 
+interface TeamLeaderboardRow {
+  teamId: string;
+  teamName: string;
+  memberCount: number;
+  value: number;
+}
+
 interface LeaderboardResponse {
   metric: string;
   rows: LeaderboardRow[];
 }
+
+interface TeamLeaderboardResponse {
+  metric: string;
+  scope: "teams";
+  rows: TeamLeaderboardRow[];
+}
+
+type Scope = "users" | "teams";
 
 // One entry per board. `format` turns a row's raw `value` into what shows
 // in the value column — kept per-board since "12" means very different
@@ -43,8 +58,10 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 export function LeaderboardPage() {
   const { data: session } = useSession();
   const { t } = useLanguage();
+  const [scope, setScope] = useState<Scope>("users");
   const [boardId, setBoardId] = useState<BoardDef["id"]>("streak");
   const [rows, setRows] = useState<LeaderboardRow[] | null>(null);
+  const [teamRows, setTeamRows] = useState<TeamLeaderboardRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,21 +71,35 @@ export function LeaderboardPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    api
-      .get<LeaderboardResponse>(`/leaderboard?by=${boardId}&limit=50`)
-      .then((data) => {
-        if (!cancelled) setRows(data?.rows ?? []);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(String(err));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    if (scope === "teams") {
+      api
+        .get<TeamLeaderboardResponse>(`/leaderboard?by=${boardId}&limit=50&scope=teams`)
+        .then((data) => {
+          if (!cancelled) setTeamRows(data?.rows ?? []);
+        })
+        .catch((err) => {
+          if (!cancelled) setError(String(err));
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    } else {
+      api
+        .get<LeaderboardResponse>(`/leaderboard?by=${boardId}&limit=50`)
+        .then((data) => {
+          if (!cancelled) setRows(data?.rows ?? []);
+        })
+        .catch((err) => {
+          if (!cancelled) setError(String(err));
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }
     return () => {
       cancelled = true;
     };
-  }, [boardId]);
+  }, [boardId, scope]);
 
   return (
     <div id="mainBody" className="leaderboardPage">
@@ -77,6 +108,27 @@ export function LeaderboardPage() {
         {t("leaderboard.introPre")}{" "}
         <Link to="/profile">{t("leaderboard.introLink")}</Link>.
       </p>
+
+      <div className="scopeTabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={scope === "users"}
+          className={`scopeTab${scope === "users" ? " scopeTabActive" : ""}`}
+          onClick={() => setScope("users")}
+        >
+          {t("leaderboard.scope.users")}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={scope === "teams"}
+          className={`scopeTab${scope === "teams" ? " scopeTabActive" : ""}`}
+          onClick={() => setScope("teams")}
+        >
+          {t("leaderboard.scope.teams")}
+        </button>
+      </div>
 
       <div className="boardTabs" role="tablist">
         {BOARDS.map((b) => (
@@ -101,6 +153,40 @@ export function LeaderboardPage() {
         <p>
           {t("leaderboard.loadErrorPrefix")} {error}
         </p>
+      ) : scope === "teams" ? (
+        !teamRows || teamRows.length === 0 ? (
+          <p>{t("leaderboard.teamsEmpty")}</p>
+        ) : (
+          <table className="leaderboardTable">
+            <thead>
+              <tr>
+                <th className="rankCol">#</th>
+                <th>{t("leaderboard.teamNameCol")}</th>
+                <th className="valueCol">{t("leaderboard.teamMembersCol")}</th>
+                <th className="valueCol">{t(`leaderboard.board.${board.id}.valueHeader`)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teamRows.map((row, i) => (
+                <tr key={row.teamId}>
+                  <td className="rankCol">{MEDALS[i] ?? i + 1}</td>
+                  <td>
+                    <Link to={`/team/${row.teamId}`}>{row.teamName}</Link>
+                  </td>
+                  <td className="valueCol">{row.memberCount}</td>
+                  <td className="valueCol">
+                    {board.format({
+                      userId: row.teamId,
+                      displayName: row.teamName,
+                      hasUsername: false,
+                      value: row.value,
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
       ) : !rows || rows.length === 0 ? (
         <p>{t(`leaderboard.board.${board.id}.empty`)}</p>
       ) : (

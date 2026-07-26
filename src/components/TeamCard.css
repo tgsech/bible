@@ -1,0 +1,87 @@
+.teamCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-text);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--color-correct);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.teamCard:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.teamCard:hover .teamCardMembers {
+  color: var(--color-bg);
+}
+
+.teamCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.teamCardName {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teamCardOwnerBadge {
+  font-size: 0.65rem;
+  font-weight: 500;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 1px 8px;
+  opacity: 0.8;
+}
+
+.teamCardMembers {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.teamCardButton {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-correct);
+  background: transparent;
+  color: var(--color-correct);
+  cursor: pointer;
+}
+
+.teamCard:hover .teamCardButton {
+  border-color: var(--color-bg);
+  color: var(--color-bg);
+}
+
+.teamCardButtonActive {
+  background: var(--color-correct);
+  color: var(--color-bg);
+}
+
+.teamCard:hover .teamCardButtonActive {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.teamCardButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.teamCardSignInHint {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}

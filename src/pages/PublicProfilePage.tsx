@@ -15,6 +15,8 @@ interface PublicProfile {
   username: string;
   bio: string | null;
   mood: string | null;
+  teamId: string | null;
+  teamName: string | null;
   stats: {
     chaptersCompleted: number;
     avgWpm: number;
@@ -111,6 +113,14 @@ export function PublicProfilePage() {
           {t("publicProfile.mood")} {profile.mood}
         </p>
       )}
+      <p className="publicProfileTeam">
+        {t("directory.teamLabel")}{" "}
+        {profile.teamId && profile.teamName ? (
+          <Link to={`/team/${profile.teamId}`}>{profile.teamName}</Link>
+        ) : (
+          t("directory.solo")
+        )}
+      </p>
 
       <section className="profileSection">
         <h2>{t("publicProfile.stats")}</h2>

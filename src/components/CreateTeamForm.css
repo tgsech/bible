@@ -1,0 +1,96 @@
+.createTeamForm {
+  border: 1px solid var(--color-text);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.createTeamForm h2 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--color-correct);
+}
+
+.createTeamField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-correct);
+}
+
+.createTeamField input {
+  font-size: 0.95rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-correct);
+}
+
+.createTeamPolicy {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.createTeamPolicy legend {
+  font-size: 0.85rem;
+  padding: 0;
+  margin-bottom: 4px;
+  color: var(--color-correct);
+}
+
+.createTeamPolicy label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--color-correct);
+  cursor: pointer;
+}
+
+.createTeamError {
+  font-size: 0.82rem;
+  color: var(--color-incorrect);
+  margin: 0;
+}
+
+.createTeamActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.createTeamCancel,
+.createTeamSubmit {
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.createTeamCancel {
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-correct);
+}
+
+.createTeamSubmit {
+  border: 1px solid var(--color-correct);
+  background: var(--color-correct);
+  color: var(--color-bg);
+}
+
+.createTeamSubmit:disabled,
+.createTeamCancel:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
