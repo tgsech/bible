@@ -15,12 +15,12 @@ export function ThemeShowcase() {
           <ColorPaletteGrid />
         </div>
         <div className="themeShowcaseColumn">
-          <h3 className="themeShowcaseSubtitle">{t("settings.font")}</h3>
-          <FontPicker />
-        </div>
-        <div className="themeShowcaseColumn">
           <h3 className="themeShowcaseSubtitle">{t("settings.textSize")}</h3>
           <TextSizeSlider />
+        </div>
+        <div className="themeShowcaseColumn">
+          <h3 className="themeShowcaseSubtitle">{t("settings.font")}</h3>
+          <FontPicker />
         </div>
       </div>
     </section>

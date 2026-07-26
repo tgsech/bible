@@ -4,9 +4,6 @@ import { useLanguage } from "../i18n/LanguageContext";
 import "./TextSizeSlider.css";
 import "./ThemeShowcase.css";
 
-const KOREAN_SAMPLE = "나는 선한 목자라 나는 내 양을 알고 양도 나를 아는 것이";
-const ENGLISH_SAMPLE = "I am the good shepherd; I know my sheep and my sheep know me.";
-
 export function TextSizeSlider() {
   const { textScale, setTextScale } = useTheme();
   const { t } = useLanguage();
@@ -26,13 +23,6 @@ export function TextSizeSlider() {
           aria-label={t("settings.textSize")}
         />
       </label>
-
-      <h3 className="themeShowcaseSubtitle">{t("settings.sample")}</h3>
-
-      <div className="fontSample textSizeSample">
-        <p className="bibText textSizeSampleText">{KOREAN_SAMPLE}</p>
-        <p className="bibText textSizeSampleText">{ENGLISH_SAMPLE}</p>
-      </div>
     </div>
   );
 }

@@ -1,3 +1,18 @@
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track, input[type="range"]::-moz-range-track{
+  background: var(--color-untyped);
+  max-width: 300px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  border-color: var(--color-text);
+}
+
+
 .textSizeSlider {
   display: flex;
   flex-direction: column;
@@ -20,19 +35,7 @@
 
 .textSizeSliderInput {
   flex: 1;
-  accent-color: var(--color-cursor);
+  accent-color: var(--color-correct);
   cursor: pointer;
 }
 
-.textSizeSample {
-  overflow-wrap: anywhere;
-}
-
-.textSizeSampleText {
-  margin: 0 0 16px;
-  text-align: left;
-}
-
-.textSizeSampleText:last-child {
-  margin-bottom: 0;
-}
