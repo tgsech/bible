@@ -4,28 +4,97 @@
   padding: 64px 24px 48px;
 }
 
-.publicProfileMood {
-  font-size: 0.95rem;
-  opacity: 0.85;
-  margin-top: 4px;
+/* Discord-style profile card: rounded rectangle, centered, equal side
+   margins (inherited from .publicProfilePage's auto margins + matching
+   left/right padding below), with a horizontal accent banner across the
+   top. --color-incorrect is used for the banner deliberately — it's the
+   one palette slot that's guaranteed to read as a distinct accent against
+   --color-bg in every theme, the same role it plays elsewhere (streaks,
+   error states) just repurposed here as decoration rather than meaning. */
+.profileCard {
+  border: 1px solid var(--color-text);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--color-bg);
 }
 
-.publicProfileBio {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin-top: 8px;
-  max-width: 480px;
+.profileCardBanner {
+  height: 64px;
+  background: var(--color-incorrect);
 }
 
-.publicProfileTeam {
-  font-size: 0.85rem;
-  opacity: 0.7;
-  margin-top: 8px;
+.profileCardBody {
+  padding: 20px 28px 28px;
 }
 
-.publicProfileTeam a {
+/* Username: the single biggest, most prominent text in the card. */
+.profileCardUsername {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--color-correct);
-  opacity: 1;
+  text-align: left;
+}
+
+/* Sign-up name: directly under the username, lighter and smaller. */
+.profileCardSignedUpAs {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  color: var(--color-correct);
+  opacity: 0.65;
+  text-align: left;
+}
+
+.profileCardSection {
+  margin-top: 20px;
+}
+
+/* About Me / Team headers: small caps-style label, same size as the
+   sign-up name above so the two "secondary" texts read as one tier. */
+.profileCardLabel {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-correct);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Body text under each label — About Me content and the team value —
+   noticeably smaller than the username, matching the sign-up name size. */
+.profileCardText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-correct);
+  text-align: left;
+}
+
+.profileCardTeamLink {
+  color: var(--color-correct);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Mood: centered, quoted, italic — its own visual register, distinct from
+   the left-aligned label/value pairs above it. */
+.profileCardMood {
+  margin: 24px 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-correct);
+  text-align: center;
+}
+
+/* "Since <date>" footer, also italicized, sitting quietly at the bottom. */
+.profileCardSince {
+  margin: 18px 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--color-correct);
+  opacity: 0.6;
+  text-align: center;
 }
 
 .badgeList {

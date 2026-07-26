@@ -13,10 +13,12 @@ interface Badge {
 
 interface PublicProfile {
   username: string;
+  name: string;
   bio: string | null;
   mood: string | null;
   teamId: string | null;
   teamName: string | null;
+  memberSince: string;
   stats: {
     chaptersCompleted: number;
     avgWpm: number;
@@ -36,7 +38,7 @@ export function PublicProfilePage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     if (!username) return;
@@ -99,28 +101,42 @@ export function PublicProfilePage() {
   }
 
   const { stats, streak, badges } = profile;
+  const memberSinceLabel = new Date(profile.memberSince).toLocaleDateString(
+    lang === "ko" ? "ko-KR" : "en-US",
+    { year: "numeric", month: "long", day: "numeric" }
+  );
 
   return (
     <div id="mainBody" className="publicProfilePage">
-      <h1>{profile.username}</h1>
-      {profile.bio && (
-        <p className="publicProfileBio">
-          {t("publicProfile.aboutMe")} {profile.bio}
-        </p>
-      )}
-      {profile.mood && (
-        <p className="publicProfileMood">
-          {t("publicProfile.mood")} {profile.mood}
-        </p>
-      )}
-      <p className="publicProfileTeam">
-        {t("directory.teamLabel")}{" "}
-        {profile.teamId && profile.teamName ? (
-          <Link to={`/team/${profile.teamId}`}>{profile.teamName}</Link>
-        ) : (
-          t("directory.solo")
-        )}
-      </p>
+      <div className="profileCard">
+        <div className="profileCardBanner" />
+        <div className="profileCardBody">
+          <h1 className="profileCardUsername">{profile.username}</h1>
+          <p className="profileCardSignedUpAs">{t("publicProfile.signedUpAs", { name: profile.name })}</p>
+
+          <div className="profileCardSection">
+            <h2 className="profileCardLabel">{t("publicProfile.aboutMe")}</h2>
+            <p className="profileCardText">{profile.bio || "—"}</p>
+          </div>
+
+          <div className="profileCardSection">
+            <h2 className="profileCardLabel">{t("directory.teamLabel")}</h2>
+            <p className="profileCardText">
+              {profile.teamId && profile.teamName ? (
+                <Link to={`/team/${profile.teamId}`} className="profileCardTeamLink">
+                  {profile.teamName}
+                </Link>
+              ) : (
+                t("directory.solo")
+              )}
+            </p>
+          </div>
+
+          {profile.mood && <p className="profileCardMood">&ldquo;{profile.mood}&rdquo;</p>}
+
+          <p className="profileCardSince">{t("publicProfile.since", { date: memberSinceLabel })}</p>
+        </div>
+      </div>
 
       <section className="profileSection">
         <h2>{t("publicProfile.stats")}</h2>
