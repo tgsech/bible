@@ -36,10 +36,11 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Settings / Theme
     "settings.title": "Settings",
-    "settings.intro": "Pick a color set and font. Both follow your account across devices.",
+    "settings.intro": "Pick a color set, font, and text size. All follow your account across devices.",
     "settings.themesTitle": "Themes",
     "settings.colorSets": "Color Sets",
     "settings.font": "Font",
+    "settings.textSize": "Text Size",
     "settings.sample": "Sample Text",
     "palette.text": "Text",
     "palette.correct": "Correct",
@@ -208,10 +209,11 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Settings / Theme
     "settings.title": "설정",
-    "settings.intro": "색상 세트와 폰트를 선택하세요. 계정에 저장되어 모든 기기에서 동일하게 적용됩니다.",
+    "settings.intro": "색상 세트, 폰트, 글자 크기를 선택하세요. 계정에 저장되어 모든 기기에서 동일하게 적용됩니다.",
     "settings.themesTitle": "테마",
     "settings.colorSets": "색상 세트",
     "settings.font": "폰트",
+    "settings.textSize": "글자 크기",
     "settings.sample": "샘플",
     "palette.text": "텍스트",
     "palette.correct": "정확",

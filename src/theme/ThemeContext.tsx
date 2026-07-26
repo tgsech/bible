@@ -1,23 +1,61 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { PALETTES, FONTS, type ColorPalette, type FontOption } from "./themeOptions";
+import {
+  PALETTES,
+  FONTS,
+  TEXT_SCALE_MIN,
+  TEXT_SCALE_MAX,
+  TEXT_SCALE_DEFAULT,
+  type ColorPalette,
+  type FontOption,
+} from "./themeOptions";
 import { api } from "../lib/api";
 import { useSession } from "../lib/authClient";
 
 interface ThemeContextValue {
   palette: ColorPalette;
   font: FontOption;
+  textScale: number;
   setPaletteId: (id: string) => void;
   setFontId: (id: string) => void;
+  setTextScale: (scale: number) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const PALETTE_STORAGE_KEY = "theme:paletteId";
 const FONT_STORAGE_KEY = "theme:fontId";
+const TEXT_SCALE_STORAGE_KEY = "theme:textScale";
+
+// The browser's own default root font-size — every rem in the app is
+// relative to this, so "scale" just means "multiply this by X".
+const BASE_ROOT_FONT_SIZE_PX = 16;
+
+function clampTextScale(value: number): number {
+  if (Number.isNaN(value)) return TEXT_SCALE_DEFAULT;
+  return Math.min(TEXT_SCALE_MAX, Math.max(TEXT_SCALE_MIN, value));
+}
+
+function readStoredTextScale(): number {
+  try {
+    const raw = localStorage.getItem(TEXT_SCALE_STORAGE_KEY);
+    return raw ? clampTextScale(Number(raw)) : TEXT_SCALE_DEFAULT;
+  } catch {
+    return TEXT_SCALE_DEFAULT; // localStorage can throw in some locked-down contexts
+  }
+}
+
+function writeStoredTextScale(value: number) {
+  try {
+    localStorage.setItem(TEXT_SCALE_STORAGE_KEY, String(value));
+  } catch {
+    // ignore — worst case, the choice just doesn't survive a reload
+  }
+}
 
 interface ThemeSettings {
   themeId: string | null;
   fontId: string | null;
+  textScale: number | null;
 }
 
 // localStorage is what makes this work for guests (and gives everyone an
@@ -45,6 +83,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
   const [paletteId, setPaletteIdState] = useState(() => readStored(PALETTE_STORAGE_KEY, PALETTES[0].id));
   const [fontId, setFontIdState] = useState(() => readStored(FONT_STORAGE_KEY, FONTS[0].id));
+  const [textScale, setTextScaleState] = useState(readStoredTextScale);
 
   // Guards the one-time "load whatever the backend has, sync a guest's
   // local choice up on first login" exchange below so it runs once per
@@ -80,6 +119,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function setTextScale(scale: number) {
+    const clamped = clampTextScale(scale);
+    setTextScaleState(clamped);
+    writeStoredTextScale(clamped);
+    if (session) {
+      api.put("/profile/settings", { textScale: clamped }).catch((err) => {
+        console.error("Couldn't sync text size to your account:", err);
+      });
+    }
+  }
+
   // On login: the backend's saved theme/font wins if it has one (that's
   // the "follow me across devices" case). If it doesn't — first time this
   // account has ever logged in anywhere — push up whatever was picked
@@ -92,7 +142,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       .get<ThemeSettings>("/profile/settings")
       .then((settings) => {
         if (!settings) return;
-        const patch: { themeId?: string; fontId?: string } = {};
+        const patch: { themeId?: string; fontId?: string; textScale?: number } = {};
 
         if (settings.themeId && PALETTES.some((p) => p.id === settings.themeId)) {
           setPaletteIdState(settings.themeId);
@@ -108,6 +158,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           patch.fontId = fontId;
         }
 
+        if (typeof settings.textScale === "number") {
+          const clamped = clampTextScale(settings.textScale);
+          setTextScaleState(clamped);
+          writeStoredTextScale(clamped);
+        } else {
+          patch.textScale = textScale;
+        }
+
         if (Object.keys(patch).length > 0) {
           api.put("/profile/settings", patch).catch(() => {
             // best-effort — next explicit theme/font change will retry this
@@ -116,8 +174,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       })
       .catch((err) => console.error("Couldn't load your saved theme:", err));
     // Deliberately only re-runs when the logged-in user changes (via the
-    // ref guard above) — paletteId/fontId are read here but shouldn't
-    // re-trigger this exchange on every theme change, that's what the
+    // ref guard above) — paletteId/fontId/textScale are read here but
+    // shouldn't re-trigger this exchange on every change, that's what the
     // setters' own backend push is for.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -140,8 +198,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.setProperty("--font-body", font.cssFontFamily);
   }, [font]);
 
+  // Every font-size in this app is written in rem (see the grep-worthy
+  // sprinkling of "Xrem" across the .css files), so scaling the root
+  // font-size is all it takes to grow/shrink the whole app in lockstep —
+  // a 3rem book title and a 0.75rem label both move together, keeping
+  // their relative sizes instead of everything becoming the same size.
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${BASE_ROOT_FONT_SIZE_PX * textScale}px`;
+  }, [textScale]);
+
   return (
-    <ThemeContext.Provider value={{ palette, font, setPaletteId, setFontId }}>
+    <ThemeContext.Provider value={{ palette, font, textScale, setPaletteId, setFontId, setTextScale }}>
       {children}
     </ThemeContext.Provider>
   );

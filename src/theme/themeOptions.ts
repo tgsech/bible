@@ -18,6 +18,18 @@ export interface FontOption {
   cssFontFamily: string;
 }
 
+// Text size is a continuous scale rather than a fixed set of ids (unlike
+// palette/font) — the number the person sees (a %) IS the value we store
+// and apply, there's no lookup table to go through. Since every font-size
+// in this app is already written in rem (see ThemeContext's root font-size
+// effect), one multiplier here scales the whole app in proportion — a verse
+// number at 1.5rem and a book title at 3rem both grow/shrink together,
+// keeping their relative visual weight instead of flattening it.
+export const TEXT_SCALE_MIN = 0.8;
+export const TEXT_SCALE_MAX = 1.5;
+export const TEXT_SCALE_STEP = 0.05;
+export const TEXT_SCALE_DEFAULT = 1;
+
 export const PALETTES: ColorPalette[] = [
   {
     id: "original",

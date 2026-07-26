@@ -1,0 +1,38 @@
+.textSizeSlider {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 260px;
+}
+
+.textSizeSliderLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.textSizeSliderValue {
+  font-size: 1.1rem;
+  min-width: 3.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.textSizeSliderInput {
+  flex: 1;
+  accent-color: var(--color-cursor);
+  cursor: pointer;
+}
+
+.textSizeSample {
+  overflow-wrap: anywhere;
+}
+
+.textSizeSampleText {
+  margin: 0 0 16px;
+  text-align: left;
+}
+
+.textSizeSampleText:last-child {
+  margin-bottom: 0;
+}
