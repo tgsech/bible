@@ -49,13 +49,25 @@ export function ReadPage() {
     setModalDismissed(false);
   }, [translationId, bookId, chapter]);
 
-  useEffect(() => {
-    inputRef.current?.focus({ preventScroll: true });
-  }, [bookId, chapter]);
-
   const { saveProgress, loadProgress, isLoggedIn } = useProgress();
   const { saveReadingPosition } = useReadingProgress();
   const { readMode } = useReadMode();
+
+  // Autofocus the (visually hidden) typing input on landing so people can
+  // start typing immediately without clicking first. This can't just key
+  // off [bookId, chapter]: useChapter starts every navigation with
+  // loading:true, and on a fresh mount the <input> below doesn't exist yet
+  // at that point (ReadPage is still rendering the loading placeholder),
+  // so inputRef.current is null when the effect first runs. Keying off
+  // `data` instead means the effect fires again once the chapter has
+  // actually loaded and the input is really in the DOM. This only ever
+  // runs on chapter/book *navigation*, not on every render (typing doesn't
+  // change `data`), so it never fights the book/chapter <select>s for
+  // focus the way an HTML `autoFocus` attribute previously did.
+  useEffect(() => {
+    if (readMode || !data) return;
+    inputRef.current?.focus({ preventScroll: true });
+  }, [bookId, chapter, data, readMode]);
 
   // Every chapter switch needs one hydration pass: fetch whatever was saved
   // for THIS specific chapter, then initialize the typing session from it
