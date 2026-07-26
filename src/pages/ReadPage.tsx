@@ -59,15 +59,25 @@ export function ReadPage() {
   // loading:true, and on a fresh mount the <input> below doesn't exist yet
   // at that point (ReadPage is still rendering the loading placeholder),
   // so inputRef.current is null when the effect first runs. Keying off
-  // `data` instead means the effect fires again once the chapter has
-  // actually loaded and the input is really in the DOM. This only ever
-  // runs on chapter/book *navigation*, not on every render (typing doesn't
-  // change `data`), so it never fights the book/chapter <select>s for
-  // focus the way an HTML `autoFocus` attribute previously did.
+  // `data` handles that — but it's not enough on its own: right after
+  // navigating to a new chapter (e.g. "Next Chapter" from the completion
+  // modal), `session.endTime` still holds the *previous* chapter's value
+  // until the hydration effect below's async loadProgress(...) resolves
+  // and calls reset(). Until then the new chapter's input renders
+  // disabled={chapterDone}, and calling .focus() on a disabled input is a
+  // silent no-op. For guests loadProgress resolves fast enough that this
+  // window is easy to miss; for a signed-in account it's a real API call,
+  // so the gap is wide enough to actually see the input never focus. Using
+  // session.endTime as a dependency (instead of just `data`) makes this
+  // effect re-fire once hydration actually clears that stale endTime, so
+  // it retries right when the input becomes enabled. It still only runs on
+  // navigation, not on every keystroke re-render, so it never fights the
+  // book/chapter <select>s for focus the way an HTML `autoFocus` attribute
+  // previously did.
   useEffect(() => {
-    if (readMode || !data) return;
+    if (readMode || !data || session.endTime !== null) return;
     inputRef.current?.focus({ preventScroll: true });
-  }, [bookId, chapter, data, readMode]);
+  }, [bookId, chapter, data, readMode, session.endTime]);
 
   // Every chapter switch needs one hydration pass: fetch whatever was saved
   // for THIS specific chapter, then initialize the typing session from it
