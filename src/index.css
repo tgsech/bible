@@ -1,6 +1,10 @@
-/* Cursor blinking */
-@keyframes blink {
-  50% { opacity: 0; }
+/* 고딕s */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
+@font-face {
+    font-family: 'NanumSquareNeo';
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2);
+    font-weight: 700;
+    font-display: swap;
 }
 
 /*  바탕체s */
@@ -31,21 +35,17 @@
     font-display: swap;
 }
 
-/* 고딕s */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
-@font-face {
-    font-family: 'NanumSquareNeo';
-    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2);
-    font-weight: 700;
-    font-display: swap;
-}
-
 /* 픽셀체s */
 @font-face {
     font-family: 'Umdot';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/Umdot12.woff2') format('woff2');
     font-weight: normal;
     font-display: swap;
+}
+
+/* Cursor blinking */
+@keyframes blink {
+  50% { opacity: 0; }
 }
 
 :root {
