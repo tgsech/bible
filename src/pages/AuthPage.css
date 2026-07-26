@@ -23,13 +23,13 @@
   padding: 10px;
   font-size: 1rem;
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-correct);
   border: none;
   cursor: pointer;
 }
 
 .authTab--active {
-  background: var(--color-text);
+  background: var(--color-correct);
   color: var(--color-bg);
 }
 
@@ -72,7 +72,7 @@
   padding: 12px;
   border-radius: 8px;
   border: 2px solid var(--color-text);
-  background: var(--color-text);
+  background: var(--color-correct);
   color: var(--color-bg);
   cursor: pointer;
   transition: opacity 0.15s;
@@ -107,7 +107,7 @@
   border-radius: 8px;
   border: 2px solid var(--color-text);
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-correct);
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
 }
