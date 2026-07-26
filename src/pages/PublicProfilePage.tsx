@@ -112,7 +112,7 @@ export function PublicProfilePage() {
         <div className="profileCardBanner" />
         <div className="profileCardBody">
           <h1 className="profileCardUsername">{profile.username}</h1>
-          <p className="profileCardSignedUpAs">{t("publicProfile.signedUpAs", { name: profile.name })}</p>
+          <p className="profileCardSignedUpAs">{profile.name }</p>
 
           <div className="profileCardSection">
             <h2 className="profileCardLabel">{t("publicProfile.aboutMe")}</h2>

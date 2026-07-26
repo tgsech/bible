@@ -12,6 +12,10 @@
    --color-bg in every theme, the same role it plays elsewhere (streaks,
    error states) just repurposed here as decoration rather than meaning. */
 .profileCard {
+  margin: 0 auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  max-width: 400px;
   border: 1px solid var(--color-text);
   border-radius: 16px;
   overflow: hidden;
@@ -19,8 +23,8 @@
 }
 
 .profileCardBanner {
-  height: 64px;
-  background: var(--color-incorrect);
+  height: 72px;
+  background: var(--color-untyped);
 }
 
 .profileCardBody {
@@ -46,7 +50,7 @@
 }
 
 .profileCardSection {
-  margin-top: 20px;
+  margin-top: 50px;
 }
 
 /* About Me / Team headers: small caps-style label, same size as the
@@ -80,6 +84,7 @@
 /* Mood: centered, quoted, italic — its own visual register, distinct from
    the left-aligned label/value pairs above it. */
 .profileCardMood {
+  margin-top: 50px;
   margin: 24px 0 0;
   font-size: 1rem;
   font-style: italic;
