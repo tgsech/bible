@@ -2,6 +2,14 @@ import { useCallback, useState } from "react";
 import { charMatches, matchesFully } from "../typing/charMatch";
 import { keystrokesForChar } from "../typing/koreanKeystrokes";
 
+// After this many idle ms between two keystrokes, the gap stops counting as
+// active typing time - same idea as most typing-test sites: a coffee-break
+// mid-chapter shouldn't tank your wpm/cpm. Shared by LiveStats (which uses
+// it to freeze the live counter mid-pause) and this hook (which uses it to
+// build the cumulative `pausedMs` that both the live counter and the
+// final/saved completion stats subtract), so the two can never drift apart.
+export const PAUSE_THRESHOLD_MS = 5000;
+
 export interface TypingSession {
   verseIndex: number;
   typed: string;
@@ -15,6 +23,23 @@ export interface TypingSession {
   // composition-end rather than mid-composition - see commitComposition.
   correctKeystrokes: number;
   totalKeystrokes: number;
+  // Wall-clock time of the most recent accepted keystroke (including
+  // mid-composition Korean input, not just finalized syllables). Purely
+  // local UI state - never sent to the backend or factored into saved
+  // progress - used by LiveStats to freeze the display during an ongoing
+  // pause, and by this hook itself to measure the gap since the previous
+  // keystroke each time a new one lands.
+  lastActivityAt: number | null;
+  // Cumulative idle time, beyond PAUSE_THRESHOLD_MS, between consecutive
+  // keystrokes so far this session. Updated once per accepted keystroke
+  // (see handleInput/commitComposition below), so by the time a chapter
+  // finishes this already reflects every pause that happened along the
+  // way - ReadPage subtracts it from (endTime - startTime) for the
+  // completion card and the stats logged to the backend, and LiveStats
+  // subtracts it (plus whatever pause is still ongoing) for the live
+  // counter. Same number, same formula, both places - so the two can't
+  // show different speeds for the same chapter.
+  pausedMs: number;
 }
 
 const initialSession: TypingSession = {
@@ -25,11 +50,23 @@ const initialSession: TypingSession = {
   endTime: null,
   correctKeystrokes: 0,
   totalKeystrokes: 0,
+  lastActivityAt: null,
+  pausedMs: 0,
 };
 
 interface ResumeState {
   verseIndex: number;
   typed: string;
+}
+
+// Given the previous keystroke's timestamp (or null if there wasn't one
+// yet) and "now", returns how much of the gap between them should be added
+// to pausedMs - zero if there was no previous keystroke, or if the gap
+// didn't exceed the grace period.
+function pauseSince(prevActivityAt: number | null, now: number): number {
+  if (prevActivityAt === null) return 0;
+  const gap = now - prevActivityAt;
+  return gap > PAUSE_THRESHOLD_MS ? gap - PAUSE_THRESHOLD_MS : 0;
 }
 
 export function useTypingSession(verses: string[], language: string) {
@@ -42,7 +79,8 @@ export function useTypingSession(verses: string[], language: string) {
   // rather than the verses' real original typed text, which was never
   // saved. Keystroke counters intentionally stay at zero on resume: we
   // don't have the original per-keystroke history, so this sitting's
-  // wpm/accuracy only reflects typing from the resume point forward.
+  // wpm/accuracy only reflects typing from the resume point forward (and
+  // pausedMs resets to 0 for the same reason - via ...initialSession).
   const reset = useCallback((resume?: ResumeState) => {
     if (!resume || resume.verseIndex === 0) {
       setSession(initialSession);
@@ -79,7 +117,9 @@ export function useTypingSession(verses: string[], language: string) {
         const currentVerse = verses[prev.verseIndex];
         if (currentVerse === undefined || value.length > currentVerse.length) return prev;
 
-        const startTime = prev.startTime ?? (value.length > 0 ? Date.now() : null);
+        const now = Date.now();
+        const startTime = prev.startTime ?? (value.length > 0 ? now : null);
+        const pausedMs = prev.pausedMs + pauseSince(prev.lastActivityAt, now);
 
         let { correctKeystrokes, totalKeystrokes } = prev;
         // Only score plain appended characters that aren't mid-composition.
@@ -100,13 +140,23 @@ export function useTypingSession(verses: string[], language: string) {
             typed: isLastVerse ? value : "",
             completedTyped: [...prev.completedTyped, value],
             startTime,
-            endTime: isLastVerse ? Date.now() : prev.endTime,
+            endTime: isLastVerse ? now : prev.endTime,
             correctKeystrokes,
             totalKeystrokes,
+            lastActivityAt: now,
+            pausedMs,
           };
         }
 
-        return { ...prev, typed: value, startTime, correctKeystrokes, totalKeystrokes };
+        return {
+          ...prev,
+          typed: value,
+          startTime,
+          correctKeystrokes,
+          totalKeystrokes,
+          lastActivityAt: now,
+          pausedMs,
+        };
       });
     },
     [verses, language, weightOf]
@@ -121,6 +171,9 @@ export function useTypingSession(verses: string[], language: string) {
         const currentVerse = verses[prev.verseIndex];
         if (!currentVerse) return prev;
 
+        const now = Date.now();
+        const pausedMs = prev.pausedMs + pauseSince(prev.lastActivityAt, now);
+
         let { correctKeystrokes, totalKeystrokes } = prev;
         if (value.length > baseline.length && value.startsWith(baseline)) {
           for (let i = baseline.length; i < value.length; i++) {
@@ -129,7 +182,7 @@ export function useTypingSession(verses: string[], language: string) {
             if (charMatches(value[i], currentVerse[i], language)) correctKeystrokes += weight;
           }
         }
-        return { ...prev, correctKeystrokes, totalKeystrokes };
+        return { ...prev, correctKeystrokes, totalKeystrokes, lastActivityAt: now, pausedMs };
       });
     },
     [verses, language, weightOf]

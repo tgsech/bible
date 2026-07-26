@@ -148,7 +148,11 @@ export function ReadPage() {
     if (!isLoggedIn) return;
     completionSubmittedRef.current = true;
 
-    const elapsedMs = session.endTime! - session.startTime;
+    // Pause-adjusted, same as LiveStats and the completion card below -
+    // session.pausedMs already reflects every pause up through the final
+    // keystroke, so this is the exact wall-clock time actually spent
+    // typing, not counting idle stretches over 5s.
+    const elapsedMs = session.endTime! - session.startTime - session.pausedMs;
     const stats = computeTypingStats(
       session.correctKeystrokes,
       session.totalKeystrokes,
@@ -224,7 +228,11 @@ export function ReadPage() {
       </div>
     );
 
-  const elapsedMs = session.startTime && session.endTime ? session.endTime - session.startTime : 0;
+  // Pause-adjusted (see useTypingSession.pausedMs) so the completion card
+  // shows the exact same number the live counter was already displaying
+  // right before this chapter finished, rather than a different,
+  // real-wall-clock figure that includes idle time as if it were typing.
+  const elapsedMs = session.startTime && session.endTime ? session.endTime - session.startTime - session.pausedMs : 0;
   const finalStats = computeTypingStats(
     session.correctKeystrokes,
     session.totalKeystrokes,
@@ -241,6 +249,8 @@ export function ReadPage() {
           endTime={session.endTime}
           correctKeystrokes={session.correctKeystrokes}
           totalKeystrokes={session.totalKeystrokes}
+          lastActivityAt={session.lastActivityAt}
+          pausedMs={session.pausedMs}
           language={currentTranslation.language}
         />
       )}
