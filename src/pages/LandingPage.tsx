@@ -13,15 +13,8 @@ export function LandingPage() {
       <header className="landingHeader">
         <h1 className="landingTitle">LivingWords - 살아있는 말씀</h1>
         <p className="landingSubtitle">{t("landing.subtitle")}</p>
+        <p className="landingSubtitle">{t("landing.loginRemind")}</p>
       </header>
-
-      {/* <section className="languagePick">
-        {TRANSLATIONS.map((t) => (
-          <Link key={t.id} className="languagePickButton" to={`/read/${t.id}/${t.books[0].id}/1`}>
-            {t.language === "ko" ? "한국어" : "English"}
-          </Link>
-        ))}
-      </section> */}
 
       <section className="bookLists">
         {TRANSLATIONS.map((t) => (

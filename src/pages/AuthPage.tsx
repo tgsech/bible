@@ -76,9 +76,6 @@ export function AuthPage() {
 
   return (
     <div id="mainBody" className="authPage">
-      <Link to="/" className="backHomeLink">
-        {t("common.home")}
-      </Link>
 
       <h1 className="authTitle">{t("auth.brand")}</h1>
 

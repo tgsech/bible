@@ -49,6 +49,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Landing
     "landing.subtitle": "Life, together with the Word~~~!",
+    "landing.loginRemind": "Make sure to sign in before you start if you want to save your progress to the cloud.",
 
     // About
     "about.title": "About",
@@ -58,8 +59,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Auth
     "auth.brand": "LivingWords",
-    "auth.signInTab": "Sign in",
-    "auth.signUpTab": "Sign up",
+    "auth.signInTab": "Sign In",
+    "auth.signUpTab": "Sign Up",
     "auth.alreadySignedIn": "You're already signed in as {name}.",
     "auth.name": "Name",
     "auth.email": "Email",
@@ -222,6 +223,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // Landing
     "landing.subtitle": "말씀과 함께하는 삶~~~!",
+    "landing.loginRemind": "기록을 저장하고 싶으시면 꼭 회원가입하고 시작하시길 바랍니다.",
 
     // About
     "about.title": "소개",
