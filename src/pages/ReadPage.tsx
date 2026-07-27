@@ -276,6 +276,7 @@ export function ReadPage() {
       console.error("Couldn't update that bookmark", err);
     } finally {
       setBookmarkPromptVerse(null);
+      inputRef.current?.focus({ preventScroll: true });
     }
   };
 
@@ -423,12 +424,15 @@ export function ReadPage() {
       )}
 
       {bookmarkPromptVerse !== null && (
-        <BookmarkPrompt
-          verseNumber={bookmarkPromptVerse}
-          isBookmarked={!!existingBookmark}
-          onConfirm={handleBookmarkConfirm}
-          onCancel={() => setBookmarkPromptVerse(null)}
-        />
+      <BookmarkPrompt
+        verseNumber={bookmarkPromptVerse}
+        isBookmarked={!!existingBookmark}
+        onConfirm={handleBookmarkConfirm}
+        onCancel={() => {
+          setBookmarkPromptVerse(null);
+          inputRef.current?.focus({ preventScroll: true });
+        }}
+      />
       )}
     </div>
   );
