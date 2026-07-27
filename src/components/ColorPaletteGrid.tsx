@@ -1,4 +1,4 @@
-import { PALETTES } from "../theme/themeOptions";
+import { PALETTE_CATEGORIES, PALETTES, type ColorPalette } from "../theme/themeOptions";
 import { useTheme } from "../theme/ThemeContext";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./ColorPaletteGrid.css";
@@ -13,37 +13,55 @@ const SWATCH_FIELDS: { key: "text" | "correct" | "incorrect" | "untyped"; labelK
   { key: "untyped", labelKey: "palette.untyped" },
 ];
 
+function PaletteCard({ p, isSelected, onSelect }: { p: ColorPalette; isSelected: boolean; onSelect: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <button
+      type="button"
+      className={`paletteCard${isSelected ? " paletteCard--selected" : ""}`}
+      style={{ backgroundColor: p.colors.bg }}
+      onClick={onSelect}
+      aria-pressed={isSelected}
+    >
+      <span className="paletteName" style={{ color: p.colors.correct }}>
+        {p.name}
+      </span>
+      <div className="paletteSwatches">
+        {SWATCH_FIELDS.map(({ key, labelKey }) => (
+          <div key={key} className="paletteSwatch">
+            <span className="paletteSwatchCircle" style={{ backgroundColor: p.colors[key] }} />
+            <span className="paletteSwatchLabel" style={{ color: p.colors.correct }}>
+              {t(labelKey)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </button>
+  );
+}
+
 export function ColorPaletteGrid() {
   const { palette, setPaletteId } = useTheme();
   const { t } = useLanguage();
 
   return (
-    <div className="paletteGrid">
-      {PALETTES.map((p) => {
-        const isSelected = p.id === palette.id;
+    <div className="paletteCategories">
+      {PALETTE_CATEGORIES.map((category) => {
+        const palettesInCategory = category.paletteIds
+          .map((id) => PALETTES.find((p) => p.id === id))
+          .filter((p): p is ColorPalette => Boolean(p));
+
+        if (palettesInCategory.length === 0) return null;
+
         return (
-          <button
-            key={p.id}
-            type="button"
-            className={`paletteCard${isSelected ? " paletteCard--selected" : ""}`}
-            style={{ backgroundColor: p.colors.bg }}
-            onClick={() => setPaletteId(p.id)}
-            aria-pressed={isSelected}
-          >
-            <span className="paletteName" style={{ color: p.colors.correct }}>
-              {p.name}
-            </span>
-            <div className="paletteSwatches">
-              {SWATCH_FIELDS.map(({ key, labelKey }) => (
-                <div key={key} className="paletteSwatch">
-                  <span className="paletteSwatchCircle" style={{ backgroundColor: p.colors[key] }} />
-                  <span className="paletteSwatchLabel" style={{ color: p.colors.correct }}>
-                    {t(labelKey)}
-                  </span>
-                </div>
+          <div key={category.id} className="paletteCategory">
+            <h4 className="paletteCategoryTitle">{t(category.nameKey)}</h4>
+            <div className="paletteCarousel">
+              {palettesInCategory.map((p) => (
+                <PaletteCard key={p.id} p={p} isSelected={p.id === palette.id} onSelect={() => setPaletteId(p.id)} />
               ))}
             </div>
-          </button>
+          </div>
         );
       })}
     </div>

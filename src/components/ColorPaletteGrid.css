@@ -1,7 +1,55 @@
-.paletteGrid {
+.paletteCategories {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.paletteCategory {
+  min-width: 0; /* let the carousel below shrink/scroll instead of overflowing the page */
+}
+
+.paletteCategoryTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin: 0 0 12px;
+  text-align: left;
+}
+
+/* Column-major grid: with only two rows, the browser fills row 1/row 2 of
+   column 1, then row 1/row 2 of column 2, and so on - exactly the "two rows
+   per category, extra items scroll off to the side" layout we want, with no
+   need to manually chunk the palette list into pairs ourselves. */
+.paletteCarousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  gap: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 4px 14px;
+  margin: -4px -4px 0;
+  scroll-snap-type: x proximity;
+  /* Thin, theme-colored scrollbar so the carousel reads as intentional
+     rather than an accidental page overflow (Firefox + WebKit). */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text) transparent;
+}
+
+.paletteCarousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.paletteCarousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.paletteCarousel::-webkit-scrollbar-thumb {
+  background-color: var(--color-text);
+  border-radius: 999px;
+  opacity: 0.5;
 }
 
 .paletteCard {
@@ -13,7 +61,8 @@
   border-radius: 12px;
   border: 2px solid transparent;
   cursor: pointer;
-  min-width: 280.7px;
+  width: 240px;
+  scroll-snap-align: start;
 }
 
 .paletteCard--selected {
@@ -49,4 +98,15 @@
 .paletteSwatchLabel {
   font-size: 0.7rem;
   opacity: 0.75;
+}
+
+@media (max-width: 600px) {
+  .paletteCard {
+    width: 200px;
+    padding: 14px 16px;
+  }
+
+  .paletteSwatches {
+    gap: 10px;
+  }
 }

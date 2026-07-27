@@ -22,6 +22,39 @@ export interface ColorPalette {
   };
 }
 
+// Groups palettes for display on the settings page (see ColorPaletteGrid).
+// Purely a presentation concern — doesn't affect ThemeContext/ThemeProvider,
+// which only ever look palettes up by id. `paletteIds` controls both which
+// palettes appear in a category and the order they're shown in.
+export interface PaletteCategory {
+  id: string;
+  nameKey: string;
+  paletteIds: string[];
+}
+
+export const PALETTE_CATEGORIES: PaletteCategory[] = [
+  {
+    id: "essentials",
+    nameKey: "palette.category.essentials",
+    paletteIds: ["original", "light", "dark", "midnight"],
+  },
+  {
+    id: "cafe",
+    nameKey: "palette.category.cafe",
+    paletteIds: ["matcha", "butter", "coffee", "strawMilk", "apricotjoy"],
+  },
+  {
+    id: "nature",
+    nameKey: "palette.category.nature",
+    paletteIds: ["azureskies", "pondLily", "dustSand", "spring", "octEven"],
+  },
+  {
+    id: "dreamscape",
+    nameKey: "palette.category.dreamscape",
+    paletteIds: ["dreamCloud", "purpjade", "funkIDE"],
+  },
+];
+
 export interface FontOption {
   id: string;
   name: string;

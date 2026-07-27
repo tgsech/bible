@@ -49,6 +49,10 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "palette.correct": "Correct",
     "palette.incorrect": "Error",
     "palette.untyped": "Untyped",
+    "palette.category.essentials": "The Essentials",
+    "palette.category.cafe": "Café & Confections",
+    "palette.category.nature": "Nature & Elements",
+    "palette.category.dreamscape": "Dreamscape & Synth",
 
     // Landing
     "landing.subtitle": "Life, together with the Word~~~!",
@@ -304,6 +308,10 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "palette.correct": "정확",
     "palette.incorrect": "오류",
     "palette.untyped": "미입력",
+    "palette.category.essentials": "에센셜",
+    "palette.category.cafe": "카페 & 디저트",
+    "palette.category.nature": "자연 & 자연물",
+    "palette.category.dreamscape": "드림스케이프 & 신스",
 
     // Landing
     "landing.subtitle": "말씀과 함께하는 삶~~~!",
