@@ -2,7 +2,21 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError } from "../lib/api";
 import { useLanguage } from "../i18n/LanguageContext";
+import { FeaturedVerseCard, type FeaturedVerse } from "../components/FeaturedVerseCard";
+import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
+import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import "./PublicProfilePage.css";
+
+const TRANSLATIONS = [nivEn, krvKo];
+
+function bookName(translationId: string, bookId: string): string {
+  const translation = TRANSLATIONS.find((t) => t.id === translationId);
+  return translation?.books.find((b) => b.id === bookId)?.name ?? bookId;
+}
+
+function translationName(translationId: string): string {
+  return TRANSLATIONS.find((t) => t.id === translationId)?.name ?? translationId;
+}
 
 interface Badge {
   id: string;
@@ -30,6 +44,7 @@ interface PublicProfile {
     longest: number;
   };
   badges: Badge[];
+  featuredVerses: FeaturedVerse[];
 }
 
 export function PublicProfilePage() {
@@ -137,6 +152,22 @@ export function PublicProfilePage() {
           <p className="profileCardSince">{t("publicProfile.since", { date: memberSinceLabel })}</p>
         </div>
       </div>
+
+      {profile.featuredVerses.length > 0 && (
+        <section className="profileSection">
+          <h2>{t("publicProfile.featuredVerses")}</h2>
+          <ul className="featuredVerseList">
+            {profile.featuredVerses.map((verse) => (
+              <FeaturedVerseCard
+                key={`${verse.translationId}-${verse.bookId}-${verse.chapter}-${verse.verse}`}
+                verse={verse}
+                translationName={translationName(verse.translationId)}
+                bookName={bookName(verse.translationId, verse.bookId)}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="profileSection">
         <h2>{t("publicProfile.stats")}</h2>

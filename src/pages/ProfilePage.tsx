@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { authClient, useSession } from "../lib/authClient";
-import { api } from "../lib/api";
+import { api, ApiError } from "../lib/api";
 import { ProfileSettingsForm } from "../components/ProfileSettingsForm";
+import { BookmarkedVerseCard } from "../components/BookmarkedVerseCard";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import { useLanguage } from "../i18n/LanguageContext";
+import { MAX_PUBLIC_SAVED_VERSES, type SavedVerse } from "../hooks/useSavedVerses";
 import "./ProfilePage.css";
 
 const TRANSLATIONS = [nivEn, krvKo];
@@ -13,6 +15,10 @@ const TRANSLATIONS = [nivEn, krvKo];
 function bookName(translationId: string, bookId: string): string {
   const translation = TRANSLATIONS.find((t) => t.id === translationId);
   return translation?.books.find((b) => b.id === bookId)?.name ?? bookId;
+}
+
+function translationName(translationId: string): string {
+  return TRANSLATIONS.find((t) => t.id === translationId)?.name ?? translationId;
 }
 
 interface ProgressRow {
@@ -60,6 +66,7 @@ interface ProfileSummary {
     avgAccuracy: number;
   };
   completions: CompletionRow[];
+  bookmarks: SavedVerse[];
   settings: ProfileSettings;
 }
 
@@ -68,7 +75,40 @@ export function ProfilePage() {
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
   const { t } = useLanguage();
+
+  const handleToggleFeatured = async (bookmark: SavedVerse, next: boolean) => {
+    setBookmarkError(null);
+    try {
+      const updated = await api.patch<SavedVerse>(`/saved-verses/${bookmark.id}/public`, {
+        showOnPublicProfile: next,
+      });
+      if (!updated) return;
+      setSummary((prev) =>
+        prev
+          ? { ...prev, bookmarks: prev.bookmarks.map((b) => (b.id === updated.id ? updated : b)) }
+          : prev
+      );
+    } catch (err) {
+      // A 409 here means someone already has MAX_PUBLIC_SAVED_VERSES
+      // featured elsewhere (e.g. a second tab) - the per-card `disabled`
+      // check below is only a best-effort mirror of that same cap.
+      setBookmarkError(err instanceof ApiError ? err.message : String(err));
+    }
+  };
+
+  const handleRemoveBookmark = async (bookmark: SavedVerse) => {
+    setBookmarkError(null);
+    try {
+      await api.delete(`/saved-verses/${bookmark.id}`);
+      setSummary((prev) =>
+        prev ? { ...prev, bookmarks: prev.bookmarks.filter((b) => b.id !== bookmark.id) } : prev
+      );
+    } catch (err) {
+      setBookmarkError(err instanceof ApiError ? err.message : String(err));
+    }
+  };
 
   useEffect(() => {
     if (!session) {
@@ -115,7 +155,8 @@ export function ProfilePage() {
     );
   }
 
-  const { latestPosition, latestReadingPosition, overall, completions, settings } = summary;
+  const { latestPosition, latestReadingPosition, overall, completions, bookmarks, settings } = summary;
+  const featuredCount = bookmarks.filter((b) => b.showOnPublicProfile).length;
 
   return (
     <div id="mainBody" className="profilePage">
@@ -218,6 +259,40 @@ export function ProfilePage() {
               ))}
             </tbody>
           </table>
+        )}
+      </section>
+
+      <section className="profileSection">
+        <div className="profileHeaderRow">
+          <h2>{t("profile.bookmarkedVerses")}</h2>
+          {bookmarks.length > 0 && (
+            <span className="settingsHint" style={{ margin: 0 }}>
+              {t("profile.featuredCount", { count: featuredCount, max: MAX_PUBLIC_SAVED_VERSES })}
+            </span>
+          )}
+        </div>
+        {bookmarkError && <p className="settingsError">{t("profile.bookmarkUpdateError")}</p>}
+        {featuredCount >= MAX_PUBLIC_SAVED_VERSES && (
+          <p className="settingsHint">
+            {t("profile.featuredLimitReached", { max: MAX_PUBLIC_SAVED_VERSES })}
+          </p>
+        )}
+        {bookmarks.length === 0 ? (
+          <p>{t("profile.noBookmarks")}</p>
+        ) : (
+          <ul className="bookmarkList">
+            {bookmarks.map((bookmark) => (
+              <BookmarkedVerseCard
+                key={bookmark.id}
+                bookmark={bookmark}
+                translationName={translationName(bookmark.translationId)}
+                bookName={bookName(bookmark.translationId, bookmark.bookId)}
+                canFeatureMore={featuredCount < MAX_PUBLIC_SAVED_VERSES}
+                onToggle={handleToggleFeatured}
+                onRemove={handleRemoveBookmark}
+              />
+            ))}
+          </ul>
         )}
       </section>
 

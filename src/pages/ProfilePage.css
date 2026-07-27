@@ -65,6 +65,15 @@
   opacity: 0.7;
 }
 
+.bookmarkList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 .completionsTable {
   width: 100%;
   border-collapse: collapse;

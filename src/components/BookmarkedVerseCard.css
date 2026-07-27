@@ -1,0 +1,67 @@
+.bookmarkCard {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-text);
+  border-radius: 8px;
+}
+
+.bookmarkCardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bookmarkCardRef {
+  font-weight: 600;
+  color: var(--color-correct);
+}
+
+.bookmarkCardMeta {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.bookmarkCardText {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.bookmarkCardActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bookmarkCardToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.bookmarkCardToggle input:disabled {
+  cursor: not-allowed;
+}
+
+.bookmarkCardRemove {
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.bookmarkCardRemove:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}

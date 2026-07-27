@@ -102,6 +102,45 @@
   text-align: center;
 }
 
+.featuredVerseList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.featuredVerseCard {
+  padding: 12px 16px;
+  border: 1px solid var(--color-text);
+  border-radius: 8px;
+}
+
+.featuredVerseHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.featuredVerseRef {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.featuredVerseMeta {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.featuredVerseText {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .badgeList {
   display: flex;
   flex-wrap: wrap;

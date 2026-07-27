@@ -240,6 +240,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "publicProfile.longestStreak": "Longest streak",
     "publicProfile.badges": "Badges",
     "publicProfile.noBadges": "No badges earned yet.",
+    "publicProfile.featuredVerses": "Featured verses",
 
     // ReadPage
     "read.loadErrorPrefix": "Couldn't load this chapter.",
@@ -452,6 +453,24 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
       "사용자 이름은 계정 이름 대신 리더보드와 디렉토리에 표시됩니다 — 비워두면 익명으로 표시됩니다.",
     "profile.viewPublic": "공개 프로필 보기 →",
 
+    // Profile - Bookmarked verses section
+    "profile.bookmarkedVerses": "북마크한 구절",
+    "profile.noBookmarks": "읽는 중에 구절을 클릭하거나 길게 누르면 북마크할 수 있어요 — 여기에 표시됩니다.",
+    "profile.bookmarkTranslation": "번역본",
+    "profile.bookmarkDate": "북마크한 날짜",
+    "profile.featureToggleLabel": "공개 프로필에 표시",
+    "profile.featuredCount": "{count}/{max}개 표시 중",
+    "profile.featuredLimitReached": "최대 {max}개까지 표시할 수 있어요 — 다른 구절을 추가하려면 하나를 꺼주세요.",
+    "profile.removeBookmark": "삭제",
+    "profile.bookmarkUpdateError": "북마크를 업데이트하지 못했습니다.",
+
+    // BookmarkPrompt
+    "bookmarkPrompt.addQuestion": "{verse}절을 북마크할까요?",
+    "bookmarkPrompt.removeQuestion": "{verse}절 북마크를 삭제할까요?",
+    "bookmarkPrompt.cancel": "취소",
+    "bookmarkPrompt.add": "북마크",
+    "bookmarkPrompt.remove": "삭제",
+
     // ProfileSettingsForm
     "form.username": "사용자 이름",
     "form.usernamePlaceholder": "이름 대신 리더보드와 디렉토리에 표시됩니다",
@@ -475,6 +494,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "publicProfile.longestStreak": "최장 연속 기록",
     "publicProfile.badges": "배지",
     "publicProfile.noBadges": "아직 획득한 배지가 없습니다.",
+    "publicProfile.featuredVerses": "대표 구절",
 
     // ReadPage
     "read.loadErrorPrefix": "이 챕터를 불러올 수 없습니다.",
