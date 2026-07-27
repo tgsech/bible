@@ -31,7 +31,7 @@
 
 .completionCard {
   background: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-correct);
   border-radius: 16px;
   padding: 32px 40px;
   min-width: 260px;
@@ -70,17 +70,35 @@
   letter-spacing: 0.05em;
 }
 
+.completionLinks {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.completionLink {
+  font-size: 0.85rem;
+  color: var(--color-correct);
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.completionLink:hover {
+  opacity: 1;
+}
+
 .completionContinue {
   font-size: 1rem;
   padding: 8px 20px;
   border-radius: 8px;
-  border: 1px solid var(--color-text);
+  border: 1px solid var(--color-correct);
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-correct);
   cursor: pointer;
 }
 
 .completionContinue:hover {
-  background: var(--color-text);
+  background: var(--color-correct);
   color: var(--color-bg);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useChapter } from "../hooks/useChapter";
 import { useTypingSession } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
@@ -89,6 +89,20 @@ export function ReadPage() {
   const hydratedRef = useRef(false);
   useEffect(() => {
     hydratedRef.current = false;
+    // Clear the session the instant navigation happens - don't wait for
+    // the async hydration effect below to resolve. This component doesn't
+    // unmount between chapter navigations, so without this, a *previous*
+    // chapter's stale chapterDone/startTime would still be sitting in
+    // session state for a beat after the new chapter's data has already
+    // loaded (loadProgress below is a real fetch and takes a moment) -
+    // which momentarily flashes the completion modal back up with the old
+    // chapter's stats before hydration finally clears it. Resetting here
+    // means the new chapter starts genuinely blank immediately, and the
+    // hydration effect below then fills in the *real* saved position (or
+    // leaves it blank) shortly after - same as it always did, just no
+    // longer with stale leftovers visible in between.
+    reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translationId, bookId, chapter]);
 
   useEffect(() => {
@@ -331,6 +345,18 @@ export function ReadPage() {
           language={currentTranslation.language}
           onContinue={handleModalContinue}
           continueLabel={isAtEnd ? (isKorean ? "닫기" : "Close") : isKorean ? "다음 장" : "Next Chapter"}
+          extras={
+            <div className="completionLinks">
+              {isLoggedIn && (
+                <Link to="/profile" className="completionLink">
+                  {isKorean ? "내 프로필" : "My Profile"}
+                </Link>
+              )}
+              <Link to="/" className="completionLink">
+                {isKorean ? "홈으로" : "Home"}
+              </Link>
+            </div>
+          }
         />
       )}
     </div>
