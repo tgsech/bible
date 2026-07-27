@@ -97,7 +97,8 @@ a {
 
 #mainBody {
   padding: 20px;
-  margin: 50px;
+  margin: 50px auto;
+  max-width: 900px;
   padding-bottom: calc(20px + var(--bottom-nav-height));
 }
 
