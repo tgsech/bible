@@ -73,6 +73,11 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
             // untypeable-character wildcard (for non-Korean text).
             isMistake = !charMatches(typed[i], char, language);
             color = isMistake ? "var(--color-incorrect)" : "var(--color-correct)";
+            // On a mistake, show what they actually typed rather than the
+            // target letter - matches the convention typing trainers like
+            // MonkeyType/Keybr use, and lets someone see *which* key they
+            // fat-fingered instead of just "this spot is wrong."
+            if (isMistake) displayChar = typed[i];
           }
 
           const showCursor = i === typed.length && !isComposing;
@@ -86,7 +91,15 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
           // keeps real width no matter where it lands, and padding turns it
           // into a small colored chip that reads clearly as a mistake even
           // sitting right at the edge of a line.
-          const isMistakenSpace = isMistake && char === " ";
+          //
+          // Keyed off `displayChar` (what's rendered) rather than `char`
+          // (the target) so it catches both directions: a missed space
+          // (target was " ", they typed a letter - char === " ") and the
+          // mirror case (target was a letter, they typed a space -
+          // displayChar === " ", now that displayChar shows their actual
+          // keystroke on a mistake). Either way the glyph in this cell is a
+          // space, so either way it needs the chip to stay visible.
+          const isMistakenSpace = isMistake && displayChar === " ";
 
           return (
             <span key={i} style={{ position: "relative" }}>
