@@ -305,6 +305,13 @@ export function ReadPage() {
 
         {!readMode && (
           <input
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+            data-form-type="other"
+            data-lpignore="true"
             ref={inputRef}
             value={chapterDone ? "" : session.typed}
             onChange={(e) => handleInput(e.target.value, isComposing)}
