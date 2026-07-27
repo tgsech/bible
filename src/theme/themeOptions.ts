@@ -9,6 +9,16 @@ export interface ColorPalette {
     untyped: string;
     cursor: string;
     composing: string;
+    // Bookmarked-verse highlight + underline (see VerseRow.tsx /
+    // index.css's .bookmarkedVerse). Deliberately part of each palette's
+    // own `colors` — so a bookmark's highlight can be tuned per-theme like
+    // everything else here — but NOT one of ColorPaletteGrid's
+    // SWATCH_FIELDS, so it never shows up as a 5th swatch on the palette
+    // picker cards. Those cards are only meant to preview the four
+    // palette-facing colors a person is actually choosing between; this is
+    // just along for the ride on every palette object.
+    bookmark: string;
+    bookmarkUnderline: string;
   };
 }
 
@@ -42,6 +52,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#6F8CDC",
       cursor: "#1E3A5F",
       composing: "#0B2240",
+      bookmark: "#F5D33C",
+      bookmarkUnderline: "#9A9A9A",
     },
   },
   {
@@ -55,6 +67,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#658E9C",
       cursor: "#80CBC4",
       composing: "#FFCB6B",
+      bookmark: "#FFCB6B",
+      bookmarkUnderline: "#5C6270",
       },
   },
   {
@@ -68,6 +82,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#6C7293",
       cursor: "#484B6A",
       composing: "#25283B",
+      bookmark: "#FFE08A",
+      bookmarkUnderline: "#B0B0B0",
       },
   },
   {
@@ -81,6 +97,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#8A8B9A",
       cursor: "#F5BB00",
       composing: "#F5BB00",
+      bookmark: "#F5BB00",
+      bookmarkUnderline: "#5A5A66",
       },
   },  
   {
@@ -94,6 +112,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#03401E",
       cursor: "#8ba888",
       composing: "#8ba888",
+      bookmark: "#E8D48A",
+      bookmarkUnderline: "#2E4632",
       },
   },  
   {
@@ -107,6 +127,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#BC8F8F",
       cursor: "#808000",
       composing: "#808000",
+      bookmark: "#F6E27A",
+      bookmarkUnderline: "#6B5A5C",
       },
   },  
   {
@@ -120,6 +142,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#ffdf99",
       cursor: "#fdc243",
       composing: "#f8cc6c",
+      bookmark: "#f2a65a",
+      bookmarkUnderline: "#9c8a5c",
       },
   },
   {
@@ -133,6 +157,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#634832",
       cursor: "#dbc1ac",
       composing: "#dbc1ac",
+      bookmark: "#e6b45c",
+      bookmarkUnderline: "#7a614c",
       },
   },  
   {
@@ -146,6 +172,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#84cdee",
       cursor: "#dcf0fa",
       composing: "#dcf0fa",
+      bookmark: "#FCE388",
+      bookmarkUnderline: "#3c7fa3",
       },
   },  
   {
@@ -159,6 +187,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#a094c7",
       cursor: "#b8b8ff",
       composing: "#b8b8ff",
+      bookmark: "#F5D782",
+      bookmarkUnderline: "#5c4f66",
       },
   },  
   {
@@ -172,6 +202,8 @@ export const PALETTES: ColorPalette[] = [
       untyped: "#fcbc8a",
       cursor: "#ffb16d",
       composing: "#ffb16d",
+      bookmark: "#F0C36D",
+      bookmarkUnderline: "#9C8175",
       },
   },
 

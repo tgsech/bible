@@ -192,6 +192,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.setProperty("--color-untyped", palette.colors.untyped);
     root.setProperty("--color-cursor", palette.colors.cursor);
     root.setProperty("--color-composing", palette.colors.composing);
+    // Bookmarked-verse highlight + underline — per-palette (see
+    // themeOptions.ts's comment on ColorPalette.colors), so these ride
+    // along with every other themed var instead of a fixed global.
+    root.setProperty("--color-bookmark", palette.colors.bookmark);
+    root.setProperty("--color-bookmark-underline", palette.colors.bookmarkUnderline);
   }, [palette]);
 
   useEffect(() => {

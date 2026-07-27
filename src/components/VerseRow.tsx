@@ -1,5 +1,6 @@
 import { memo, forwardRef } from "react";
 import { charMatches } from "../typing/charMatch";
+import { useLongPress } from "../hooks/useLongPress";
 
 export type VerseStatus = "pending" | "active" | "done";
 
@@ -10,21 +11,40 @@ interface VerseRowProps {
   typed?: string; // only meaningful when status === "active"
   isComposing?: boolean; // only meaningful when status === "active"
   language: string;
+  // Whether this verse is currently bookmarked - drives the highlight +
+  // underline (.bookmarkedVerse, see index.css). Undefined/false renders
+  // as plain text, same as before bookmarking existed.
+  isBookmarked?: boolean;
+  // Fires on a desktop click or a mobile long-press of this verse (see
+  // useLongPress.ts) - undefined means the gesture is fully disabled for
+  // this row (e.g. guests, per the product decision that bookmarking
+  // silently does nothing when signed out).
+  onActivate?: () => void;
 }
 
 const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRowImpl(
-  { index, text, status, typed = "", isComposing = false, language },
+  { index, text, status, typed = "", isComposing = false, language, isBookmarked = false, onActivate },
   ref
 ) {
+  const longPress = useLongPress(onActivate ?? (() => {}), !!onActivate);
+  const tapHandlers = onActivate ? longPress : undefined;
+  const rowClassName = onActivate ? "verseTappable" : undefined;
+  const bibTextClassName = `bibText${isBookmarked ? " bookmarkedVerse" : ""}`;
+
   // Pending and completed verses are plain text. No letter-splitting, no
   // per-character inline styles, no per-keystroke re-render cost.
   if (status !== "active") {
     return (
-      <div ref={ref} style={{ display: "flex", gap: "8px", opacity: status === "pending" ? 0.3 : 1 }}>
+      <div
+        ref={ref}
+        className={rowClassName}
+        style={{ display: "flex", gap: "8px", opacity: status === "pending" ? 0.3 : 1 }}
+        {...tapHandlers}
+      >
         <span className="verseNum" style={{ color: "var(--color-text)"}}>
           {index + 1}
         </span>
-        <span className="bibText">{text}</span>
+        <span className={bibTextClassName}>{text}</span>
       </div>
     );
   }
@@ -34,11 +54,11 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
   const composingIndex = isComposing ? typed.length - 1 : -1;
 
   return (
-    <div ref={ref} style={{ display: "flex", gap: "8px" }}>
+    <div ref={ref} className={rowClassName} style={{ display: "flex", gap: "8px" }} {...tapHandlers}>
       <span className="verseNum" style={{ color: "var(--color-text)", marginRight: "20px"}}>
         {index + 1}
       </span>
-      <div>
+      <div className={isBookmarked ? "bookmarkedVerse" : undefined}>
         {letters.map((char, i) => {
           const isComposingHere = i === composingIndex;
           let displayChar = char;

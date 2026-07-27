@@ -10,6 +10,12 @@ interface ChapterViewProps {
   chapterDone: boolean;
   isComposing: boolean;
   language: string;
+  // Bookmarking context - all optional so ChapterView still works exactly
+  // as before wherever a caller doesn't pass them. When provided, isVerseBookmarked
+  // drives each row's highlight and onVerseActivate fires on that row's
+  // click (desktop) / long-press (mobile).
+  isVerseBookmarked?: (verseNumber: number) => boolean;
+  onVerseActivate?: (verseNumber: number) => void;
 }
 
 export function ChapterView({
@@ -20,6 +26,8 @@ export function ChapterView({
   chapterDone,
   isComposing,
   language,
+  isVerseBookmarked,
+  onVerseActivate,
 }: ChapterViewProps) {
   const activeRowRef = useRef<HTMLDivElement>(null);
 
@@ -53,6 +61,7 @@ export function ChapterView({
         const status =
           i < completedCount ? "done" : i === verseIndex && !chapterDone ? "active" : "pending";
         const isActive = status === "active";
+        const verseNumber = i + 1;
 
         return (
           <VerseRow
@@ -64,6 +73,8 @@ export function ChapterView({
             typed={isActive ? typed : undefined}
             isComposing={isActive ? isComposing : undefined}
             language={language}
+            isBookmarked={isVerseBookmarked?.(verseNumber) ?? false}
+            onActivate={onVerseActivate ? () => onVerseActivate(verseNumber) : undefined}
           />
         );
       })}

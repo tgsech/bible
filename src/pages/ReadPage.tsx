@@ -5,6 +5,7 @@ import { useTypingSession } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
 import { useReadingProgress } from "../hooks/useReadingProgress";
 import { useReadMode } from "../hooks/useReadMode";
+import { useSavedVerses } from "../hooks/useSavedVerses";
 import { computeTypingStats } from "../typing/stats";
 import { scrollAboveKeyboard, useKeyboardInsetVar } from "../hooks/useKeyboardAwareScroll";
 import { api } from "../lib/api";
@@ -13,6 +14,7 @@ import { BookChapterSelector } from "../components/BookChapterSelector";
 import { ChapterNav } from "../components/ChapterNav";
 import { LiveStats } from "../components/LiveStats";
 import { CompletionModal } from "../components/CompletionModal";
+import { BookmarkPrompt } from "../components/BookmarkPrompt";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -50,9 +52,23 @@ export function ReadPage() {
     setModalDismissed(false);
   }, [translationId, bookId, chapter]);
 
+  // A bookmark prompt open for verse 5 of this chapter means nothing once
+  // navigation moves to a different chapter - close it rather than
+  // stranding it open pointing at content that's no longer on screen.
+  useEffect(() => {
+    setBookmarkPromptVerse(null);
+  }, [translationId, bookId, chapter]);
+
   const { saveProgress, loadProgress, isLoggedIn } = useProgress();
   const { saveReadingPosition } = useReadingProgress();
   const { readMode } = useReadMode();
+
+  // Bookmarking - findBookmark/addBookmark/removeBookmark are all no-ops
+  // for guests (see useSavedVerses.ts), so isLoggedIn (from useProgress,
+  // same underlying session) is what actually gates whether a verse's tap
+  // gesture is wired up at all below.
+  const { findBookmark, addBookmark, removeBookmark } = useSavedVerses();
+  const [bookmarkPromptVerse, setBookmarkPromptVerse] = useState<number | null>(null);
 
   // Keeps --keyboard-inset in sync with the on-screen keyboard's height so
   // #secondBody (below) can reserve that much bottom padding - without it,
@@ -241,6 +257,28 @@ export function ReadPage() {
     setModalDismissed(false);
   };
 
+  const handleVerseActivate = (verseNumber: number) => {
+    setBookmarkPromptVerse(verseNumber);
+  };
+
+  const existingBookmark =
+    bookmarkPromptVerse !== null ? findBookmark(translationId, bookId, chapter, bookmarkPromptVerse) : null;
+
+  const handleBookmarkConfirm = async () => {
+    if (bookmarkPromptVerse === null) return;
+    try {
+      if (existingBookmark) {
+        await removeBookmark(existingBookmark.id);
+      } else {
+        await addBookmark(translationId, bookId, chapter, bookmarkPromptVerse);
+      }
+    } catch (err) {
+      console.error("Couldn't update that bookmark", err);
+    } finally {
+      setBookmarkPromptVerse(null);
+    }
+  };
+
   if (loading) return <div id="mainBody">{t("common.loading")}</div>;
   if (error || !data)
     return (
@@ -301,6 +339,12 @@ export function ReadPage() {
           chapterDone={readMode ? true : chapterDone}
           isComposing={isComposing}
           language={currentTranslation.language}
+          isVerseBookmarked={
+            isLoggedIn
+              ? (verseNumber) => !!findBookmark(translationId, bookId, chapter, verseNumber)
+              : undefined
+          }
+          onVerseActivate={isLoggedIn ? handleVerseActivate : undefined}
         />
 
         {!readMode && (

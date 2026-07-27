@@ -1,0 +1,97 @@
+@keyframes bookmarkPromptOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bookmarkPromptCardPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(12px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.bookmarkPromptOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: bookmarkPromptOverlayFadeIn 0.2s ease-out;
+}
+
+.bookmarkPromptCard {
+  background: var(--color-bg);
+  color: var(--color-correct);
+  border-radius: 16px;
+  padding: 28px 32px;
+  min-width: 240px;
+  max-width: min(340px, 90vw);
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  animation: bookmarkPromptCardPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (max-width: 600px) {
+  .bookmarkPromptCard {
+    padding: 22px 20px;
+    min-width: 0;
+    width: 85vw;
+  }
+}
+
+.bookmarkPromptMessage {
+  font-size: 1.1rem;
+  margin: 0 0 22px;
+}
+
+.bookmarkPromptActions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.bookmarkPromptCancel,
+.bookmarkPromptConfirm {
+  font-size: 0.95rem;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--color-correct);
+  cursor: pointer;
+}
+
+.bookmarkPromptCancel {
+  background: transparent;
+  color: var(--color-correct);
+}
+
+.bookmarkPromptCancel:hover {
+  background: var(--color-correct);
+  color: var(--color-bg);
+}
+
+/* The confirm action uses the bookmark accent (same highlight colour a
+   bookmarked verse gets in reading mode) rather than the neutral
+   correct/bg pairing CompletionModal's continue button uses - it's the
+   one button on screen that's actually "doing" the bookmarking, so it
+   gets the colour associated with bookmarks throughout the app. */
+.bookmarkPromptConfirm {
+  background: var(--color-bookmark);
+  border-color: var(--color-bookmark);
+  color: var(--color-composing);
+  font-weight: 600;
+}
+
+.bookmarkPromptConfirm:hover {
+  filter: brightness(0.92);
+}

@@ -56,6 +56,13 @@
   --color-untyped: #6F8CDC;
   --color-cursor: #1E3A5F;
   --color-composing: #0B2240;
+  /* Bookmarked-verse highlight + underline. Per-palette (ThemeContext
+     overwrites these on every palette switch from themeOptions.ts's
+     colors.bookmark/bookmarkUnderline) - the values here are just the
+     "original" palette's, so there's no flash of an unstyled bookmark
+     between first paint and ThemeProvider's effect running. */
+  --color-bookmark: #F5D33C;
+  --color-bookmark-underline: #9A9A9A;
   --font-body: "MaruBuri";
 
   /* How much of the bottom of the screen the on-screen keyboard is
@@ -149,4 +156,30 @@ a {
   .bibText {
     margin-left: 8px;
   }
+}
+
+/* Bookmarked-verse visual indicator: a soft highlight behind the verse
+   text plus a grey underline, per the product spec ("highlight and soft
+   grey underline"). Uses the dedicated --color-bookmark(-underline) vars
+   rather than any of the existing semantic colors (correct/incorrect/etc)
+   since a bookmark isn't a typing-accuracy state - it needs to stay
+   visually distinct from those regardless of what's being typed nearby.
+   padding+border-radius on the highlight keeps it from looking like a
+   plain text-decoration; the underline is a separate border so its
+   thickness/color don't get tangled up with the highlight box. */
+.bookmarkedVerse {
+  background-color: var(--color-bookmark);
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  border-bottom: 2px solid var(--color-bookmark-underline);
+}
+
+/* Applied to whatever wraps a verse in reading/typing mode so the
+   click (desktop) / long-press (mobile) target has an affordance -
+   without this a verse looks like plain static text with no hint that
+   tapping it does anything. */
+.verseTappable {
+  cursor: pointer;
 }
