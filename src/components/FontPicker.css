@@ -33,13 +33,24 @@
   border: 1px solid var(--color-text);
 }
 
-.fontSampleText {
+/* .fontSampleText {
   font-size: 2rem;
   line-height: 1.6;
   white-space: pre-line;
   margin: 0 0 16px;
   text-align: left;
+} */
+
+.fontSampleText {
+  font-size: clamp(1.1rem, 2vw + 0.75rem, 2rem);
+  word-break: keep-all;
+  margin-left: 20px;
+  text-align: left;
+  white-space: pre-line;
+  margin: 0 0 16px;
+  line-height: 1.5;
 }
+
 
 .fontSampleText:last-child {
   margin-bottom: 0;

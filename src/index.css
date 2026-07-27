@@ -136,6 +136,7 @@ a {
   font-size: clamp(1.1rem, 2vw + 0.75rem, 2rem);
   word-break: keep-all;
   margin-left: 20px;
+  line-height: 1.5;
 }
 
 .bibTextActive {
