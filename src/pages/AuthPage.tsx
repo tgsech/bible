@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authClient, useSession } from "../lib/authClient";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./AuthPage.css";
@@ -8,10 +8,14 @@ type Mode = "signin" | "signup";
 
 export function AuthPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data: session, isPending: sessionPending } = useSession();
   const { t } = useLanguage();
 
-  const [mode, setMode] = useState<Mode>("signin");
+  // ?mode=signup lets other pages (the landing page's "Sign up" CTA) land
+  // directly on the sign-up tab instead of everyone always hitting sign-in
+  // first and having to switch tabs themselves.
+  const [mode, setMode] = useState<Mode>(searchParams.get("mode") === "signup" ? "signup" : "signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

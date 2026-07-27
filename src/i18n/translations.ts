@@ -53,6 +53,13 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     // Landing
     "landing.subtitle": "Life, together with the Word~~~!",
     "landing.loginRemind": "Make sure to sign in before you start if you want to save your progress to the cloud.",
+    "landing.welcomeBack": "Welcome back, {name}.",
+    "landing.welcomeBackSubtitle": "Pick a book below whenever you're ready to keep going.",
+    "landing.signUpCta": "Sign up free",
+    "landing.signInCta": "Sign in",
+    "landing.goToProfile": "Go to your profile",
+    "landing.viewLeaderboard": "See the leaderboard",
+    "landing.customizeNote": "Themes, fonts, and text size are all yours to customize — find them in Settings.",
 
     // About
     "about.title": "About",
@@ -282,6 +289,13 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     // Landing
     "landing.subtitle": "말씀과 함께하는 삶~~~!",
     "landing.loginRemind": "기록을 저장하고 싶으시면 꼭 회원가입하고 시작하시길 바랍니다.",
+    "landing.welcomeBack": "{name}님, 환영합니다.",
+    "landing.welcomeBackSubtitle": "준비되시면 아래에서 책을 골라 이어서 시작하세요.",
+    "landing.signUpCta": "무료로 회원가입",
+    "landing.signInCta": "로그인",
+    "landing.goToProfile": "내 프로필로 이동",
+    "landing.viewLeaderboard": "리더보드 보기",
+    "landing.customizeNote": "테마, 폰트, 글자 크기는 자유롭게 바꿀 수 있어요 — 설정에서 확인해보세요.",
 
     // About
     "about.title": "소개",
