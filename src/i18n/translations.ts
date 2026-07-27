@@ -199,6 +199,24 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
       "Your username shows on the leaderboard and directory instead of your account name — leave it blank to just show as anonymous there.",
     "profile.viewPublic": "View your public profile →",
 
+    // Profile - Bookmarked verses section
+    "profile.bookmarkedVerses": "Bookmarked verses",
+    "profile.noBookmarks": "Click or long-press a verse while reading to bookmark it — it'll show up here.",
+    "profile.bookmarkTranslation": "Translation",
+    "profile.bookmarkDate": "Bookmarked",
+    "profile.featureToggleLabel": "Show on public profile",
+    "profile.featuredCount": "{count}/{max} featured",
+    "profile.featuredLimitReached": "You can feature up to {max} verses — turn one off to add another.",
+    "profile.removeBookmark": "Remove",
+    "profile.bookmarkUpdateError": "Couldn't update that bookmark.",
+
+    // BookmarkPrompt
+    "bookmarkPrompt.addQuestion": "Bookmark verse {verse}?",
+    "bookmarkPrompt.removeQuestion": "Remove bookmark from verse {verse}?",
+    "bookmarkPrompt.cancel": "Cancel",
+    "bookmarkPrompt.add": "Bookmark",
+    "bookmarkPrompt.remove": "Remove",
+
     // ProfileSettingsForm
     "form.username": "Username",
     "form.usernamePlaceholder": "Shown on the leaderboard and directory instead of your name",

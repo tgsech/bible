@@ -421,6 +421,15 @@ export function ReadPage() {
           }
         />
       )}
+
+      {bookmarkPromptVerse !== null && (
+        <BookmarkPrompt
+          verseNumber={bookmarkPromptVerse}
+          isBookmarked={!!existingBookmark}
+          onConfirm={handleBookmarkConfirm}
+          onCancel={() => setBookmarkPromptVerse(null)}
+        />
+      )}
     </div>
   );
 }
