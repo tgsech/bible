@@ -1,6 +1,6 @@
 .liveStats {
   position: fixed;
-  top: 16px;
+  top: calc(16px + env(safe-area-inset-top, 0px));
   right: 24px;
   text-align: right;
   line-height: 1.5;
@@ -10,4 +10,15 @@
 
 .liveStatsValue {
   font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  .liveStats {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    right: 12px;
+  }
+
+  .liveStatsValue {
+    font-size: 0.85rem;
+  }
 }

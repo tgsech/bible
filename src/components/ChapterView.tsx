@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { VerseRow } from "./VerseRow";
+import { scrollAboveKeyboard, useOnVisualViewportChange } from "../hooks/useKeyboardAwareScroll";
 
 interface ChapterViewProps {
   verses: string[];
@@ -22,14 +23,29 @@ export function ChapterView({
 }: ChapterViewProps) {
   const activeRowRef = useRef<HTMLDivElement>(null);
 
+  // Whenever the active verse advances (the previous one just got
+  // finished), bring the new one into view - scrolling only the minimum
+  // distance needed, same "page down once you reach the bottom" feel as
+  // scrollIntoView({block: "nearest"}) had. The difference is
+  // scrollAboveKeyboard measures against window.visualViewport instead of
+  // the full window, so on mobile it stops above the on-screen keyboard
+  // instead of scrolling the verse to a spot that's actually hidden behind
+  // it (see useKeyboardAwareScroll.ts for why plain scrollIntoView gets
+  // this wrong).
   useEffect(() => {
-    // Whenever the active verse advances (the previous one just got
-    // finished), bring the new one into view. `block: "nearest"` is a no-op
-    // if it's already visible and scrolls the minimum distance otherwise -
-    // a natural "page down once you reach the bottom" feel rather than
-    // jumping around on every single verse.
-    activeRowRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    scrollAboveKeyboard(activeRowRef.current);
   }, [verseIndex]);
+
+  // The keyboard doesn't reach its final height instantly - it animates in
+  // over a couple hundred ms after the input is focused. A scroll check
+  // made at focus time (or at verseIndex-change time, if that happens to
+  // coincide with the keyboard still opening) can run before the keyboard
+  // has fully expanded, so it under-corrects. Re-running the same check on
+  // every visualViewport resize/scroll event catches the keyboard settling
+  // into its final size and any orientation change while typing.
+  useOnVisualViewportChange(() => {
+    scrollAboveKeyboard(activeRowRef.current, "auto");
+  });
 
   return (
     <>

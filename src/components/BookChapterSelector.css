@@ -18,6 +18,27 @@
   min-width: 90px;
 }
 
+@media (max-width: 600px) {
+  .bookChapterSelector {
+    gap: 10px 12px;
+  }
+
+  .selectField {
+    min-width: 120px;
+    flex: 1 1 140px;
+  }
+
+  .selectField--narrow {
+    min-width: 70px;
+    flex: 0 1 80px;
+  }
+
+  .selectField select {
+    width: 100%;
+    font-size: 1rem;
+  }
+}
+
 .selectLabel {
   font-size: 0.75rem;
   letter-spacing: 0.05em;

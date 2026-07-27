@@ -4,6 +4,7 @@ import { authClient, useSession } from "../lib/authClient";
 import { useProgress } from "../hooks/useProgress";
 import { useReadMode } from "../hooks/useReadMode";
 import { useLanguage } from "../i18n/LanguageContext";
+import { HomeIcon, ReadIcon, LeaderboardIcon, DirectoryIcon, ProfileIcon, MoreIcon } from "./NavIcons";
 import "./Sidebar.css";
 
 const COLLAPSED_KEY = "livingwords:sidebar-collapsed";
@@ -21,8 +22,13 @@ function navClass({ isActive }: { isActive: boolean }) {
   return `sidebarLink${isActive ? " sidebarLink--active" : ""}`;
 }
 
+function mobileTabClass({ isActive }: { isActive: boolean }) {
+  return `mobileTab${isActive ? " mobileTab--active" : ""}`;
+}
+
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
+  const [moreOpen, setMoreOpen] = useState(false);
   const { data: session } = useSession();
   const { getLatestProgress } = useProgress();
   const { readMode, setReadMode } = useReadMode();
@@ -50,6 +56,7 @@ export function Sidebar() {
   };
 
   return (
+    <>
     <nav className={`sidebar${collapsed ? " sidebar--collapsed" : ""}`}>
       <button
         type="button"
@@ -139,5 +146,119 @@ export function Sidebar() {
         </div>
       </div>
     </nav>
+
+    {/* Mobile-only bottom tab bar. Rendered unconditionally and picked by
+        CSS at the ≤600px breakpoint (see Sidebar.css) - the desktop <nav>
+        above is hidden there instead. Keeping both in the DOM avoids any
+        matchMedia/JS breakpoint juggling; only one is ever visible. */}
+    <nav className="mobileTabBar" aria-label={t("sidebar.mobileNavLabel")}>
+      <NavLink to="/" end className={mobileTabClass} onClick={() => setMoreOpen(false)}>
+        <HomeIcon />
+        <span>{t("sidebar.home")}</span>
+      </NavLink>
+      <button
+        type="button"
+        className="mobileTab"
+        onClick={() => {
+          setMoreOpen(false);
+          handleTypeEngine();
+        }}
+      >
+        <ReadIcon />
+        <span>{t("sidebar.typeEngine")}</span>
+      </button>
+      <NavLink to="/leaderboard" className={mobileTabClass} onClick={() => setMoreOpen(false)}>
+        <LeaderboardIcon />
+        <span>{t("sidebar.leaderboard")}</span>
+      </NavLink>
+      <NavLink to="/directory" className={mobileTabClass} onClick={() => setMoreOpen(false)}>
+        <DirectoryIcon />
+        <span>{t("sidebar.livworders")}</span>
+      </NavLink>
+      <NavLink to="/profile" className={mobileTabClass} onClick={() => setMoreOpen(false)}>
+        <ProfileIcon />
+        <span>{t("sidebar.profile")}</span>
+      </NavLink>
+      <button
+        type="button"
+        className={`mobileTab${moreOpen ? " mobileTab--active" : ""}`}
+        onClick={() => setMoreOpen((prev) => !prev)}
+        aria-expanded={moreOpen}
+        aria-controls="mobileMoreSheet"
+      >
+        <MoreIcon />
+        <span>{t("sidebar.more")}</span>
+      </button>
+    </nav>
+
+    {moreOpen && (
+      <>
+        <button
+          type="button"
+          className="mobileMoreBackdrop"
+          aria-label={t("sidebar.closeMenu")}
+          onClick={() => setMoreOpen(false)}
+        />
+        <div id="mobileMoreSheet" className="mobileMoreSheet" role="menu">
+          <NavLink to="/memory" className={navClass} onClick={() => setMoreOpen(false)}>
+            <span className="sidebarLabel">{t("sidebar.memTool")}</span>
+          </NavLink>
+          <NavLink to="/about" className={navClass} onClick={() => setMoreOpen(false)}>
+            <span className="sidebarLabel">{t("sidebar.about")}</span>
+          </NavLink>
+          <NavLink to="/settings" className={navClass} onClick={() => setMoreOpen(false)}>
+            <span className="sidebarLabel">{t("sidebar.settings")}</span>
+          </NavLink>
+
+          <button
+            type="button"
+            className="sidebarModeToggle"
+            onClick={() => {
+              setReadMode(!readMode);
+              setMoreOpen(false);
+            }}
+            aria-pressed={readMode}
+          >
+            <span className="sidebarLabel">{readMode ? t("sidebar.reading") : t("sidebar.typing")}</span>
+          </button>
+
+          <div className="sidebarLangToggle" role="group" aria-label={t("sidebar.langToggleLabel")}>
+            <button
+              type="button"
+              className={`sidebarLangOption${lang === "en" ? " sidebarLangOption--active" : ""}`}
+              onClick={() => setLang("en")}
+              aria-pressed={lang === "en"}
+            >
+              {t("sidebar.langEnglish")}
+            </button>
+            <button
+              type="button"
+              className={`sidebarLangOption${lang === "ko" ? " sidebarLangOption--active" : ""}`}
+              onClick={() => setLang("ko")}
+              aria-pressed={lang === "ko"}
+            >
+              {t("sidebar.langKorean")}
+            </button>
+          </div>
+
+          <NavLink to="/profile" className={navClass} onClick={() => setMoreOpen(false)}>
+            <span className="sidebarLabel">{t("sidebar.profile")}</span>
+          </NavLink>
+          {session && (
+            <button
+              type="button"
+              className="sidebarLink"
+              onClick={() => {
+                authClient.signOut();
+                setMoreOpen(false);
+              }}
+            >
+              {t("sidebar.signOut")}
+            </button>
+          )}
+        </div>
+      </>
+    )}
+    </>
   );
 }

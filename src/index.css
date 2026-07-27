@@ -57,11 +57,34 @@
   --color-cursor: #1E3A5F;
   --color-composing: #0B2240;
   --font-body: "MaruBuri";
+
+  /* How much of the bottom of the screen the on-screen keyboard is
+     currently covering, kept live by useKeyboardInsetVar(). Zero on
+     desktop/tablet and whenever no keyboard is up. */
+  --keyboard-inset: 0px;
+
+  /* Height reserved for the mobile bottom tab bar (see Sidebar.css),
+     including the safe-area inset for phones with a home indicator.
+     0 above the tablet breakpoint, where the sidebar is a side column
+     again and doesn't need main-content clearance. */
+  --bottom-nav-height: 0px;
+
+  /* Shared breakpoints. Custom properties can't be used inside @media
+     conditions, so these exist mainly as a single documented source of
+     truth - update the numbers here AND in the matching @media queries
+     if the breakpoints ever change. */
+  --breakpoint-mobile: 600px;   /* phones */
+  --breakpoint-tablet: 1024px;  /* tablets / small laptops */
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-correct);
+  margin: 0;
 }
 
 * {
@@ -75,24 +98,53 @@ a {
 #mainBody {
   padding: 20px;
   margin: 50px;
+  padding-bottom: calc(20px + var(--bottom-nav-height));
 }
 
+@media (max-width: 1024px) {
+  #mainBody {
+    margin: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  #mainBody {
+    /* Flat 50px margins ate over a third of a 375px-wide phone screen
+       before any Bible text even started - this keeps real breathing
+       room without the desktop-sized gutters. */
+    margin: 12px;
+    padding: 12px;
+    padding-bottom: calc(12px + var(--bottom-nav-height));
+  }
+}
+
+/* Fluid type: the rem part keeps scaling with the user's own Text Size
+   preference (ThemeContext multiplies the root font-size, and every rem
+   here is relative to that); the vw part is what actually makes these
+   shrink on narrow screens instead of staying desktop-sized and wrapping
+   awkwardly or overflowing. */
 .bookText {
-  font-size: 3rem;
+  font-size: clamp(1.5rem, 4vw + 0.75rem, 3rem);
   text-align: center;
 }
 
 .verseNum {
-  font-size: 1.5rem;
+  font-size: clamp(0.95rem, 1.4vw + 0.6rem, 1.5rem);
 }
 
 .bibText {
-  font-size: 2rem;
+  font-size: clamp(1.1rem, 2vw + 0.75rem, 2rem);
   word-break: keep-all;
   margin-left: 20px;
 }
 
 .bibTextActive {
-  font-size: 2rem;
+  font-size: clamp(1.1rem, 2vw + 0.75rem, 2rem);
   word-break: keep-all;
+}
+
+@media (max-width: 600px) {
+  .bibText {
+    margin-left: 8px;
+  }
 }

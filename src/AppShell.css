@@ -8,3 +8,24 @@
   flex: 1;
   min-width: 0;
 }
+
+@media (max-width: 600px) {
+  :root {
+    /* Tab bar content height (see Sidebar.css) plus the iPhone home-
+       indicator safe area, so #mainBody's padding-bottom (index.css)
+       actually clears the fixed bar instead of content sitting behind it. */
+    --bottom-nav-height: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .appShell {
+    /* The sidebar becomes a fixed, out-of-flow bottom bar at this
+       breakpoint (see Sidebar.css), so the shell itself just needs to be
+       a single column - no side-by-side flex row left over from the
+       desktop layout. */
+    flex-direction: column;
+  }
+
+  .appMain {
+    width: 100%;
+  }
+}

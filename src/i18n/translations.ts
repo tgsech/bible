@@ -24,6 +24,9 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "sidebar.langEnglish": "EN",
     "sidebar.langKorean": "한글",
     "sidebar.langToggleLabel": "Language",
+    "sidebar.more": "More",
+    "sidebar.mobileNavLabel": "Main navigation",
+    "sidebar.closeMenu": "Close menu",
 
     // Common
     "common.loading": "Loading…",
@@ -250,6 +253,9 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "sidebar.langEnglish": "EN",
     "sidebar.langKorean": "한글",
     "sidebar.langToggleLabel": "언어",
+    "sidebar.more": "더보기",
+    "sidebar.mobileNavLabel": "메인 내비게이션",
+    "sidebar.closeMenu": "메뉴 닫기",
 
     // Common
     "common.loading": "불러오는 중…",

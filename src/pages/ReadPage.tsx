@@ -6,6 +6,7 @@ import { useProgress } from "../hooks/useProgress";
 import { useReadingProgress } from "../hooks/useReadingProgress";
 import { useReadMode } from "../hooks/useReadMode";
 import { computeTypingStats } from "../typing/stats";
+import { scrollAboveKeyboard, useKeyboardInsetVar } from "../hooks/useKeyboardAwareScroll";
 import { api } from "../lib/api";
 import { ChapterView } from "../components/ChapterView";
 import { BookChapterSelector } from "../components/BookChapterSelector";
@@ -52,6 +53,12 @@ export function ReadPage() {
   const { saveProgress, loadProgress, isLoggedIn } = useProgress();
   const { saveReadingPosition } = useReadingProgress();
   const { readMode } = useReadMode();
+
+  // Keeps --keyboard-inset in sync with the on-screen keyboard's height so
+  // #secondBody (below) can reserve that much bottom padding - without it,
+  // a verse near the end of a chapter has nowhere left in the document to
+  // scroll to, so no amount of scroll math can lift it above the keyboard.
+  useKeyboardInsetVar();
 
   // Autofocus the (visually hidden) typing input on landing so people can
   // start typing immediately without clicking first. This can't just key
@@ -188,7 +195,7 @@ export function ReadPage() {
 
   useEffect(() => {
     if (chapterDone) {
-      chapterNavRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      scrollAboveKeyboard(chapterNavRef.current);
     }
   }, [chapterDone]);
 
@@ -277,7 +284,11 @@ export function ReadPage() {
         onChange={goToChapter}
       />
 
-      <div id="secondBody" onClick={() => !readMode && inputRef.current?.focus({ preventScroll: true })}>
+      <div
+        id="secondBody"
+        onClick={() => !readMode && inputRef.current?.focus({ preventScroll: true })}
+        style={!readMode ? { paddingBottom: "var(--keyboard-inset, 0px)" } : undefined}
+      >
         <h2 className="bookText">
           {currentBook.name} {isKorean ? `${chapter}장` : `Chapter ${chapter}`}
         </h2>
