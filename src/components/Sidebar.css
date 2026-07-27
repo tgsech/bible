@@ -228,7 +228,7 @@
     padding: 4px 2px;
     border: none;
     background: transparent;
-    color: var(--color-text);
+    color: var(--color-untyped);
     font-size: 0.6rem;
     letter-spacing: 0.02em;
     text-decoration: none;
