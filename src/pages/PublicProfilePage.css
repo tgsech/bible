@@ -16,7 +16,7 @@
   margin-top: 50px;
   margin-bottom: 50px;
   max-width: 400px;
-  border: 1px solid var(--color-text);
+  border: 1px solid var(--color-untyped);
   border-radius: 16px;
   overflow: hidden;
   background: var(--color-bg);
@@ -24,7 +24,7 @@
 
 .profileCardBanner {
   height: 72px;
-  background: var(--color-untyped);
+  background: var(--color-text);
 }
 
 .profileCardBody {

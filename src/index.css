@@ -21,6 +21,14 @@
     font-display: swap;
 }
 
+/* 코딩체s */
+@font-face {
+    font-family: 'D2Coding';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_three@1.0/D2Coding.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
 /* 귀염체s */
 @font-face {
     font-family: 'OngleipParkDahyeon';
@@ -31,6 +39,12 @@
 @font-face {
     font-family: 'OngleipKonkon';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'OmuDaye';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2');
     font-weight: normal;
     font-display: swap;
 }
@@ -162,6 +176,12 @@ a {
   -webkit-box-decoration-break: clone;
   border-bottom: 2px solid var(--color-bookmark-underline);
 }
+
+.bookmarkedVerse .bibTextActive {
+  background-color: var(--color-bg);
+  color: var(--color-untyped);
+}
+
 
 .verseTappable {
   cursor: pointer;

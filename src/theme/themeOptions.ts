@@ -206,6 +206,96 @@ export const PALETTES: ColorPalette[] = [
       bookmarkUnderline: "#9C8175",
       },
   },
+  {
+    id: "octEven",
+    name: "October Evening",
+    colors: {
+      bg: "#BE5B50",
+      text: "#8A2D3B",
+      correct: "#FBDB93",
+      incorrect: "#960606",
+      untyped: "#641B2E",
+      cursor: "#e4b851",
+      composing: "#e4b851",
+      bookmark: "#e4b851",
+      bookmarkUnderline: "#8f6401",
+      },
+  },
+  {
+    id: "dustSand",
+    name: "Dusty Sand",
+    colors: {
+      bg: "#ccbca2",
+      text: "#62557e",
+      correct: "#c47e48",
+      incorrect: "#c5d3c0",
+      untyped: "#815b64",
+      cursor: "#9385b1",
+      composing: "#9385b1",
+      bookmark: "#c49f89",
+      bookmarkUnderline: "#c99595",
+      },
+  },
+  {
+    id: "dreamCloud",
+    name: "Dreamy Clouds",
+    colors: {
+      bg: "#edf2fa",
+      text: "#ccdbfd",
+      correct: "#98b5f8",
+      incorrect: "#f3a6c4",
+      untyped: "#c7d8fd",
+      cursor: "#6592fc",
+      composing: "#6592fc",
+      bookmark: "#576292",
+      bookmarkUnderline: "#021464",
+      },
+  },
+  {
+    id: "strawMilk",
+    name: "Strawberry Milk",
+    colors: {
+      bg: "#f3cad5",
+      text: "#f7ebd9",
+      correct: "#c94a62",
+      incorrect: "#fff",
+      untyped: "#e86982",
+      cursor: "#9c2940",
+      composing: "#9c2940",
+      bookmark: "#e08295",
+      bookmarkUnderline: "#fff",
+      },
+  },
+  {
+    id: "pondLily",
+    name: "Pond Lilies",
+    colors: {
+      bg: "#82cea7",
+      text: "#c0e9f2",
+      correct: "#41806b",
+      incorrect: "#83969c",
+      untyped: "#a2d2e2",
+      cursor: "#58af92",
+      composing: "#58af92",
+      bookmark: "#5cabca",
+      bookmarkUnderline: "#45359e",
+      },
+  },
+  {
+    id: "funkIDE",
+    name: "Funky IDE",
+    colors: {
+      bg: "#131b30",
+      text: "#7affca",
+      correct: "#fff",
+      incorrect: "#c894eb",
+      untyped: "#6d97f7",
+      cursor: "#bbb8b8",
+      composing: "#bbb8b8",
+      bookmark: "#22345e",
+      bookmarkUnderline: "#dbd02d",
+      },
+  },
 
 ];
 
@@ -218,9 +308,14 @@ export const FONTS: FontOption[] = [
   { id: "notosanskr", name: "Noto Sans KR", cssFontFamily: '"Noto Sans KR"' },
   { id: "nanumsqrneo", name: "Nanum Square Neo", cssFontFamily: '"NanumSquareNeo"' },
 
+  // 코딩s
+  { id: "d2code", name: "D2Coding", cssFontFamily: '"D2Coding"' },
+
+
   // 귀염s
   { id: "onkonkon", name: "Ongleip Konkon", cssFontFamily: '"OngleipKonkon"' },
   { id: "owngleippdh", name: "Ongleip Park Dahyeon", cssFontFamily: '"OngleipParkDahyeon"' },
+  { id: "omudaye", name: "Omu Daye", cssFontFamily: '"OmuDaye"' },
 
   // 픽셀s
   { id: "umdot", name: "Umdot", cssFontFamily: '"Umdot"' },
