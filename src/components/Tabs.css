@@ -29,7 +29,7 @@
 
 @media (max-width: 600px) {
   .tabBar {
-    overflow-x: auto;
+    /* overflow-x: auto; */
     -webkit-overflow-scrolling: touch;
   }
 
