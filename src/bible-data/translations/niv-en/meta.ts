@@ -19,7 +19,7 @@ import chapterCounts from "./chapter-counts.json";
 export const meta: TranslationMeta = {
   id: "niv-en",
   language: "en",
-  name: "New International Version",
+  name: "New International Version (2011)",
   youVersionId: 111,
   books: [
     {
