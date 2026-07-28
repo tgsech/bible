@@ -76,6 +76,7 @@ interface ProfileSummary {
   };
   completions: CompletionRow[];
   bookmarks: SavedVerse[];
+  inProgress: ProgressRow[];
   streak: {
     current: number;
     longest: number;
@@ -194,8 +195,17 @@ export function ProfilePage() {
     );
   }
 
-  const { latestPosition, latestReadingPosition, overall, completions, bookmarks, streak, badges, settings } =
-    summary;
+  const {
+    latestPosition,
+    latestReadingPosition,
+    overall,
+    completions,
+    bookmarks,
+    inProgress,
+    streak,
+    badges,
+    settings,
+  } = summary;
   const featuredCount = bookmarks.filter((b) => b.showOnPublicProfile).length;
 
   return (
@@ -302,7 +312,7 @@ export function ProfilePage() {
 
       {activeTab === "progress" && (
         <div className="profileTabPanel">
-          <ProgressGrid translations={TRANSLATIONS} completions={completions} />
+          <ProgressGrid translations={TRANSLATIONS} completions={completions} inProgress={inProgress} />
         </div>
       )}
 

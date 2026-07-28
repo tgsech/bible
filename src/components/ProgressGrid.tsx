@@ -8,23 +8,33 @@ interface CompletionRow {
   translationId: string;
   bookId: string;
   chapter: number;
-  timesCompleted: number;
+}
+
+interface ProgressRow {
+  translationId: string;
+  bookId: string;
+  chapter: number;
+  verseIndex: number;
 }
 
 interface Props {
   translations: TranslationMeta[];
   completions: CompletionRow[];
+  inProgress: ProgressRow[];
 }
 
 /**
  * Groups a translation's books by testament/group, and renders each book as
  * a collapsible section containing a grid of rounded squares — one per
- * chapter, filled in once that chapter shows up in `completions`. Mirrors
- * the shape of the reference history page, but with soft rounded squares
- * instead of hard-edged ones, and no per-book completion % badge above the
- * fold (that's covered by the Overview tab instead).
+ * chapter. Mirrors the reference history page's partial-fill squares: a
+ * chapter's square fills left-to-right by verseIndex/totalVerses (how far
+ * into typing that chapter someone's gotten), not just a binary
+ * done/not-done. A chapter that's been fully completed at least once (per
+ * chapterCompletions) always shows 100% filled with a checkmark, even if
+ * its most recent in-progress verseIndex looks lower (e.g. after a
+ * deliberate "retype this chapter" reset back to verse 1).
  */
-export function ProgressGrid({ translations, completions }: Props) {
+export function ProgressGrid({ translations, completions, inProgress }: Props) {
   const { t } = useLanguage();
   const [translationId, setTranslationId] = useState(translations[0]?.id ?? "");
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
@@ -41,6 +51,20 @@ export function ProgressGrid({ translations, completions }: Props) {
     }
     return map;
   }, [completions, translation.id]);
+
+  // chapter -> furthest verseIndex reached, keyed by book. verseIndex is
+  // 0-indexed ("currently typing verse N" = verseIndex N-1), so it already
+  // equals "verses typed so far" directly.
+  const verseIndexByBook = useMemo(() => {
+    const map = new Map<string, Map<number, number>>();
+    for (const row of inProgress) {
+      if (row.translationId !== translation.id) continue;
+      const chapters = map.get(row.bookId) ?? new Map<number, number>();
+      chapters.set(row.chapter, row.verseIndex);
+      map.set(row.bookId, chapters);
+    }
+    return map;
+  }, [inProgress, translation.id]);
 
   const groups = useMemo(() => {
     const map = new Map<string, BookMeta[]>();
@@ -115,6 +139,7 @@ export function ProgressGrid({ translations, completions }: Props) {
             <div className="progressGroupBody">
               {books.map((book) => {
                 const completedChapters = completedByBook.get(book.id) ?? new Set<number>();
+                const chapterVerseIndexes = verseIndexByBook.get(book.id) ?? new Map<number, number>();
                 const chapterCount = book.versesPerChapter.length;
 
                 return (
@@ -128,13 +153,26 @@ export function ProgressGrid({ translations, completions }: Props) {
                     <div className="progressChapterGrid">
                       {Array.from({ length: chapterCount }, (_, i) => i + 1).map((chapter) => {
                         const done = completedChapters.has(chapter);
+                        const totalVerses = book.versesPerChapter[chapter - 1] ?? 0;
+                        const versesTyped = chapterVerseIndexes.get(chapter) ?? 0;
+                        const percent = done
+                          ? 100
+                          : totalVerses > 0
+                            ? Math.max(0, Math.min(100, (versesTyped / totalVerses) * 100))
+                            : 0;
+
                         return (
                           <Link
                             key={chapter}
                             to={`/read/${translation.id}/${book.id}/${chapter}`}
                             className={`progressChapterCell${done ? " progressChapterCell--done" : ""}`}
-                            title={`${book.name} ${chapter}`}
+                            title={`${book.name} ${chapter} — ${Math.round(percent)}%`}
                           >
+                            <span
+                              className="progressChapterFill"
+                              style={{ width: `${percent}%` }}
+                              aria-hidden="true"
+                            />
                             {done && (
                               <svg
                                 viewBox="0 0 16 16"

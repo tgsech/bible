@@ -108,7 +108,8 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.08s ease;
+  overflow: hidden;
+  transition: border-color 0.12s ease, transform 0.08s ease;
 }
 
 .progressChapterCell:hover {
@@ -116,15 +117,35 @@
   border-color: var(--color-correct);
 }
 
-.progressChapterCell--done {
+/* Left-to-right fill bar, sized by verseIndex/totalVerses for an
+   in-progress chapter (or pinned to 100% once it's in chapterCompletions)
+   - a partial attempt shows a partial fill, same idea as the reference
+   history page's two-rect squares, just done with a positioned span
+   instead of nested SVG rects. Sits behind the checkmark (z-index default
+   stacking, painted before it in DOM order). */
+.progressChapterFill {
+  position: absolute;
+  inset: 0;
+  right: auto;
   background: var(--color-correct);
+  opacity: 0.55;
+  transition: width 0.2s ease;
+}
+
+.progressChapterCell--done {
   border-color: var(--color-correct);
 }
 
+.progressChapterCell--done .progressChapterFill {
+  opacity: 1;
+}
+
 .progressChapterCheck {
+  position: relative;
   width: 55%;
   height: 55%;
   fill: var(--color-bg);
+  filter: drop-shadow(0 0 1px var(--color-correct));
 }
 
 @media (max-width: 600px) {
