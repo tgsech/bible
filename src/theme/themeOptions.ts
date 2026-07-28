@@ -41,7 +41,7 @@ export const PALETTE_CATEGORIES: PaletteCategory[] = [
   {
     id: "cafe",
     nameKey: "palette.category.cafe",
-    paletteIds: ["matcha", "butter", "coffee", "strawMilk", "apricotjoy"],
+    paletteIds: ["matcha", "butter", "banMilk", "strawMilk", "coffee","apricotjoy", "persSeas"],
   },
   {
     id: "nature",
@@ -307,7 +307,7 @@ export const PALETTES: ColorPalette[] = [
       text: "#c0e9f2",
       correct: "#41806b",
       incorrect: "#83969c",
-      untyped: "#a2d2e2",
+      untyped: "#4aa5c4",
       cursor: "#58af92",
       composing: "#58af92",
       bookmark: "#5cabca",
@@ -329,6 +329,36 @@ export const PALETTES: ColorPalette[] = [
       bookmarkUnderline: "#dbd02d",
       },
   },
+  {
+    id: "banMilk",
+    name: "Banana Milk",
+    colors: {
+      bg: "#f7efd9",
+      text: "#ffca38",
+      correct: "#2f7f33",
+      incorrect: "#d42121",
+      untyped: "#f4d248",
+      cursor: "#a7d770",
+      composing: "#a7d770",
+      bookmark: "#3b5a3c",
+      bookmarkUnderline: "#faea07",
+      },
+  },
+  {
+    id: "persSeas",
+    name: "Persimmon Season",
+    colors: {
+      bg: "#f2a65a",
+      text: "#e0782e",
+      correct: "#2e1a14",
+      incorrect: "#d42121",
+      untyped: "#c8643c",
+      cursor: "#7d402b",
+      composing: "#7d402b",
+      bookmark: "#b64605",
+      bookmarkUnderline: "#fa9907",
+      },
+  },
 
 ];
 
@@ -346,6 +376,7 @@ export const FONTS: FontOption[] = [
 
 
   // 귀염s
+  { id: "binggre", name: "Binggrae", cssFontFamily: '"binggre"' },
   { id: "onkonkon", name: "Ongleip Konkon", cssFontFamily: '"OngleipKonkon"' },
   { id: "owngleippdh", name: "Ongleip Park Dahyeon", cssFontFamily: '"OngleipParkDahyeon"' },
   { id: "omudaye", name: "Omu Daye", cssFontFamily: '"OmuDaye"' },
