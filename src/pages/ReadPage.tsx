@@ -60,7 +60,7 @@ export function ReadPage() {
     setBookmarkPromptVerse(null);
   }, [translationId, bookId, chapter]);
 
-  const { saveProgress, loadProgress, isLoggedIn } = useProgress();
+  const { saveProgress, loadProgress, isLoggedIn, sessionPending } = useProgress();
   const { saveReadingPosition } = useReadingProgress();
   const { readMode } = useReadMode();
 
@@ -130,7 +130,7 @@ export function ReadPage() {
   }, [translationId, bookId, chapter]);
 
   useEffect(() => {
-    if (!data || hydratedRef.current || readMode) return;
+    if (!data || hydratedRef.current || readMode || sessionPending) return;
     let cancelled = false;
 
     loadProgress(translationId, bookId, chapter).then((resume) => {
@@ -142,19 +142,44 @@ export function ReadPage() {
     return () => {
       cancelled = true;
     };
-  }, [data, translationId, bookId, chapter, loadProgress, reset, readMode]);
+  }, [data, translationId, bookId, chapter, loadProgress, reset, readMode, sessionPending]);
 
   // Save current position any time it actually changes: new verse, or
   // still typing within the current one. Gated on hydratedRef so this
   // never fires with the pre-hydration blank state and stomps real saved
   // progress the instant a chapter loads.
+  //
+  // Also skipped when hydration just resumed an *already-finished* chapter:
+  // useTypingSession.reset() blanks `typed` to "" for display purposes in
+  // that case (endTime set, startTime still null - nothing typed yet this
+  // sitting), but that blank is cosmetic, not a real position. Persisting
+  // it would overwrite the saved "fully typed last verse" record with an
+  // empty one, so the next time this chapter loads it no longer looks
+  // complete - the reader lands back on the last verse being asked to
+  // retype it, and finishing that one verse re-fires the completion POST
+  // and inflates timesCompleted for a chapter they never actually retyped.
+  // A genuine fresh completion (or a deliberate Retype) always has
+  // startTime set to something (typing happened) or endTime cleared
+  // entirely, so neither of those is caught by this guard.
   useEffect(() => {
     if (!data || !hydratedRef.current || readMode) return;
+    if (session.endTime !== null && session.startTime === null) return;
     saveProgress(translationId, bookId, chapter, {
       verseIndex: session.verseIndex,
       typedSoFar: session.typed,
     });
-  }, [translationId, bookId, chapter, session.verseIndex, session.typed, data, saveProgress, readMode]);
+  }, [
+    translationId,
+    bookId,
+    chapter,
+    session.verseIndex,
+    session.typed,
+    session.startTime,
+    session.endTime,
+    data,
+    saveProgress,
+    readMode,
+  ]);
 
   // Read mode's own progress: just "which chapter", saved the moment the
   // chapter loads — no hydration pass needed since there's no cursor to

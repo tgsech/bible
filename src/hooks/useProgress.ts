@@ -59,7 +59,7 @@ function clearGuestStore() {
 }
 
 export function useProgress() {
-  const { data: session } = useSession();
+  const { data: session, isPending: sessionPending } = useSession();
   const hasMergedRef = useRef(false);
   const saveTimeoutRef = useRef<number | undefined>(undefined);
 
@@ -149,5 +149,12 @@ export function useProgress() {
     };
   }, [session]);
 
-  return { saveProgress, loadProgress, getLatestProgress, isLoggedIn: !!session };
+  // Exposed so callers that hydrate once-per-chapter (ReadPage) can hold
+  // off calling loadProgress until this resolves. While it's true, `session`
+  // is `null` regardless of whether the person is actually logged in - if
+  // loadProgress ran during that window it would wrongly treat a logged-in
+  // person as a guest, possibly returning null (if this specific device's
+  // localStorage has no entry for that chapter) and resetting real,
+  // server-side progress back to blank.
+  return { saveProgress, loadProgress, getLatestProgress, isLoggedIn: !!session, sessionPending };
 }
