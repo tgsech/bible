@@ -275,6 +275,11 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // ReadPage
     "read.loadErrorPrefix": "Couldn't load this chapter.",
+    "read.record": "Your record for this chapter",
+    "read.recordTimesCompleted": "Times completed",
+    "read.recordBestSpeed": "Best speed",
+    "read.recordAvgSpeed": "Avg speed",
+    "read.recordAvgAccuracy": "Avg accuracy",
 
     // BookChapterSelector
     "selector.translation": "Translation",
@@ -560,6 +565,11 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
 
     // ReadPage
     "read.loadErrorPrefix": "이 챕터를 불러올 수 없습니다.",
+    "read.record": "이 챕터의 기록",
+    "read.recordTimesCompleted": "완료 횟수",
+    "read.recordBestSpeed": "최고 속도",
+    "read.recordAvgSpeed": "평균 속도",
+    "read.recordAvgAccuracy": "평균 정확도",
 
     // BookChapterSelector
     "selector.translation": "번역본",

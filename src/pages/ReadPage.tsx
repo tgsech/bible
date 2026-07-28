@@ -15,6 +15,7 @@ import { ChapterNav } from "../components/ChapterNav";
 import { LiveStats } from "../components/LiveStats";
 import { CompletionModal } from "../components/CompletionModal";
 import { BookmarkPrompt } from "../components/BookmarkPrompt";
+import { ChapterRecord, type ChapterCompletionRecord } from "../components/ChapterRecord";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -163,6 +164,26 @@ export function ReadPage() {
     saveReadingPosition(translationId, bookId, chapter);
   }, [data, readMode, translationId, bookId, chapter, saveReadingPosition]);
 
+  // This user's completion record for the chapter currently on screen —
+  // powers the Record card below. Guests never have one (no account to
+  // attach it to), and it's refetched on every chapter navigation since
+  // it's keyed to translationId/bookId/chapter, not just bookId/chapter.
+  const [chapterRecord, setChapterRecord] = useState<ChapterCompletionRecord | null>(null);
+  useEffect(() => {
+    setChapterRecord(null);
+    if (!isLoggedIn) return;
+    let cancelled = false;
+    api
+      .get<ChapterCompletionRecord>(`/completions/${translationId}/${bookId}/${chapter}`)
+      .then((row) => {
+        if (!cancelled) setChapterRecord(row);
+      })
+      .catch((err) => console.error("Failed to load chapter record", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [translationId, bookId, chapter, isLoggedIn]);
+
   const chapterDone = session.endTime !== null;
   // session.startTime only gets set by actually typing (see
   // useTypingSession). A chapter resumed already-complete from a previous
@@ -197,13 +218,16 @@ export function ReadPage() {
       currentTranslation.language
     );
     api
-      .post("/completions", {
+      .post<{ completion: ChapterCompletionRecord }>("/completions", {
         translationId,
         bookId,
         chapter,
         wpm: stats.speed,
         accuracy: stats.accuracy,
         unit: stats.label === "타/분" ? "cpm" : "wpm",
+      })
+      .then((res) => {
+        if (res) setChapterRecord(res.completion);
       })
       .catch((err) => console.error("Failed to log completion", err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -398,6 +422,8 @@ export function ReadPage() {
             </button>
           )}
         </div>
+
+        <ChapterRecord record={chapterRecord} />
       </div>
 
       {!readMode && showCompletionModal && (
