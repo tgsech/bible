@@ -116,6 +116,7 @@
   border-radius: 6px;
   border: 1px solid var(--color-text);
   background: transparent;
+  background: var(--color-bg);
   color: var(--color-correct);
 }
 
