@@ -221,6 +221,15 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
       "Your username shows on the leaderboard and directory instead of your account name — leave it blank to just show as anonymous there.",
     "profile.viewPublic": "View your public profile →",
 
+    // Profile - tabs
+    "profile.tabOverview": "Overview",
+    "profile.tabProgress": "Progress",
+    "profile.tabPublic": "Public",
+    "profile.tabVerses": "Verses",
+
+    // ProgressGrid
+    "progress.translation": "Translation",
+
     // Profile - Bookmarked verses section
     "profile.bookmarkedVerses": "Bookmarked verses",
     "profile.noBookmarks": "Click or long-press a verse while reading to bookmark it — it'll show up here.",
@@ -496,6 +505,15 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "profile.settingsHint":
       "사용자 이름은 계정 이름 대신 리더보드와 디렉토리에 표시됩니다 — 비워두면 익명으로 표시됩니다.",
     "profile.viewPublic": "공개 프로필 보기 →",
+
+    // Profile - tabs
+    "profile.tabOverview": "개요",
+    "profile.tabProgress": "진행 상황",
+    "profile.tabPublic": "공개 프로필",
+    "profile.tabVerses": "구절",
+
+    // ProgressGrid
+    "progress.translation": "번역본",
 
     // Profile - Bookmarked verses section
     "profile.bookmarkedVerses": "북마크한 구절",

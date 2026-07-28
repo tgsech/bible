@@ -1,0 +1,40 @@
+.tabBar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--color-text);
+  margin-bottom: 24px;
+}
+
+.tabButton {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-correct);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+
+.tabButton:hover {
+  opacity: 0.8;
+}
+
+.tabButton--active {
+  background: var(--color-correct);
+  color: var(--color-bg);
+  border-radius: 2px 2px 0 0;
+}
+
+@media (max-width: 600px) {
+  .tabBar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabButton {
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+}
