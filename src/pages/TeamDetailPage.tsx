@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, ApiError } from "../lib/api";
 import { useSession } from "../lib/authClient";
 import { useLanguage } from "../i18n/LanguageContext";
 import { TeamMemberCard, type TeamMember } from "../components/TeamMemberCard";
+import { TeamSettingsPanel } from "../components/TeamSettingsPanel";
 import "./TeamDetailPage.css";
 
 interface PendingRequest {
@@ -27,6 +28,7 @@ export function TeamDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: session } = useSession();
   const { t, lang } = useLanguage();
+  const navigate = useNavigate();
 
   const [team, setTeam] = useState<TeamDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -185,9 +187,13 @@ export function TeamDetailPage() {
         </div>
 
         {session ? (
-          <button type="button" className="teamDetailJoinButton" onClick={team.viewerStatus === "none" ? handleJoin : handleLeave} disabled={busy}>
-            {joinButtonLabel}
-          </button>
+          team.viewerStatus === "member" && team.isOwner ? (
+            <span className="teamDetailOwnerLeaveHint">{t("teams.ownerLeaveHint")}</span>
+          ) : (
+            <button type="button" className="teamDetailJoinButton" onClick={team.viewerStatus === "none" ? handleJoin : handleLeave} disabled={busy}>
+              {joinButtonLabel}
+            </button>
+          )
         ) : (
           <span className="teamDetailSignInHint">{t("teams.signInToJoin")}</span>
         )}
@@ -227,11 +233,23 @@ export function TeamDetailPage() {
         ) : (
           <div className="teamMembersGrid">
             {team.members.map((m) => (
-              <TeamMemberCard key={m.displayName} member={m} />
+              <TeamMemberCard key={m.userId} member={m} />
             ))}
           </div>
         )}
       </section>
+
+      {team.isOwner && session && (
+        <TeamSettingsPanel
+          teamId={team.id}
+          name={team.name}
+          joinPolicy={team.joinPolicy}
+          members={team.members}
+          currentUserId={session.user.id}
+          onChanged={load}
+          onDeleted={() => navigate("/directory")}
+        />
+      )}
     </div>
   );
 }

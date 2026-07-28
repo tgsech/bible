@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import "./TeamMemberCard.css";
 
 export interface TeamMember {
+  userId: string;
   username: string | null;
   displayName: string;
   hasUsername: boolean;

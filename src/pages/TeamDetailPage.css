@@ -88,6 +88,14 @@
   opacity: 0.6;
 }
 
+.teamDetailOwnerLeaveHint {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  max-width: 220px;
+  text-align: right;
+}
+
 .teamDetailActionError {
   font-size: 0.85rem;
   color: var(--color-incorrect);
