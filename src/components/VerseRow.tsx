@@ -1,5 +1,5 @@
 import { memo, forwardRef } from "react";
-import { charMatches } from "../typing/charMatch";
+import { charMatches, UNTYPED_MARKER } from "../typing/charMatch";
 import { useLongPress } from "../hooks/useLongPress";
 import { useDoubleTap } from "../hooks/useDoubleTap";
 
@@ -112,7 +112,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
           if (isComposingHere) {
             displayChar = typed[i];
             color = "var(--color-composing)";
-          } else if (i < typed.length) {
+          } else if (i < typed.length && typed[i] !== UNTYPED_MARKER) {
             // charMatches handles curly-quote equivalence and the
             // untypeable-character wildcard (for non-Korean text).
             isMistake = !charMatches(typed[i], char, language);

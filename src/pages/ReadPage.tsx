@@ -8,7 +8,7 @@ import { useReadMode } from "../hooks/useReadMode";
 import { useEnvironment } from "../environment/EnvironmentContext";
 import { useSavedVerses } from "../hooks/useSavedVerses";
 import { computeTypingStats } from "../typing/stats";
-import { matchesFully } from "../typing/charMatch";
+import { matchesFully, UNTYPED_MARKER } from "../typing/charMatch";
 import { scrollAboveKeyboard, useKeyboardInsetVar } from "../hooks/useKeyboardAwareScroll";
 import { api } from "../lib/api";
 import { ChapterView } from "../components/ChapterView";
@@ -130,9 +130,18 @@ export function ReadPage() {
   const handleCharClick = (index: number) => {
     const el = inputRef.current;
     if (!el) return;
+    // Clamp to what's actually been typed - the per-character spans cover
+    // the whole verse (see VerseRow), so a click past the typed frontier
+    // would otherwise report an index the real input can't reach.
+    // setSelectionRange itself clamps silently to el.value.length, but
+    // without clamping here too, cursorPos (used for rendering) would keep
+    // the raw, un-clamped index - a visible caret sitting somewhere the
+    // real selection isn't, same confusing mismatch as the vertical-nav
+    // case below.
+    const clamped = Math.min(index, session.typed.length);
     el.focus({ preventScroll: true });
-    el.setSelectionRange(index, index);
-    setCursorPos(index);
+    el.setSelectionRange(clamped, clamped);
+    setCursorPos(clamped);
     triggerCaretMoving();
   };
 
@@ -149,7 +158,7 @@ export function ReadPage() {
     const spans = Array.from(document.querySelectorAll<HTMLElement>("[data-char-index]"));
     if (spans.length === 0) return;
 
-    const current = cursorPos ?? session.typed.length;
+    const current = Math.min(cursorPos ?? session.typed.length, session.typed.length);
     const currentRect = spans[Math.min(current, spans.length - 1)].getBoundingClientRect();
     const targetX = currentRect.left;
 
@@ -184,8 +193,15 @@ export function ReadPage() {
       }
     });
 
-    setCursorPos(bestIndex);
-    inputRef.current?.setSelectionRange(bestIndex, bestIndex);
+    // Same clamp as handleCharClick: the spans being hit-tested cover the
+    // whole verse, but the caret shouldn't be placeable past what's
+    // actually been typed - visually landing "between" characters that
+    // haven't been typed yet would be confusing even though it can't
+    // affect the real text (a real caret can never sit past the end of an
+    // input's actual value).
+    const clampedBest = Math.min(bestIndex, session.typed.length);
+    setCursorPos(clampedBest);
+    inputRef.current?.setSelectionRange(clampedBest, clampedBest);
     triggerCaretMoving();
   };
 
@@ -553,7 +569,66 @@ export function ReadPage() {
             ref={inputRef}
             value={chapterDone ? "" : session.typed}
             onChange={(e) => {
-              handleInput(e.target.value, isComposing);
+              const el = e.currentTarget;
+              const raw = el.value;
+              let valueForSession = raw;
+
+              // Word processor mode lets someone click/arrow back into the
+              // middle of what's already typed. A native <input> handles
+              // that as a normal insert/delete, which shifts every
+              // character after the edit point - that's what was
+              // desyncing the correction colouring from the real text
+              // (everything after the edit point compares against the
+              // wrong verse letter once it's shifted) and, since the
+              // caret's own state below only ever gets explicitly moved by
+              // a click or by this handler, left the caret rendering one
+              // step behind reality once an edit like that happened.
+              // Instead, treat a single-character change strictly *inside*
+              // what was already typed as an overwrite in place: same
+              // length in and out, nothing after the edit point moves.
+              //
+              // A plain append (typing at the very end) or a plain
+              // backspace at the very end isn't touched here - `raw`
+              // passes straight through, exactly as before.
+              if (wordProcessorMode && !isComposing) {
+                const prevTyped = session.typed;
+                let editIndex = 0;
+
+                if (raw.length === prevTyped.length + 1) {
+                  // Single character inserted somewhere. Find where `raw`
+                  // first diverges from what was typed before - that's the
+                  // insertion point.
+                  while (editIndex < prevTyped.length && raw[editIndex] === prevTyped[editIndex]) editIndex++;
+                  if (editIndex < prevTyped.length) {
+                    // Mid-string: overwrite that one slot, drop the
+                    // shifted tail `raw` grew by, keep everyone else in
+                    // place.
+                    valueForSession = prevTyped.slice(0, editIndex) + raw[editIndex] + prevTyped.slice(editIndex + 1);
+                    el.value = valueForSession;
+                    el.setSelectionRange(editIndex + 1, editIndex + 1);
+                    setCursorPos(editIndex + 1);
+                  }
+                } else if (raw.length === prevTyped.length - 1) {
+                  // Single character deleted somewhere. Find where `raw`
+                  // first diverges from what was typed before - that's the
+                  // deleted slot.
+                  while (editIndex < raw.length && raw[editIndex] === prevTyped[editIndex]) editIndex++;
+                  if (editIndex < raw.length) {
+                    // Mid-string delete: rather than shrinking (which
+                    // shifts the tail left, misaligning it against the
+                    // verse), mark that one slot untyped in place so it
+                    // renders as if it had never been typed - ready to be
+                    // retyped - and nothing after it moves.
+                    valueForSession =
+                      prevTyped.slice(0, editIndex) + UNTYPED_MARKER + prevTyped.slice(editIndex + 1);
+                    el.value = valueForSession;
+                    el.setSelectionRange(editIndex, editIndex);
+                    setCursorPos(editIndex);
+                  }
+                }
+              }
+
+              handleInput(valueForSession, isComposing);
               if (wordProcessorMode) triggerCaretMoving();
             }}
             onPaste={(e) => e.preventDefault()}

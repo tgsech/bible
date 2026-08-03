@@ -5,6 +5,16 @@ const SMART_QUOTE_EQUIVALENTS: Record<string, string> = {
   "\u2019": "'", // ’
 };
 
+// Sentinel used only in word processor mode's `typed` string, for a
+// position whose character was cleared (see ReadPage's onChange overwrite
+// transform) so the rest of what's already been typed doesn't shift. Never
+// produced by any real keystroke, so it's safe to use as a "this slot is
+// untyped again" marker in-place - VerseRow renders it exactly like a
+// position past the end of `typed` (untyped color, original letter), and it
+// deliberately never matches any target character below, including the
+// non-Korean wildcard rule (which only tests the *target* side).
+export const UNTYPED_MARKER = "\u0000";
+
 /**
  * Whether a typed character should count as matching the target character
  * at the same position.
@@ -23,6 +33,7 @@ const SMART_QUOTE_EQUIVALENTS: Record<string, string> = {
  * typing auto-pass.
  */
 export function charMatches(typed: string, target: string, language: string): boolean {
+  if (typed === UNTYPED_MARKER) return false;
   if (typed === target) return true;
   if (language === "ko") return false;
 
