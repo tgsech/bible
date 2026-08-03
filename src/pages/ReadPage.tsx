@@ -745,7 +745,26 @@ export function ReadPage() {
             }}
             onCompositionEnd={(e) => {
               setIsComposing(false);
-              commitComposition(compositionBaselineRef.current, e.currentTarget.value);
+              const baseline = compositionBaselineRef.current;
+              const value = e.currentTarget.value;
+
+              // Korean input finalizes a whole syllable at once here
+              // (compositionend), not per-keystroke like English - this is
+              // the same moment VerseRow's colouring turns a syllable red
+              // (commitComposition below is what scores it), so it's the
+              // right moment for the error sound too rather than the
+              // onChange check above, which skips anything mid-composition.
+              const currentVerse = verses[session.verseIndex];
+              if (currentVerse && value.length > baseline.length && value.startsWith(baseline)) {
+                for (let i = baseline.length; i < value.length; i++) {
+                  if (i < currentVerse.length && !charMatches(value[i], currentVerse[i], currentTranslation.language)) {
+                    playError();
+                    break; // one sound is enough even if a syllable finalizes into more than one character
+                  }
+                }
+              }
+
+              commitComposition(baseline, value);
             }}
             disabled={chapterDone}
             style={{ position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none" }}
