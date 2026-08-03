@@ -125,7 +125,29 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
         // Only score plain appended characters that aren't mid-composition.
         // IME composition growth is scored separately in commitComposition,
         // once the syllable is actually finished.
-        if (!isComposing && value.length > prev.typed.length && value.startsWith(prev.typed)) {
+        //
+        // Word processor mode lets someone click/arrow back into the
+        // middle of what they've already typed and retype over a mistake
+        // there (see ReadPage's onChange overwrite transform - it keeps
+        // `value` the same length as `prev.typed` for that kind of edit
+        // rather than letting the browser insert-and-shift). That's the
+        // same-length branch below: diff the two strings position by
+        // position and score whichever index actually changed, against
+        // that index's real target character - not against the tail of
+        // the string, which is what the old append-only assumption did
+        // (and why it silently stopped scoring anything once someone
+        // edited mid-verse). Every overwrite keystroke counts once, the
+        // same way every appended keystroke always has - nothing is ever
+        // retroactively un-scored for a position that was already typed
+        // and correct before.
+        if (!isComposing && value.length === prev.typed.length) {
+          for (let i = 0; i < value.length; i++) {
+            if (value[i] === prev.typed[i]) continue;
+            const weight = weightOf(currentVerse[i]);
+            totalKeystrokes += weight;
+            if (charMatches(value[i], currentVerse[i], language)) correctKeystrokes += weight;
+          }
+        } else if (!isComposing && value.length > prev.typed.length && value.startsWith(prev.typed)) {
           for (let i = prev.typed.length; i < value.length; i++) {
             const weight = weightOf(currentVerse[i]);
             totalKeystrokes += weight;
