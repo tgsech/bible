@@ -1,5 +1,6 @@
 import { ThemeShowcase } from "../components/ThemeShowcase";
 import { EnvironmentShowcase } from "../components/EnvironmentShowcase";
+import { SoundSettingsPanel } from "../components/SoundSettingsPanel";
 import { useLanguage } from "../i18n/LanguageContext";
 import "./SettingsPage.css";
 
@@ -10,6 +11,7 @@ export function SettingsPage() {
       <h1>{t("settings.title")}</h1>
       <p className="settingsPageIntro">{t("settings.intro")}</p>
       <EnvironmentShowcase />
+      <SoundSettingsPanel />
       <ThemeShowcase />
     </div>
   );

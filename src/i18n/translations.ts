@@ -55,6 +55,14 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "settings.wordProcessorModeDescription":
       "Click a character to move the cursor there, and use arrow keys to navigate and fix mistakes mid-verse.",
 
+    // Settings / Sound
+    "settings.soundTitle": "Sound",
+    "settings.soundEnabledLabel": "Sounds",
+    "settings.soundEnabledDescription": "Turn all sound effects on or off.",
+    "settings.errorSoundLabel": "Error sound",
+    "settings.completionSoundLabel": "Completion sound",
+    "settings.soundPreview": "Preview",
+
     "palette.text": "Accent",
     "palette.correct": "Correct",
     "palette.incorrect": "Error",
@@ -355,6 +363,14 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "settings.wordProcessorModeLabel": "워드프로세서 모드",
     "settings.wordProcessorModeDescription":
       "글자를 클릭하면 그 위치로 커서가 이동하고, 방향키로 절 안을 이동하며 오타를 고칠 수 있습니다.",
+
+    // Settings / Sound
+    "settings.soundTitle": "소리",
+    "settings.soundEnabledLabel": "소리",
+    "settings.soundEnabledDescription": "모든 효과음을 켜거나 끕니다.",
+    "settings.errorSoundLabel": "오류 효과음",
+    "settings.completionSoundLabel": "완료 효과음",
+    "settings.soundPreview": "미리듣기",
 
     "palette.text": "강조",
     "palette.correct": "정확",

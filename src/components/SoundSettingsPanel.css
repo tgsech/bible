@@ -1,0 +1,36 @@
+.soundPickerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.soundPickerControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.soundPickerControls select {
+  font: inherit;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.soundPreviewButton {
+  font: inherit;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.soundPreviewButton:hover {
+  opacity: 0.8;
+}

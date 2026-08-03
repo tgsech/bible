@@ -8,7 +8,8 @@ import { useReadMode } from "../hooks/useReadMode";
 import { useEnvironment } from "../environment/EnvironmentContext";
 import { useSavedVerses } from "../hooks/useSavedVerses";
 import { computeTypingStats } from "../typing/stats";
-import { matchesFully, UNTYPED_MARKER } from "../typing/charMatch";
+import { matchesFully, charMatches, UNTYPED_MARKER } from "../typing/charMatch";
+import { useSound } from "../audio/SoundContext";
 import { scrollAboveKeyboard, useKeyboardInsetVar } from "../hooks/useKeyboardAwareScroll";
 import { api } from "../lib/api";
 import { ChapterView } from "../components/ChapterView";
@@ -42,6 +43,7 @@ export function ReadPage() {
   const verses = data?.verses ?? [];
 
   const { manualAdvance, wordProcessorMode } = useEnvironment();
+  const { playError, playCompletion } = useSound();
 
   const { session, handleInput, commitComposition, reset, advance } = useTypingSession(
     verses,
@@ -421,6 +423,22 @@ export function ReadPage() {
     }
   }, [chapterDone]);
 
+  // Completion sound - fires once, the moment the completion panel
+  // actually shows (not just whenever chapterDone flips true, which also
+  // happens for a chapter resumed already-finished from a previous
+  // sitting - see showCompletionModal's own comment above). Separate from
+  // completionSubmittedRef since this has nothing to do with logging stats
+  // to an account and should fire for guests too.
+  const completionSoundPlayedRef = useRef(false);
+  useEffect(() => {
+    completionSoundPlayedRef.current = false;
+  }, [translationId, bookId, chapter]);
+  useEffect(() => {
+    if (!showCompletionModal || completionSoundPlayedRef.current) return;
+    completionSoundPlayedRef.current = true;
+    playCompletion();
+  }, [showCompletionModal, playCompletion]);
+
   const goToChapter = (next: { translationId: string; bookId: string; chapter: number }) => {
     navigate(`/read/${next.translationId}/${next.bookId}/${next.chapter}`);
   };
@@ -572,6 +590,12 @@ export function ReadPage() {
               const el = e.currentTarget;
               const raw = el.value;
               let valueForSession = raw;
+              // Set below when the transform overwrites a mid-string slot,
+              // so the error-sound check further down knows which index
+              // was actually just typed rather than assuming it's the
+              // last character of `raw` (true for a plain append, not
+              // true for an overwrite).
+              let overwriteInsertIndex: number | null = null;
 
               // Word processor mode lets someone click/arrow back into the
               // middle of what's already typed. A native <input> handles
@@ -607,6 +631,7 @@ export function ReadPage() {
                     el.value = valueForSession;
                     el.setSelectionRange(editIndex + 1, editIndex + 1);
                     setCursorPos(editIndex + 1);
+                    overwriteInsertIndex = editIndex;
                   }
                 } else if (raw.length === prevTyped.length - 1) {
                   // Single character deleted somewhere. Find where `raw`
@@ -624,6 +649,25 @@ export function ReadPage() {
                     el.value = valueForSession;
                     el.setSelectionRange(editIndex, editIndex);
                     setCursorPos(editIndex);
+                  }
+                }
+              }
+
+              // Error sound - fires once per newly-typed character that
+              // doesn't match the verse, whether it landed at the end (the
+              // common case, and the only case outside word processor
+              // mode) or was overwritten mid-string above. Deletions never
+              // reach here (raw only shrinks on a delete, never grows by
+              // exactly one), and mid-composition Korean input is skipped
+              // the same way scoring skips it - a syllable isn't "wrong"
+              // until it's actually finished.
+              if (!isComposing && raw.length === session.typed.length + 1) {
+                const currentVerse = verses[session.verseIndex];
+                const typedIndex = overwriteInsertIndex ?? raw.length - 1;
+                if (currentVerse && typedIndex < currentVerse.length) {
+                  const typedChar = valueForSession[typedIndex];
+                  if (!charMatches(typedChar, currentVerse[typedIndex], currentTranslation.language)) {
+                    playError();
                   }
                 }
               }
