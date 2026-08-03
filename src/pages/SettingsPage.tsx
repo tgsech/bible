@@ -9,8 +9,8 @@ export function SettingsPage() {
     <div id="mainBody" className="settingsPage">
       <h1>{t("settings.title")}</h1>
       <p className="settingsPageIntro">{t("settings.intro")}</p>
-      <ThemeShowcase />
       <EnvironmentShowcase />
+      <ThemeShowcase />
     </div>
   );
 }
