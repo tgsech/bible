@@ -74,6 +74,24 @@
   50% { opacity: 0; }
 }
 
+/* Native inputs keep the caret solid while you're actively typing/moving
+   it, and only start blinking once you've paused - a bare CSS animation
+   has no concept of "paused", so it blinks on its own clock regardless of
+   what you're doing, including mid-keystroke. .typingCaret is the default
+   (blinking, idle) state; ReadPage/VerseRow add .caretMoving for a brief
+   window after every keydown/click and remove it after a short idle delay,
+   which is what actually produces the "solid while active" behavior - this
+   rule just defines what "not blinking" looks like once that class lands. */
+.typingCaret {
+  animation: blink 1s step-end infinite;
+  opacity: 1;
+}
+
+.typingCaret.caretMoving {
+  animation: none;
+  opacity: 1;
+}
+
 :root {
   --color-bg: #F1E4D2;
   --color-text: #A28F79;

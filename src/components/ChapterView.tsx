@@ -16,6 +16,11 @@ interface ChapterViewProps {
   // click (desktop) / long-press (mobile).
   isVerseBookmarked?: (verseNumber: number) => boolean;
   onVerseActivate?: (verseNumber: number) => void;
+  // Word processor mode - all optional/undefined outside that mode, same
+  // as the bookmarking props above. Only ever meaningful on the active row.
+  cursorPos?: number | null;
+  onCharClick?: (index: number) => void;
+  caretMoving?: boolean;
 }
 
 export function ChapterView({
@@ -28,6 +33,9 @@ export function ChapterView({
   language,
   isVerseBookmarked,
   onVerseActivate,
+  cursorPos,
+  onCharClick,
+  caretMoving,
 }: ChapterViewProps) {
   const activeRowRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +83,9 @@ export function ChapterView({
             language={language}
             isBookmarked={isVerseBookmarked?.(verseNumber) ?? false}
             onActivate={onVerseActivate ? () => onVerseActivate(verseNumber) : undefined}
+            cursorPos={isActive ? cursorPos : undefined}
+            onCharClick={isActive ? onCharClick : undefined}
+            caretMoving={isActive ? caretMoving : undefined}
           />
         );
       })}
