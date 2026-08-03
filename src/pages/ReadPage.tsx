@@ -8,6 +8,7 @@ import { useReadMode } from "../hooks/useReadMode";
 import { useEnvironment } from "../environment/EnvironmentContext";
 import { useSavedVerses } from "../hooks/useSavedVerses";
 import { computeTypingStats } from "../typing/stats";
+import { matchesFully } from "../typing/charMatch";
 import { scrollAboveKeyboard, useKeyboardInsetVar } from "../hooks/useKeyboardAwareScroll";
 import { api } from "../lib/api";
 import { ChapterView } from "../components/ChapterView";
@@ -57,9 +58,7 @@ export function ReadPage() {
   // cursor is implicitly always session.typed.length (end of string) -
   // same as before this feature existed - so this state is simply unused
   // in that mode; VerseRow falls back to typed.length whenever cursorPos
-  // is null. selectionchange (rather than only onClick/onKeyUp) is what
-  // catches every way the browser's own selection can move - including
-  // ones this component doesn't have its own handler for.
+  // is null.
   const [cursorPos, setCursorPos] = useState<number | null>(null);
 
   useEffect(() => {
@@ -74,12 +73,30 @@ export function ReadPage() {
       if (document.activeElement !== el) return;
       setCursorPos(el.selectionStart);
     };
-    // selectionchange is document-level, not element-level - the activeElement
-    // check above is what keeps it from reacting to selection changes
-    // elsewhere on the page (e.g. someone selecting text in a different field).
-    document.addEventListener("selectionchange", syncCursor);
-    return () => document.removeEventListener("selectionchange", syncCursor);
+    // `select` fires on the <input>/<textarea> element itself whenever its
+    // own selectionStart/selectionEnd moves - from typing, arrow keys,
+    // Home/End, or a click - which is exactly what "the caret should move
+    // with the text and with arrow keys" needs. Document-level
+    // `selectionchange` (what this used to listen for) tracks the
+    // *document's* Selection object instead, which is a separate thing
+    // from a form control's internal caret and doesn't fire for it - that
+    // mismatch is why the caret used to sit frozen wherever it was last
+    // clicked instead of following each keystroke.
+    el.addEventListener("select", syncCursor);
+    return () => el.removeEventListener("select", syncCursor);
   }, [wordProcessorMode]);
+
+  // A cursor position is only meaningful relative to the verse it was
+  // measured in. Without this, moving to the next verse (by finishing it
+  // or advancing) kept whatever index the caret was last at in the
+  // *previous* verse's text, so e.g. clicking position 10 then finishing
+  // the verse left the caret sitting at index 10 of the new verse instead
+  // of resetting like a fresh line normally would. Falling back to null
+  // here means VerseRow uses typed.length for the new verse, same as if
+  // word processor mode had never touched it.
+  useEffect(() => {
+    if (wordProcessorMode) setCursorPos(null);
+  }, [wordProcessorMode, session.verseIndex]);
 
   // Blink-interrupt: native carets stop blinking and stay solid while
   // you're actively typing or moving the cursor, then resume blinking
@@ -550,7 +567,12 @@ export function ReadPage() {
               // effect above mirrors selectionStart into VerseRow, so the
               // browser's native Left/Right (and Up/Down, see VerseRow) can
               // be trusted to move something the person can actually see.
-              if (!wordProcessorMode && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+              // ArrowUp gets the same block as Left/Right (not just
+              // Left/Right alone, as before) since a single-line <input>'s
+              // default behavior for it is to jump to the very start of the
+              // value - just as disorienting as Left/Right silently
+              // stranding future keystrokes mid-string would be.
+              if (!wordProcessorMode && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp")) {
                 e.preventDefault();
               }
 
@@ -579,12 +601,21 @@ export function ReadPage() {
               // manualAdvance's explicit "go to next verse" gesture. Only
               // meaningful once the current verse is already fully correct
               // (advance() itself is a no-op otherwise) - this just wires
-              // the two keys someone would naturally reach for. Space
-              // still needs preventDefault even when advance() ends up
-              // being a no-op, since a raw space keystroke on an *already
-              // complete* verse has nowhere left to go in `typed` (it's at
-              // currentVerse.length) and would otherwise scroll the page.
-              if (manualAdvance && (e.key === " " || e.key === "Enter")) {
+              // the two keys someone would naturally reach for. Gating the
+              // preventDefault itself on verse-complete (not just on
+              // manualAdvance being on) is what lets Space keep typing
+              // normally as a real character everywhere else in the verse -
+              // previously this fired unconditionally whenever manualAdvance
+              // was on, which silently ate every space keystroke typed
+              // *within* a verse (the browser never even got the keystroke)
+              // rather than just the one that finishes it. Once the verse
+              // *is* complete, `typed` is already sitting at
+              // currentVerse.length, so a raw space there would otherwise
+              // just scroll the page - still worth preventDefault there.
+              const currentVerseText = verses[session.verseIndex];
+              const verseIsComplete =
+                !!currentVerseText && matchesFully(session.typed, currentVerseText, currentTranslation.language);
+              if (manualAdvance && verseIsComplete && (e.key === " " || e.key === "Enter")) {
                 e.preventDefault();
                 advance();
               }

@@ -187,8 +187,21 @@ a {
 }
 
 .bibTextActive {
-  font-size: clamp(1.1rem, 2vw + 0.75rem, 2rem);
   word-break: keep-all;
+}
+
+/* Wraps both the per-character glyph (.bibTextActive) and the caret
+   (.typingCaret) for the active verse - see VerseRow. The caret's height is
+   set in `em` so it tracks the user's Text Size setting, but `em` resolves
+   against *this* element's own font-size, not a sibling's: .bibTextActive
+   used to carry this font-size itself, which sized the glyph correctly but
+   left the caret (a sibling, not a descendant, of .bibTextActive) inheriting
+   whatever ambient font-size happened to be further up the tree instead -
+   same bug either way, whether the ambient size happened to look "close
+   enough" or not. Setting it here, one level up, is what both children
+   actually inherit from. */
+.charCell {
+  font-size: clamp(1.1rem, 2vw + 0.75rem, 2rem);
 }
 
 @media (max-width: 600px) {

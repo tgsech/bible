@@ -156,6 +156,7 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
             <span
               key={i}
               data-char-index={i}
+              className="charCell"
               style={{ position: "relative", ...(onCharClick && { cursor: "text" }) }}
               onClick={onCharClick ? () => onCharClick(i) : undefined}
             >
@@ -168,13 +169,14 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
                     bottom: 0,
                     width: "2px",
                     // em, not a fixed rem, so the caret's height always
-                    // matches *this* span's own font-size - which already
-                    // tracks the user's Text Size setting via
-                    // .bibTextActive's clamp(). A flat "2rem" instead drifts
-                    // out of sync with the glyph next to it any time the
-                    // active font-size and the root rem scale diverge (e.g.
-                    // mobile's narrower clamp() output vs desktop's), which
-                    // is what made it look oversized on phones.
+                    // matches *this* span's own font-size - inherited from
+                    // the shared .charCell wrapper (see index.css), which
+                    // tracks the user's Text Size setting via its clamp().
+                    // A flat "2rem" instead drifts out of sync with the
+                    // glyph next to it any time the active font-size and
+                    // the root rem scale diverge (e.g. mobile's narrower
+                    // clamp() output vs desktop's), which is what made it
+                    // look oversized on phones.
                     height: "1.1em",
                     background: "var(--color-cursor)",
                   }}
