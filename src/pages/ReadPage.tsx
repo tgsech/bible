@@ -5,6 +5,7 @@ import { useTypingSession } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
 import { useReadingProgress } from "../hooks/useReadingProgress";
 import { useReadMode } from "../hooks/useReadMode";
+import { useEnvironment } from "../environment/EnvironmentContext";
 import { useSavedVerses } from "../hooks/useSavedVerses";
 import { computeTypingStats } from "../typing/stats";
 import { scrollAboveKeyboard, useKeyboardInsetVar } from "../hooks/useKeyboardAwareScroll";
@@ -39,14 +40,46 @@ export function ReadPage() {
   const { data, loading, error } = useChapter(currentTranslation.id, currentBook.id, chapter);
   const verses = data?.verses ?? [];
 
-  const { session, handleInput, commitComposition, reset } = useTypingSession(
+  const { manualAdvance, wordProcessorMode } = useEnvironment();
+
+  const { session, handleInput, commitComposition, reset, advance } = useTypingSession(
     verses,
-    currentTranslation.language
+    currentTranslation.language,
+    manualAdvance
   );
   const [isComposing, setIsComposing] = useState(false);
   const compositionBaselineRef = useRef("");
   const inputRef = useRef<HTMLInputElement>(null);
   const chapterNavRef = useRef<HTMLDivElement>(null);
+
+  // Word-processor mode's cursor position, mirrored from the hidden
+  // input's real selectionStart. Off (wordProcessorMode: false), the
+  // cursor is implicitly always session.typed.length (end of string) -
+  // same as before this feature existed - so this state is simply unused
+  // in that mode; VerseRow falls back to typed.length whenever cursorPos
+  // is null. selectionchange (rather than only onClick/onKeyUp) is what
+  // catches every way the browser's own selection can move - including
+  // ones this component doesn't have its own handler for.
+  const [cursorPos, setCursorPos] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!wordProcessorMode) {
+      setCursorPos(null);
+      return;
+    }
+    const el = inputRef.current;
+    if (!el) return;
+
+    const syncCursor = () => {
+      if (document.activeElement !== el) return;
+      setCursorPos(el.selectionStart);
+    };
+    // selectionchange is document-level, not element-level - the activeElement
+    // check above is what keeps it from reacting to selection changes
+    // elsewhere on the page (e.g. someone selecting text in a different field).
+    document.addEventListener("selectionchange", syncCursor);
+    return () => document.removeEventListener("selectionchange", syncCursor);
+  }, [wordProcessorMode]);
 
   const [modalDismissed, setModalDismissed] = useState(false);
   useEffect(() => {
@@ -413,12 +446,28 @@ export function ReadPage() {
             onKeyDown={(e) => {
               // The input is visually hidden - all rendering comes from
               // `typed`/cursor position in VerseRow, not from where the
-              // browser's real caret sits inside this field. Left/right
-              // would move that real caret without moving anything the
-              // person can see, so a stray arrow-key tap silently strands
-              // future keystrokes mid-string. Block them outright.
-              if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+              // browser's real caret sits inside this field. Without word
+              // processor mode there's no visible cursor tracking to move,
+              // so Left/Right would silently strand future keystrokes
+              // mid-string - block them outright. With it on, the cursor
+              // effect above mirrors selectionStart into VerseRow, so the
+              // browser's native Left/Right (and Up/Down, see VerseRow) can
+              // be trusted to move something the person can actually see.
+              if (!wordProcessorMode && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
                 e.preventDefault();
+              }
+
+              // manualAdvance's explicit "go to next verse" gesture. Only
+              // meaningful once the current verse is already fully correct
+              // (advance() itself is a no-op otherwise) - this just wires
+              // the two keys someone would naturally reach for. Space
+              // still needs preventDefault even when advance() ends up
+              // being a no-op, since a raw space keystroke on an *already
+              // complete* verse has nowhere left to go in `typed` (it's at
+              // currentVerse.length) and would otherwise scroll the page.
+              if (manualAdvance && (e.key === " " || e.key === "Enter")) {
+                e.preventDefault();
+                advance();
               }
             }}
             onCompositionStart={() => {

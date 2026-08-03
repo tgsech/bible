@@ -69,7 +69,7 @@ function pauseSince(prevActivityAt: number | null, now: number): number {
   return gap > PAUSE_THRESHOLD_MS ? gap - PAUSE_THRESHOLD_MS : 0;
 }
 
-export function useTypingSession(verses: string[], language: string) {
+export function useTypingSession(verses: string[], language: string, manualAdvance: boolean = false) {
   const [session, setSession] = useState<TypingSession>(initialSession);
 
   // Called with no args for a genuinely fresh chapter. Called with a
@@ -133,7 +133,27 @@ export function useTypingSession(verses: string[], language: string) {
           }
         }
 
-        if (value.length === currentVerse.length && matchesFully(value, currentVerse, language)) {
+        const isVerseComplete = value.length === currentVerse.length && matchesFully(value, currentVerse, language);
+
+        // With manualAdvance on, a fully-correct verse stays put instead of
+        // auto-clearing - typed holds the completed string (rather than
+        // resetting to "") so VerseRow keeps showing it as finished, and
+        // the person explicitly advances via Space/Enter (see `advance`
+        // below), which is the only other place completedTyped/verseIndex
+        // move forward in that mode.
+        if (isVerseComplete && manualAdvance) {
+          return {
+            ...prev,
+            typed: value,
+            startTime,
+            correctKeystrokes,
+            totalKeystrokes,
+            lastActivityAt: now,
+            pausedMs,
+          };
+        }
+
+        if (isVerseComplete) {
           const isLastVerse = prev.verseIndex === verses.length - 1;
           return {
             verseIndex: isLastVerse ? prev.verseIndex : prev.verseIndex + 1,
@@ -188,5 +208,29 @@ export function useTypingSession(verses: string[], language: string) {
     [verses, language, weightOf]
   );
 
-  return { session, handleInput, commitComposition, reset };
+  // manualAdvance's explicit Space/Enter path: only moves forward if the
+  // current verse is sitting there fully correct already (handleInput
+  // above is what gets it into that state in the first place - this just
+  // performs the transition handleInput would have done automatically).
+  // A no-op otherwise, so a stray Space/Enter on an incomplete or
+  // mistyped verse does nothing rather than skipping ahead.
+  const advance = useCallback(() => {
+    setSession((prev) => {
+      const currentVerse = verses[prev.verseIndex];
+      if (!currentVerse) return prev;
+      if (!matchesFully(prev.typed, currentVerse, language)) return prev;
+
+      const now = Date.now();
+      const isLastVerse = prev.verseIndex === verses.length - 1;
+      return {
+        ...prev,
+        verseIndex: isLastVerse ? prev.verseIndex : prev.verseIndex + 1,
+        typed: isLastVerse ? prev.typed : "",
+        completedTyped: [...prev.completedTyped, prev.typed],
+        endTime: isLastVerse ? now : prev.endTime,
+      };
+    });
+  }, [verses, language]);
+
+  return { session, handleInput, commitComposition, reset, advance };
 }

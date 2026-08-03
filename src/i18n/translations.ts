@@ -45,6 +45,16 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "settings.font": "Font",
     "settings.textSize": "Text Size",
     "settings.sample": "Sample Text",
+
+    // Settings / Environment
+    "settings.environmentTitle": "Environment",
+    "settings.manualAdvanceLabel": "Manual verse advance",
+    "settings.manualAdvanceDescription":
+      "Don't auto-clear to the next verse. Press Space or Enter once a verse is fully correct to move on.",
+    "settings.wordProcessorModeLabel": "Word processor mode",
+    "settings.wordProcessorModeDescription":
+      "Click a character to move the cursor there, and use arrow keys to navigate and fix mistakes mid-verse.",
+
     "palette.text": "Accent",
     "palette.correct": "Correct",
     "palette.incorrect": "Error",
@@ -336,6 +346,16 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "settings.font": "폰트",
     "settings.textSize": "글자 크기",
     "settings.sample": "샘플",
+
+    // Settings / Environment
+    "settings.environmentTitle": "환경설정",
+    "settings.manualAdvanceLabel": "수동으로 다음 절 넘기기",
+    "settings.manualAdvanceDescription":
+      "완료된 절이 자동으로 다음 절로 넘어가지 않습니다. 오류 없이 다 입력한 후 스페이스나 엔터를 눌러 직접 넘기세요.",
+    "settings.wordProcessorModeLabel": "워드프로세서 모드",
+    "settings.wordProcessorModeDescription":
+      "글자를 클릭하면 그 위치로 커서가 이동하고, 방향키로 절 안을 이동하며 오타를 고칠 수 있습니다.",
+
     "palette.text": "강조",
     "palette.correct": "정확",
     "palette.incorrect": "오류",
