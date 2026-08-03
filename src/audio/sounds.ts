@@ -7,12 +7,22 @@ export interface SoundOption {
 // Attribution (required by Pixabay's license):
 // "Buzz" - Sound Effect by SoundShelfStudio from Pixabay
 // https://pixabay.com/users/soundshelfstudio-46480698/
+
+// "Clean" - Sound Effect by Vadim from Pixabay
+// https://pixabay.com/users/vadim_makes_sound-54823268/
+
 export const ERROR_SOUND_OPTIONS: SoundOption[] = [
+  {
+    id: "clean",
+    label: "Clean",
+    url: "https://cdn.pixabay.com/audio/2026/06/07/audio_ed97a94fa8.mp3",
+  },
   {
     id: "buzz",
     label: "Buzz",
     url: "https://cdn.pixabay.com/audio/2026/05/08/audio_4291ec9b7b.mp3",
   },
+  
 ];
 
 // Attribution (required by Pixabay's license):
@@ -22,14 +32,14 @@ export const ERROR_SOUND_OPTIONS: SoundOption[] = [
 // https://pixabay.com/users/universfield-28281460/
 export const COMPLETION_SOUND_OPTIONS: SoundOption[] = [
   {
-    id: "hagyeongz",
-    label: "Hagyeongz",
-    url: "https://cdn.pixabay.com/audio/2025/12/30/audio_f1f387e895.mp3",
-  },
-  {
     id: "chime",
     label: "Chime",
     url: "https://cdn.pixabay.com/audio/2024/02/19/audio_e4043ea6be.mp3",
+  },
+  {
+    id: "hagyeongz",
+    label: "Hagyeongz",
+    url: "https://cdn.pixabay.com/audio/2025/12/30/audio_f1f387e895.mp3",
   },
 ];
 
