@@ -81,6 +81,97 @@ export function ReadPage() {
     return () => document.removeEventListener("selectionchange", syncCursor);
   }, [wordProcessorMode]);
 
+  // Blink-interrupt: native carets stop blinking and stay solid while
+  // you're actively typing or moving the cursor, then resume blinking
+  // after a brief idle pause. caretMoving is that "solid" window -
+  // VerseRow suspends its CSS blink animation while this is true (see
+  // .caretMoving in index.css) and every place below that actually moves
+  // the caret (typing, arrow keys, clicking a character) resets the
+  // timer rather than just setting it once, so a run of quick keystrokes
+  // keeps it solid the whole time instead of flickering mid-motion.
+  const [caretMoving, setCaretMoving] = useState(false);
+  const caretMovingTimeoutRef = useRef<number | null>(null);
+  const triggerCaretMoving = () => {
+    setCaretMoving(true);
+    if (caretMovingTimeoutRef.current !== null) window.clearTimeout(caretMovingTimeoutRef.current);
+    caretMovingTimeoutRef.current = window.setTimeout(() => setCaretMoving(false), 500);
+  };
+  useEffect(() => {
+    return () => {
+      if (caretMovingTimeoutRef.current !== null) window.clearTimeout(caretMovingTimeoutRef.current);
+    };
+  }, []);
+
+  // Word-processor mode's click-to-position: VerseRow's per-character
+  // onClick reports which character was clicked, and this is what
+  // actually moves the browser's real selection there (setSelectionRange)
+  // so it's not just a cosmetic caret - later typing/backspacing genuinely
+  // continues from that spot. Sets cursorPos directly rather than waiting
+  // on the selectionchange listener above, since focus+setSelectionRange
+  // on an element that isn't already focused doesn't reliably fire
+  // selectionchange in every browser, and this shouldn't have to guess.
+  const handleCharClick = (index: number) => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    el.setSelectionRange(index, index);
+    setCursorPos(index);
+    triggerCaretMoving();
+  };
+
+  // Up/Down visual-line navigation (word processor mode only). A
+  // single-line <input> has no native concept of wrapped lines, so this
+  // is the spatial hit-testing Gemini's guide called for: find the
+  // character whose on-screen box sits on the row above/below and is
+  // horizontally closest to the caret's current x-position, using the
+  // rendered <span data-char-index> boxes as ground truth instead of
+  // trying to recompute line-wrapping ourselves. These spans only exist
+  // for the active verse (see VerseRow), so querying the whole document
+  // for them is safe - there's only ever one verse rendering them.
+  const handleVerticalNav = (direction: 1 | -1) => {
+    const spans = Array.from(document.querySelectorAll<HTMLElement>("[data-char-index]"));
+    if (spans.length === 0) return;
+
+    const current = cursorPos ?? session.typed.length;
+    const currentRect = spans[Math.min(current, spans.length - 1)].getBoundingClientRect();
+    const targetX = currentRect.left;
+
+    // Group spans into visual rows by their top offset. Spans are already
+    // in DOM/reading order, so each new top value (beyond a small
+    // tolerance for sub-pixel jitter) marks the start of the next row.
+    const rowTops: number[] = [];
+    const rectsByIndex = spans.map((s) => s.getBoundingClientRect());
+    for (const rect of rectsByIndex) {
+      if (rowTops.length === 0 || Math.abs(rowTops[rowTops.length - 1] - rect.top) > 2) {
+        rowTops.push(rect.top);
+      }
+    }
+
+    const currentRowIndex = rowTops.findIndex((top) => Math.abs(top - currentRect.top) <= 2);
+    const targetRowIndex = currentRowIndex + direction;
+    if (currentRowIndex === -1 || targetRowIndex < 0 || targetRowIndex >= rowTops.length) {
+      // No row above the first line / below the last - nothing to do,
+      // same as a native input at the first/last line of a textarea.
+      return;
+    }
+    const targetTop = rowTops[targetRowIndex];
+
+    let bestIndex = current;
+    let bestDist = Infinity;
+    rectsByIndex.forEach((rect, i) => {
+      if (Math.abs(rect.top - targetTop) > 2) return;
+      const dist = Math.abs(rect.left - targetX);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIndex = i;
+      }
+    });
+
+    setCursorPos(bestIndex);
+    inputRef.current?.setSelectionRange(bestIndex, bestIndex);
+    triggerCaretMoving();
+  };
+
   const [modalDismissed, setModalDismissed] = useState(false);
   useEffect(() => {
     setModalDismissed(false);
@@ -428,6 +519,9 @@ export function ReadPage() {
               : undefined
           }
           onVerseActivate={isLoggedIn ? handleVerseActivate : undefined}
+          cursorPos={wordProcessorMode ? cursorPos : undefined}
+          onCharClick={wordProcessorMode ? handleCharClick : undefined}
+          caretMoving={wordProcessorMode ? caretMoving : undefined}
         />
 
         {!readMode && (
@@ -441,7 +535,10 @@ export function ReadPage() {
             data-lpignore="true"
             ref={inputRef}
             value={chapterDone ? "" : session.typed}
-            onChange={(e) => handleInput(e.target.value, isComposing)}
+            onChange={(e) => {
+              handleInput(e.target.value, isComposing);
+              if (wordProcessorMode) triggerCaretMoving();
+            }}
             onPaste={(e) => e.preventDefault()}
             onKeyDown={(e) => {
               // The input is visually hidden - all rendering comes from
@@ -455,6 +552,28 @@ export function ReadPage() {
               // be trusted to move something the person can actually see.
               if (!wordProcessorMode && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
                 e.preventDefault();
+              }
+
+              // Up/Down has no native meaning in a single-line input at
+              // all (word processor mode or not) - it never moves
+              // anything on its own, so it's handled entirely here via
+              // spatial hit-testing against the rendered character spans.
+              // Left/Right/Home/End are left to the browser's own native
+              // handling (see the comment above) since a real <input>
+              // already tracks those correctly; this just needs to keep
+              // the visual caret's blink-interrupt in sync with them too.
+              if (wordProcessorMode) {
+                if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                  e.preventDefault();
+                  handleVerticalNav(e.key === "ArrowUp" ? -1 : 1);
+                } else if (
+                  e.key === "ArrowLeft" ||
+                  e.key === "ArrowRight" ||
+                  e.key === "Home" ||
+                  e.key === "End"
+                ) {
+                  triggerCaretMoving();
+                }
               }
 
               // manualAdvance's explicit "go to next verse" gesture. Only
