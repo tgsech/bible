@@ -12,6 +12,15 @@ interface LiveStatsProps {
   lastActivityAt: number | null;
   pausedMs: number;
   language: string;
+  // Carried over from a previous sitting on this chapter (see
+  // useTypingSession's baseElapsedMs/baseCorrectKeystrokes/
+  // baseTotalKeystrokes) - added on top of this sitting's own numbers so
+  // the live counter keeps climbing from where a prior sitting left off
+  // on resume, instead of restarting at zero. Both default to 0 so a
+  // fresh chapter (nothing to carry over) behaves exactly as before.
+  baseElapsedMs?: number;
+  baseCorrectKeystrokes?: number;
+  baseTotalKeystrokes?: number;
 }
 
 function LiveStatsImpl({
@@ -22,6 +31,9 @@ function LiveStatsImpl({
   lastActivityAt,
   pausedMs,
   language,
+  baseElapsedMs = 0,
+  baseCorrectKeystrokes = 0,
+  baseTotalKeystrokes = 0,
 }: LiveStatsProps) {
   // Ticks locally so the speed keeps climbing even between keystrokes,
   // without touching any state outside this component.
@@ -46,10 +58,10 @@ function LiveStatsImpl({
   const activityBaseline = lastActivityAt ?? startTime;
   const cappedNow = activityBaseline !== null ? Math.min(now, activityBaseline + PAUSE_THRESHOLD_MS) : now;
 
-  const elapsedMs = startTime ? (endTime ?? cappedNow) - startTime - pausedMs : 0;
+  const elapsedMs = startTime ? baseElapsedMs + (endTime ?? cappedNow) - startTime - pausedMs : 0;
   const { speed, accuracy, label } = computeTypingStats(
-    correctKeystrokes,
-    totalKeystrokes,
+    baseCorrectKeystrokes + correctKeystrokes,
+    baseTotalKeystrokes + totalKeystrokes,
     elapsedMs,
     language
   );

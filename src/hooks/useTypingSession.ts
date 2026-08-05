@@ -40,6 +40,26 @@ export interface TypingSession {
   // counter. Same number, same formula, both places - so the two can't
   // show different speeds for the same chapter.
   pausedMs: number;
+  // Active-typing time (same pause-excluded definition as `pausedMs`
+  // subtracts for) accumulated across every *previous* sitting on this
+  // chapter, as of the last save - see progress.ts's elapsedMs column.
+  // Zero for a genuinely fresh chapter. On resume this is the seed that
+  // keeps the live/final wpm counting up from where a prior sitting left
+  // off instead of restarting at zero; this sitting's own wall-clock time
+  // (startTime/endTime/pausedMs, computed same as always) is added on top
+  // of it wherever elapsed time is displayed or logged - see LiveStats and
+  // ReadPage's finalStats/completion-POST/save-progress call sites, all of
+  // which use this same "baseElapsedMs + this sitting's elapsed" formula
+  // so none of them can drift from each other.
+  baseElapsedMs: number;
+  // correctKeystrokes/totalKeystrokes accumulated across every *previous*
+  // sitting on this chapter, as of the last save - same idea and same
+  // source (progress.ts) as baseElapsedMs above, just for accuracy instead
+  // of speed. Added to this sitting's own correctKeystrokes/totalKeystrokes
+  // at every display/log site so a resumed chapter's accuracy reflects the
+  // whole chapter typed so far, not just the keystrokes since resuming.
+  baseCorrectKeystrokes: number;
+  baseTotalKeystrokes: number;
 }
 
 const initialSession: TypingSession = {
@@ -52,11 +72,22 @@ const initialSession: TypingSession = {
   totalKeystrokes: 0,
   lastActivityAt: null,
   pausedMs: 0,
+  baseElapsedMs: 0,
+  baseCorrectKeystrokes: 0,
+  baseTotalKeystrokes: 0,
 };
 
 interface ResumeState {
   verseIndex: number;
   typed: string;
+  // Whatever was last saved for this chapter's live-stat baseline (see
+  // progress.ts) - all optional/defaulted to 0 so a resume payload that
+  // predates these fields (or a guest's pre-existing localStorage entry)
+  // still resumes cleanly, just starting the live counter at zero same as
+  // before this existed.
+  elapsedMs?: number;
+  correctKeystrokes?: number;
+  totalKeystrokes?: number;
 }
 
 // Given the previous keystroke's timestamp (or null if there wasn't one
@@ -101,6 +132,18 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
       typed: alreadyComplete ? "" : resume.typed,
       completedTyped: Array(alreadyComplete ? verses.length : clampedIndex).fill(""),
       endTime: alreadyComplete ? Date.now() : null,
+      // Seed this sitting's live-stat baseline from what was last saved,
+      // so LiveStats/finalStats can keep counting up from a prior sitting
+      // instead of restarting at zero. Not applied to correctKeystrokes/
+      // totalKeystrokes directly (those stay 0, per the comment above) -
+      // instead carried separately as the "base" that gets added on top
+      // wherever elapsed time/wpm is displayed or logged, alongside this
+      // sitting's own counters. Skipped entirely for the already-complete
+      // case: that resume is purely cosmetic (see alreadyComplete above),
+      // not a real sitting to build on.
+      baseElapsedMs: alreadyComplete ? 0 : resume.elapsedMs ?? 0,
+      baseCorrectKeystrokes: alreadyComplete ? 0 : resume.correctKeystrokes ?? 0,
+      baseTotalKeystrokes: alreadyComplete ? 0 : resume.totalKeystrokes ?? 0,
     });
   }, [verses]);
 
@@ -178,6 +221,7 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
         if (isVerseComplete) {
           const isLastVerse = prev.verseIndex === verses.length - 1;
           return {
+            ...prev,
             verseIndex: isLastVerse ? prev.verseIndex : prev.verseIndex + 1,
             typed: isLastVerse ? value : "",
             completedTyped: [...prev.completedTyped, value],

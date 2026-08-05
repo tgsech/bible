@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useChapter } from "../hooks/useChapter";
-import { useTypingSession } from "../hooks/useTypingSession";
+import { useTypingSession, PAUSE_THRESHOLD_MS } from "../hooks/useTypingSession";
 import { useProgress } from "../hooks/useProgress";
 import { useReadingProgress } from "../hooks/useReadingProgress";
 import { useReadMode } from "../hooks/useReadMode";
@@ -294,7 +294,17 @@ export function ReadPage() {
 
     loadProgress(translationId, bookId, chapter).then((resume) => {
       if (cancelled) return;
-      reset(resume ? { verseIndex: resume.verseIndex, typed: resume.typedSoFar } : undefined);
+      reset(
+        resume
+          ? {
+              verseIndex: resume.verseIndex,
+              typed: resume.typedSoFar,
+              elapsedMs: resume.elapsedMs,
+              correctKeystrokes: resume.correctKeystrokes,
+              totalKeystrokes: resume.totalKeystrokes,
+            }
+          : undefined
+      );
       hydratedRef.current = true;
     });
 
@@ -323,9 +333,29 @@ export function ReadPage() {
   useEffect(() => {
     if (!data || !hydratedRef.current || readMode) return;
     if (session.endTime !== null && session.startTime === null) return;
+    // Persist the running total (whatever was carried in from a previous
+    // sitting, plus this sitting's own progress so far) rather than just
+    // this sitting's numbers - otherwise every subsequent save would
+    // clobber the carried-in baseline instead of building on it, and a
+    // third sitting would only ever see the second sitting's contribution.
+    // While actively typing (startTime set, endTime not) this sitting's
+    // own elapsed time is measured live same as LiveStats/finalStats -
+    // pause-adjusted the same way, capped the same way against an
+    // in-progress pause - so a save mid-pause doesn't bank the ongoing
+    // idle stretch as if it were typing time.
+    const activityBaseline = session.lastActivityAt ?? session.startTime;
+    const cappedNow =
+      activityBaseline !== null ? Math.min(Date.now(), activityBaseline + PAUSE_THRESHOLD_MS) : Date.now();
+    const sittingElapsedMs = session.startTime
+      ? (session.endTime ?? cappedNow) - session.startTime - session.pausedMs
+      : 0;
+
     saveProgress(translationId, bookId, chapter, {
       verseIndex: session.verseIndex,
       typedSoFar: session.typed,
+      elapsedMs: session.baseElapsedMs + sittingElapsedMs,
+      correctKeystrokes: session.baseCorrectKeystrokes + session.correctKeystrokes,
+      totalKeystrokes: session.baseTotalKeystrokes + session.totalKeystrokes,
     });
   }, [
     translationId,
@@ -335,6 +365,13 @@ export function ReadPage() {
     session.typed,
     session.startTime,
     session.endTime,
+    session.correctKeystrokes,
+    session.totalKeystrokes,
+    session.pausedMs,
+    session.lastActivityAt,
+    session.baseElapsedMs,
+    session.baseCorrectKeystrokes,
+    session.baseTotalKeystrokes,
     data,
     saveProgress,
     readMode,
@@ -393,11 +430,14 @@ export function ReadPage() {
     // Pause-adjusted, same as LiveStats and the completion card below -
     // session.pausedMs already reflects every pause up through the final
     // keystroke, so this is the exact wall-clock time actually spent
-    // typing, not counting idle stretches over 5s.
-    const elapsedMs = session.endTime! - session.startTime - session.pausedMs;
+    // typing, not counting idle stretches over 5s. Plus whatever baseline
+    // carried in from earlier sittings on this chapter, so a chapter
+    // finished across several sittings reports its true whole-chapter
+    // speed/accuracy rather than just this final sitting's contribution.
+    const elapsedMs = session.baseElapsedMs + (session.endTime! - session.startTime - session.pausedMs);
     const stats = computeTypingStats(
-      session.correctKeystrokes,
-      session.totalKeystrokes,
+      session.baseCorrectKeystrokes + session.correctKeystrokes,
+      session.baseTotalKeystrokes + session.totalKeystrokes,
       elapsedMs,
       currentTranslation.language
     );
@@ -516,10 +556,13 @@ export function ReadPage() {
   // shows the exact same number the live counter was already displaying
   // right before this chapter finished, rather than a different,
   // real-wall-clock figure that includes idle time as if it were typing.
-  const elapsedMs = session.startTime && session.endTime ? session.endTime - session.startTime - session.pausedMs : 0;
+  const elapsedMs =
+    session.startTime && session.endTime
+      ? session.baseElapsedMs + (session.endTime - session.startTime - session.pausedMs)
+      : 0;
   const finalStats = computeTypingStats(
-    session.correctKeystrokes,
-    session.totalKeystrokes,
+    session.baseCorrectKeystrokes + session.correctKeystrokes,
+    session.baseTotalKeystrokes + session.totalKeystrokes,
     elapsedMs,
     currentTranslation.language
   );
@@ -536,6 +579,9 @@ export function ReadPage() {
           lastActivityAt={session.lastActivityAt}
           pausedMs={session.pausedMs}
           language={currentTranslation.language}
+          baseElapsedMs={session.baseElapsedMs}
+          baseCorrectKeystrokes={session.baseCorrectKeystrokes}
+          baseTotalKeystrokes={session.baseTotalKeystrokes}
         />
       )}
 

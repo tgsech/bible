@@ -8,6 +8,14 @@ const SAVE_DEBOUNCE_MS = 800;
 export interface ChapterPosition {
   verseIndex: number;
   typedSoFar: string;
+  // Live wpm/accuracy baseline for this chapter as of this save - see
+  // progress.ts's elapsedMs/correctKeystrokes/totalKeystrokes columns and
+  // useTypingSession's baseElapsedMs. Optional so call sites that don't
+  // care about the live-stat baseline (there are none left after this
+  // change, but future callers might) aren't forced to supply it.
+  elapsedMs?: number;
+  correctKeystrokes?: number;
+  totalKeystrokes?: number;
 }
 
 export interface LatestPosition {
@@ -109,13 +117,29 @@ export function useProgress() {
       if (session) {
         try {
           const server = await api.get<ChapterPosition>(`/progress/${translationId}/${bookId}/${chapter}`);
-          if (server) return { verseIndex: server.verseIndex, typedSoFar: server.typedSoFar };
+          if (server) {
+            return {
+              verseIndex: server.verseIndex,
+              typedSoFar: server.typedSoFar,
+              elapsedMs: server.elapsedMs,
+              correctKeystrokes: server.correctKeystrokes,
+              totalKeystrokes: server.totalKeystrokes,
+            };
+          }
         } catch (err) {
           console.error("Failed to load server progress", err);
         }
       }
       const guest = readGuestStore()[guestKey(translationId, bookId, chapter)];
-      return guest ? { verseIndex: guest.verseIndex, typedSoFar: guest.typedSoFar } : null;
+      return guest
+        ? {
+            verseIndex: guest.verseIndex,
+            typedSoFar: guest.typedSoFar,
+            elapsedMs: guest.elapsedMs,
+            correctKeystrokes: guest.correctKeystrokes,
+            totalKeystrokes: guest.totalKeystrokes,
+          }
+        : null;
     },
     [session]
   );
