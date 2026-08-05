@@ -5,6 +5,7 @@ import {
   TEXT_SCALE_MIN,
   TEXT_SCALE_MAX,
   TEXT_SCALE_DEFAULT,
+  PATTERN_STYLES, 
   type ColorPalette,
   type FontOption,
 } from "./themeOptions";
@@ -197,7 +198,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // along with every other themed var instead of a fixed global.
     root.setProperty("--color-bookmark", palette.colors.bookmark);
     root.setProperty("--color-bookmark-underline", palette.colors.bookmarkUnderline);
-  }, [palette]);
+// --- NEW PATTERN LOGIC ---
+  const patternKey = palette.patternType || "none";
+  const pattern = PATTERN_STYLES[patternKey] || PATTERN_STYLES.none;
+
+  root.setProperty("--color-pattern", palette.colors.patternColor || "transparent");
+  root.setProperty("--pattern-image", pattern.image);
+  root.setProperty("--pattern-size", pattern.size);
+}, [palette]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--font-body", font.cssFontFamily);

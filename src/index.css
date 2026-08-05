@@ -104,6 +104,11 @@
   --color-bookmark-underline: #9A9A9A;
   --font-body: "MaruBuri";
 
+    /* Pattern Defaults */
+  --color-pattern: transparent;
+  --pattern-image: none;
+  --pattern-size: auto;
+
   /* How much of the bottom of the screen the on-screen keyboard is
      currently covering, kept live by useKeyboardInsetVar(). Zero on
      desktop/tablet and whenever no keyboard is up. */
@@ -129,6 +134,8 @@
 
 body {
   background-color: var(--color-bg);
+  background-image: var(--pattern-image);
+  background-size: var(--pattern-size);
   color: var(--color-correct);
   margin: 0;
 }

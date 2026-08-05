@@ -1,6 +1,7 @@
 export interface ColorPalette {
   id: string;
   name: string;
+  patternType?: "none" | "dots" | "speckles" | "grid";
   colors: {
     bg: string;
     text: string;
@@ -9,18 +10,29 @@ export interface ColorPalette {
     untyped: string;
     cursor: string;
     composing: string;
-    // Bookmarked-verse highlight + underline (see VerseRow.tsx /
-    // index.css's .bookmarkedVerse). Deliberately part of each palette's
-    // own `colors` — so a bookmark's highlight can be tuned per-theme like
-    // everything else here — but NOT one of ColorPaletteGrid's
-    // SWATCH_FIELDS, so it never shows up as a 5th swatch on the palette
-    // picker cards. Those cards are only meant to preview the four
-    // palette-facing colors a person is actually choosing between; this is
-    // just along for the ride on every palette object.
     bookmark: string;
     bookmarkUnderline: string;
+    patternColor?: string;
   };
 }
+
+export const PATTERN_STYLES: Record<string, { image: string; size: string }> = {
+  none: { image: "none", size: "auto" },
+  dots: {
+    image: "radial-gradient(var(--color-pattern) 2px, transparent 2px)",
+    size: "24px 24px",
+  },
+  speckles: {
+    image: "radial-gradient(var(--color-pattern) 1.2px, transparent 1.2px)",
+    size: "14px 14px",
+  },
+  grid: {
+    image:
+      "linear-gradient(var(--color-pattern) 1px, transparent 1px), linear-gradient(90deg, var(--color-pattern) 1px, transparent 1px)",
+    size: "20px 20px",
+  },
+};
+
 
 // Groups palettes for display on the settings page (see ColorPaletteGrid).
 // Purely a presentation concern — doesn't affect ThemeContext/ThemeProvider,
@@ -36,12 +48,12 @@ export const PALETTE_CATEGORIES: PaletteCategory[] = [
   {
     id: "essentials",
     nameKey: "palette.category.essentials",
-    paletteIds: ["original", "light", "dark", "midnight"],
+    paletteIds: ["original", "light", "dark", "excel", "midnight"],
   },
   {
     id: "cafe",
     nameKey: "palette.category.cafe",
-    paletteIds: ["matcha", "butter", "banMilk", "strawMilk", "coffee","apricotjoy", "persSeas"],
+    paletteIds: ["latcrem", "matcha", "butter", "banMilk", "strawMilk", "coffee","apricotjoy", "persSeas"],
   },
   {
     id: "nature",
@@ -120,6 +132,23 @@ export const PALETTES: ColorPalette[] = [
       },
   },
   {
+    id: "excel",
+    name: "Office Job",
+    patternType: "grid",
+    colors: {
+      bg: "#FFFFFF",
+      patternColor: "#e9e4e4", 
+      text: "#1F4E79",
+      correct: "#185C37",
+      incorrect: "#ED7D31",
+      untyped: "#33A852",
+      cursor: "#000000",
+      composing: "#000000",
+      bookmark: "#9DC3E6",
+      bookmarkUnderline: "#f7e6c5",
+      },
+  },  
+  {
     id: "dark",
     name: "Dark",
     colors: {
@@ -149,6 +178,23 @@ export const PALETTES: ColorPalette[] = [
       bookmarkUnderline: "#2E4632",
       },
   },  
+  {
+    id: "latcrem",
+    name: "Lattes & Creme",
+    patternType: "speckles",
+    colors: {
+      bg: "#ebc689",
+      patternColor: "#be9280", 
+      text: "#9b6b3b",
+      correct: "#582e04",
+      incorrect: "#C84B31",
+      untyped: "#f7e3bc",
+      cursor: "#d7a15b",
+      composing: "#865a20",
+      bookmark: "#f1d9a2",
+      bookmarkUnderline: "#f7e6c5",
+      },
+    },  
   {
     id: "spring",
     name: "Spring",
