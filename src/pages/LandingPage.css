@@ -99,7 +99,7 @@
   padding: 8px 18px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-untyped) 18%, transparent);
-  color: var(--color-text);
+  color: var(--color-correct);
   text-decoration: none;
   max-width: 52ch;
 }
@@ -191,7 +191,7 @@
   padding: 7px 16px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-untyped) 14%, transparent);
-  color: var(--color-text);
+  color: var(--color-correct);
   text-decoration: none;
   border: 1.5px solid transparent;
   transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
