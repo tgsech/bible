@@ -6,6 +6,7 @@ interface EnvironmentContextValue {
   // When true, a fully-typed verse does NOT auto-clear to the next one -
   // the person has to explicitly press Space or Enter (and only once the
   // verse is error-free) to move on. See useTypingSession.handleInput.
+  // Defaults to true for anyone who hasn't explicitly set it.
   manualAdvance: boolean;
   // When true, the active verse behaves like a real text field: clicking a
   // character moves the caret there, and arrow keys navigate/edit
@@ -26,11 +27,15 @@ const WORD_PROCESSOR_STORAGE_KEY = "environment:wordProcessorMode";
 // while a logged-in user's settings are still in flight). Reading it
 // synchronously in useState's initializer, rather than in an effect, is
 // what avoids that flash - same reasoning as ThemeContext's readStored.
-function readStoredBool(key: string): boolean {
+// defaultValue covers "this person has never touched the toggle" (no key
+// in storage yet) - distinct from an explicit "false" they chose earlier,
+// which always wins over the default.
+function readStoredBool(key: string, defaultValue: boolean): boolean {
   try {
-    return localStorage.getItem(key) === "true";
+    const stored = localStorage.getItem(key);
+    return stored === null ? defaultValue : stored === "true";
   } catch {
-    return false; // localStorage can throw in some locked-down contexts
+    return defaultValue; // localStorage can throw in some locked-down contexts
   }
 }
 
@@ -49,9 +54,11 @@ interface EnvironmentSettings {
 
 export function EnvironmentProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
-  const [manualAdvance, setManualAdvanceState] = useState(() => readStoredBool(MANUAL_ADVANCE_STORAGE_KEY));
+  // manualAdvance defaults to true (auto-clear is off by default) -
+  // wordProcessorMode still defaults to false.
+  const [manualAdvance, setManualAdvanceState] = useState(() => readStoredBool(MANUAL_ADVANCE_STORAGE_KEY, true));
   const [wordProcessorMode, setWordProcessorModeState] = useState(() =>
-    readStoredBool(WORD_PROCESSOR_STORAGE_KEY)
+    readStoredBool(WORD_PROCESSOR_STORAGE_KEY, false)
   );
 
   // Guards the one-time "load whatever the backend has, sync a guest's
