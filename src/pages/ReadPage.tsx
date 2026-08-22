@@ -511,6 +511,24 @@ export function ReadPage() {
     }
   };
 
+  // Enter-to-continue while the completion popup is up. The typing input
+  // itself is disabled the moment chapterDone flips true (see
+  // disabled={chapterDone} below), so it never sees this keystroke - a
+  // window-level listener is the only way to catch Enter regardless of
+  // what, if anything, still has focus. Scoped to showCompletionModal so
+  // it's a no-op the rest of the time.
+  useEffect(() => {
+    if (readMode || !showCompletionModal) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      handleModalContinue();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readMode, showCompletionModal, isAtEnd]);
+
   // Manual "go back and rewrite" escape hatch: a finished chapter (whether
   // just now or resumed from a prior sitting) blocks the input since
   // there's nowhere left to type. This clears the session back to blank so
