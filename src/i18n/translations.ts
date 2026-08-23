@@ -84,6 +84,32 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "landing.viewLeaderboard": "See the leaderboard",
     "landing.customizeNote": "Themes, fonts, and text size are all yours to customize — find them in Settings.",
 
+    // Home (signed-in dashboard + signed-out explainer)
+    "home.welcomeBack": "Welcome back, {name}.",
+    "home.welcomeBackSubtitle": "Here's where you left off.",
+    "home.continueTyping": "Continue typing",
+    "home.continueReading": "Continue reading",
+    "home.resume": "Resume",
+    "home.streakDay": "day streak",
+    "home.streakDays": "day streak",
+    "home.longestStreak": "best: {count}",
+    "home.weeklyActivity": "This week",
+    "home.chaptersOf": "{done} of {total} chapters",
+    "home.dailyVerseTitle": "Daily Verse",
+    "home.dailyVerseBody": "A new verse to start your day — coming soon.",
+    "home.readingPlanTitle": "Reading Plan",
+    "home.readingPlanBody": "A guided, day-by-day path through the Bible — coming soon.",
+    "home.browseAllBooks": "Browse all books",
+    "home.explainTypingTitle": "Type it out",
+    "home.explainTypingBody":
+      "Type Bible verses word for word as they're shown on screen. Finishing a chapter records your speed, your accuracy, and bumps your daily streak.",
+    "home.explainReadingTitle": "Or just read",
+    "home.explainReadingBody":
+      "Prefer no typing? Switch to Reading Mode to browse chapters at your own pace. Your position is saved either way, so you always have somewhere to pick back up.",
+    "home.featureLeaderboard": "Leaderboard",
+    "home.featureTeams": "Teams & directory",
+    "home.featureCustomize": "Themes & customization",
+
     // Tutorial
     "tutorial.title": "How to Use LivingWords",
     "tutorial.intro":
@@ -447,6 +473,32 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "landing.goToProfile": "내 프로필로 이동",
     "landing.viewLeaderboard": "리더보드 보기",
     "landing.customizeNote": "설정에서 테마와 글꼴 및 글자 크기를 마음대로 변경하실 수 있습니다.",
+
+    // Home (로그인 시 대시보드 + 비로그인 시 소개)
+    "home.welcomeBack": "{name}님, 환영합니다.",
+    "home.welcomeBackSubtitle": "지난번 이어서 시작해보세요.",
+    "home.continueTyping": "타이핑 이어하기",
+    "home.continueReading": "읽기 이어하기",
+    "home.resume": "이어하기",
+    "home.streakDay": "일 연속",
+    "home.streakDays": "일 연속",
+    "home.longestStreak": "최고 기록: {count}일",
+    "home.weeklyActivity": "이번 주",
+    "home.chaptersOf": "{total}장 중 {done}장",
+    "home.dailyVerseTitle": "오늘의 말씀",
+    "home.dailyVerseBody": "매일 새로운 말씀으로 하루를 시작하세요 — 준비 중입니다.",
+    "home.readingPlanTitle": "성경 읽기 계획",
+    "home.readingPlanBody": "매일 조금씩, 성경 전체를 따라가는 안내 — 준비 중입니다.",
+    "home.browseAllBooks": "전체 목록 보기",
+    "home.explainTypingTitle": "따라 입력하기",
+    "home.explainTypingBody":
+      "화면에 표시되는 성경 구절을 그대로 따라 입력합니다. 한 장을 완료하면 속도와 정확도가 기록되고, 연속 학습일이 올라갑니다.",
+    "home.explainReadingTitle": "또는 그냥 읽기",
+    "home.explainReadingBody":
+      "입력 없이 편하게 읽고 싶다면 읽기 모드를 이용해보세요. 어느 모드든 위치가 저장되어 언제든 이어서 시작할 수 있습니다.",
+    "home.featureLeaderboard": "리더보드",
+    "home.featureTeams": "팀 & 디렉토리",
+    "home.featureCustomize": "테마 & 커스터마이징",
 
     // Tutorial
     "tutorial.title": "안내서",

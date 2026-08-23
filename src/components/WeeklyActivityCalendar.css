@@ -1,0 +1,68 @@
+.weeklyActivity {
+  min-width: 0;
+}
+
+.weeklyActivityTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.65;
+  margin: 0 0 10px;
+}
+
+.weeklyActivityTitle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.weeklyActivityGrid {
+  display: flex;
+  gap: 8px;
+}
+
+.weeklyActivityDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.weeklyActivityLabel {
+  font-size: 0.7rem;
+  opacity: 0.55;
+}
+
+.weeklyActivityBox {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-untyped) 20%, transparent);
+  border: 1.5px solid transparent;
+}
+
+.weeklyActivityBox--active {
+  background: var(--color-correct);
+}
+
+.weeklyActivityBox--today {
+  border-color: var(--color-correct);
+}
+
+.weeklyActivityBox--future {
+  background: transparent;
+  border: 1.5px dashed color-mix(in srgb, var(--color-untyped) 40%, transparent);
+}
+
+@media (max-width: 420px) {
+  .weeklyActivityGrid {
+    gap: 5px;
+  }
+
+  .weeklyActivityBox {
+    width: 22px;
+    height: 22px;
+  }
+}
