@@ -66,21 +66,20 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
   const usesDoubleTapGesture = !!onCharClick;
   const longPress = useLongPress(onActivate ?? (() => {}), !!onActivate && !usesDoubleTapGesture);
   const doubleTap = useDoubleTap(onActivate ?? (() => {}), !!onActivate && usesDoubleTapGesture);
+  // Scoped to the verse number span only (not the whole row) - bookmarking
+  // triggers off tapping/clicking the number, not anywhere in the verse
+  // text, so a normal tap-to-scroll or tap-to-focus-the-typing-input
+  // anywhere else in the row never risks it.
   const tapHandlers = onActivate ? (usesDoubleTapGesture ? doubleTap : longPress) : undefined;
-  const rowClassName = onActivate ? "verseTappable" : undefined;
+  const verseNumClassName = `verseNum${onActivate ? " verseTappable" : ""}`;
   const bibTextClassName = `bibText${isBookmarked ? " bookmarkedVerse" : ""}`;
 
   // Pending and completed verses are plain text. No letter-splitting, no
   // per-character inline styles, no per-keystroke re-render cost.
   if (status !== "active") {
     return (
-      <div
-        ref={ref}
-        className={rowClassName}
-        style={{ display: "flex", gap: "8px", opacity: status === "pending" ? 0.3 : 1 }}
-        {...tapHandlers}
-      >
-        <span className="verseNum" style={{ color: "var(--color-text)"}}>
+      <div ref={ref} style={{ display: "flex", gap: "8px", opacity: status === "pending" ? 0.3 : 1 }}>
+        <span className={verseNumClassName} style={{ color: "var(--color-text)" }} {...tapHandlers}>
           {index + 1}
         </span>
         <span className={bibTextClassName}>{text}</span>
@@ -98,8 +97,12 @@ const VerseRowImpl = forwardRef<HTMLDivElement, VerseRowProps>(function VerseRow
   const effectiveCursor = cursorPos ?? typed.length;
 
   return (
-    <div ref={ref} className={rowClassName} style={{ display: "flex", gap: "8px" }} {...tapHandlers}>
-      <span className="verseNum" style={{ color: "var(--color-text)", marginRight: "20px"}}>
+    <div ref={ref} style={{ display: "flex", gap: "8px" }}>
+      <span
+        className={verseNumClassName}
+        style={{ color: "var(--color-text)", marginRight: "20px" }}
+        {...tapHandlers}
+      >
         {index + 1}
       </span>
       <div className={isBookmarked ? "bookmarkedVerse" : undefined}>
