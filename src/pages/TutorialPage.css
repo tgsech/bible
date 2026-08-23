@@ -1,0 +1,35 @@
+.tutorialPage {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 0 48px;
+}
+
+.tutorialPage h1 {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.tutorialIntro {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  margin-bottom: 40px;
+}
+
+.tutorialSection {
+  margin-bottom: 32px;
+}
+
+.tutorialSection h2 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.tutorialSection p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.tutorialPage a {
+  color: var(--color-text);
+}

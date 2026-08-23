@@ -18,6 +18,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { LivWordersPage } from "./pages/LivWordersPage";
 import { TeamDetailPage } from "./pages/TeamDetailPage";
 import { MemoryToolPage } from "./pages/MemoryToolPage";
+import { TutorialPage } from "./pages/TutorialPage";
 import "./AppShell.css";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/read/:translationId/:bookId/:chapter" element={<ReadPage />} />
+                    <Route path="/tutorial" element={<TutorialPage />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/leaderboard" element={<LeaderboardPage />} />

@@ -103,6 +103,9 @@ export function Sidebar() {
           <NavLink to="/memory" className={navClass}>
             <span className="sidebarLabel">{t("sidebar.memTool")}</span>
           </NavLink>
+          <NavLink to="/tutorial" className={navClass}>
+            <span className="sidebarLabel">{t("sidebar.tutorial")}</span>
+          </NavLink>
           <NavLink to="/about" className={navClass}>
             <span className="sidebarLabel">{t("sidebar.about")}</span>
           </NavLink>
@@ -202,6 +205,9 @@ export function Sidebar() {
         <div id="mobileMoreSheet" className="mobileMoreSheet" role="menu">
           <NavLink to="/memory" className={navClass} onClick={() => setMoreOpen(false)}>
             <span className="sidebarLabel">{t("sidebar.memTool")}</span>
+          </NavLink>
+          <NavLink to="/tutorial" className={navClass} onClick={() => setMoreOpen(false)}>
+            <span className="sidebarLabel">{t("sidebar.tutorial")}</span>
           </NavLink>
           <NavLink to="/about" className={navClass} onClick={() => setMoreOpen(false)}>
             <span className="sidebarLabel">{t("sidebar.about")}</span>

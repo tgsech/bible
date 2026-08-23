@@ -13,6 +13,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "sidebar.livworders": "LIVWORDERS",
     "sidebar.typeEngine": "BIBLE",
     "sidebar.memTool": "MEM TOOL",
+    "sidebar.tutorial": "TUTORIAL",
     "sidebar.about": "ABOUT",
     "sidebar.settings": "SETTINGS",
     "sidebar.brand": "LIVINGWORDS",
@@ -82,6 +83,35 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "landing.goToProfile": "Go to your profile",
     "landing.viewLeaderboard": "See the leaderboard",
     "landing.customizeNote": "Themes, fonts, and text size are all yours to customize — find them in Settings.",
+
+    // Tutorial
+    "tutorial.title": "How to Use LivingWords",
+    "tutorial.intro":
+      "A quick tour of what's here and how to get the most out of it.",
+    "tutorial.typing.title": "Typing Mode",
+    "tutorial.typing.body":
+      "Type out Bible verses word for word as they're shown on screen — this is the default mode. Finishing a chapter records your words-per-minute (or characters-per-minute for Korean), your accuracy, and bumps your daily streak. Turn on Word Processor Mode or Manual Verse Advance in Settings if you'd like the typing experience to feel more like a text editor.",
+    "tutorial.reading.title": "Reading Mode",
+    "tutorial.reading.body":
+      "Prefer to just read? Switch to Reading Mode from the sidebar (or the mode toggle on mobile) to browse chapters without typing anything. Your reading position is saved separately from your typing progress, so you can pick either mode back up where you left off.",
+    "tutorial.progress.title": "Progress & Your Profile",
+    "tutorial.progress.body":
+      "Your profile keeps track of chapters completed, your best and average speeds, your current and longest streaks, and any badges you've earned. Sign up (or sign in with Google) to save this across devices — as a guest, progress only lives in that browser.",
+    "tutorial.bookmarks.title": "Bookmarking Verses",
+    "tutorial.bookmarks.body":
+      "Tap or click a verse while typing or reading to bookmark it. Saved verses show up on your profile, and you can choose to feature a few of them on your public profile for others to see.",
+    "tutorial.leaderboard.title": "Leaderboard",
+    "tutorial.leaderboard.body":
+      "See how you stack up against other users on streaks, accuracy, chapters completed, total completions, fastest typing speed, and full Bible read-throughs — individually or by team. Set a public username in your profile settings to appear on it.",
+    "tutorial.livworders.title": "LivWorders Directory & Teams",
+    "tutorial.livworders.body":
+      "Browse other users' public profiles, or create and join teams to combine your progress with friends on the team leaderboards.",
+    "tutorial.settings.title": "Settings",
+    "tutorial.settings.body":
+      "Customize your color theme, font, and text size, adjust environment options like manual verse advance and word processor mode, and control sound effects — all synced to your account.",
+    "tutorial.account.title": "Your Account",
+    "tutorial.account.body":
+      "Sign up with an email and password or continue with Google. Forgot your password? Use the \"Forgot password?\" link on the sign-in page. Already have an email/password account? You can link Google to it from the Account tab on your profile.",
 
     // About
     "about.title": "About",
@@ -347,6 +377,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "sidebar.livworders": "살말꾼",
     "sidebar.typeEngine": "성경",
     "sidebar.memTool": "암기 도구",
+    "sidebar.tutorial": "이용 방법",
     "sidebar.about": "소개",
     "sidebar.settings": "설정",
     "sidebar.brand": "살아있는 말씀",
@@ -416,6 +447,33 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "landing.goToProfile": "내 프로필로 이동",
     "landing.viewLeaderboard": "리더보드 보기",
     "landing.customizeNote": "설정에서 테마와 글꼴 및 글자 크기를 마음대로 변경하실 수 있습니다.",
+
+    // Tutorial
+    "tutorial.title": "이용 방법",
+    "tutorial.intro": "사이트에서 무엇을 할 수 있는지, 어떻게 시작하면 좋을지 간단히 안내해 드립니다.",
+    "tutorial.typing.title": "타이핑 모드",
+    "tutorial.typing.body":
+      "화면에 표시되는 성경 구절을 그대로 따라 입력합니다 — 기본 모드입니다. 한 장을 완료하면 분당 타수(영어는 WPM, 한글은 타/분)와 정확도가 기록되고, 연속 학습일이 올라갑니다. 문서 편집기처럼 사용하고 싶다면 설정에서 워드 프로세서 모드나 수동 구절 넘김 기능을 켜보세요.",
+    "tutorial.reading.title": "읽기 모드",
+    "tutorial.reading.body":
+      "그냥 읽고 싶으신가요? 사이드바(모바일에서는 모드 전환 버튼)에서 읽기 모드로 전환하면 입력 없이 장을 넘겨보실 수 있습니다. 읽기 위치는 타이핑 진행 상황과 별도로 저장되므로 두 모드 모두 이어서 시작하실 수 있습니다.",
+    "tutorial.progress.title": "진행 상황 & 프로필",
+    "tutorial.progress.body":
+      "프로필에서는 완료한 장 수, 평균/최고 속도, 현재 및 최장 연속 기록, 획득한 배지를 확인하실 수 있습니다. 회원가입(또는 Google 로그인)을 하시면 여러 기기에서 기록이 저장됩니다 — 게스트로 이용하시면 진행 상황은 해당 브라우저에만 남습니다.",
+    "tutorial.bookmarks.title": "구절 저장하기",
+    "tutorial.bookmarks.body":
+      "타이핑 또는 읽기 중 구절을 탭하거나 클릭하면 저장하실 수 있습니다. 저장한 구절은 프로필에서 확인할 수 있고, 원하시면 일부를 공개 프로필에 표시할 수도 있습니다.",
+    "tutorial.leaderboard.title": "리더보드",
+    "tutorial.leaderboard.body":
+      "연속 기록, 정확도, 완료한 장 수, 총 완료 횟수, 최고 타이핑 속도, 성경 완독 횟수 기준으로 개인 또는 팀 순위를 확인하실 수 있습니다. 프로필 설정에서 공개 사용자 이름을 설정하면 리더보드에 표시됩니다.",
+    "tutorial.livworders.title": "살말꾼 디렉토리 & 팀",
+    "tutorial.livworders.body": "다른 사용자의 공개 프로필을 둘러보거나, 팀을 만들거나 가입해서 친구들과 팀 리더보드에서 함께할 수 있습니다.",
+    "tutorial.settings.title": "설정",
+    "tutorial.settings.body":
+      "색상 테마, 글꼴, 글자 크기를 원하는 대로 바꾸고, 수동 구절 넘김이나 워드 프로세서 모드 같은 환경 설정을 조정하고, 효과음도 관리하실 수 있습니다 — 모두 계정에 저장됩니다.",
+    "tutorial.account.title": "계정",
+    "tutorial.account.body":
+      "이메일과 비밀번호로 가입하거나 Google로 계속하실 수 있습니다. 비밀번호를 잊으셨다면 로그인 페이지의 '비밀번호를 잊으셨나요?' 링크를 이용해 주세요. 이미 이메일/비밀번호 계정이 있으시다면 프로필의 계정 탭에서 Google 계정을 연결하실 수 있습니다.",
 
     // About
     "about.title": "소개",
