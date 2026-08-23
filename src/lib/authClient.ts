@@ -12,4 +12,9 @@ export const authClient = createAuthClient({
 
 // Re-exported so components can do `const { data: session } = useSession()`
 // without importing from authClient directly everywhere.
-export const { useSession, signIn, signOut, signUp } = authClient;
+// requestPasswordReset/resetPassword (forgot-password flow) and
+// linkSocial/listAccounts (linking Google to an existing email/password
+// account) are all core Better Auth endpoints, not plugin-gated ones — no
+// extra client plugin is needed to get these methods.
+export const { useSession, signIn, signOut, signUp, requestPasswordReset, resetPassword, linkSocial, listAccounts } =
+  authClient;

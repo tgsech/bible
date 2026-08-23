@@ -116,3 +116,23 @@
   background: var(--color-text);
   color: var(--color-bg);
 }
+
+.authForgotLink {
+  align-self: flex-end;
+  font-size: 0.85rem;
+  color: var(--color-correct);
+  opacity: 0.85;
+  text-decoration: none;
+  margin-top: -8px;
+}
+
+.authForgotLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.authSuccess {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}

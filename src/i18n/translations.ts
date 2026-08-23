@@ -102,6 +102,18 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "auth.or": "or",
     "auth.continueGoogle": "Continue with Google",
     "auth.genericError": "Something went wrong. Please try again.",
+    "auth.forgotPassword": "Forgot password?",
+    "auth.forgotPasswordTitle": "Reset your password",
+    "auth.forgotPasswordIntro": "Enter the email you signed up with and we'll send you a link to reset your password.",
+    "auth.sendResetLink": "Send reset link",
+    "auth.resetLinkSent": "If an account exists for {email}, we've sent a password reset link to it. Check your inbox.",
+    "auth.backToSignIn": "Back to sign in",
+    "auth.resetPasswordTitle": "Choose a new password",
+    "auth.resetPasswordIntro": "Enter a new password for your account.",
+    "auth.newPassword": "New password",
+    "auth.resetPasswordSubmit": "Reset password",
+    "auth.resetPasswordSuccess": "Your password has been reset. You can now sign in with your new password.",
+    "auth.resetPasswordInvalidToken": "This reset link is invalid or has expired. Please request a new one.",
 
     // Leaderboard
     "leaderboard.title": "Leaderboard",
@@ -248,6 +260,15 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "profile.tabProgress": "Progress",
     "profile.tabPublic": "Public",
     "profile.tabVerses": "Verses",
+    "profile.tabAccount": "Account",
+
+    // Profile - Account tab
+    "profile.accountSignInMethods": "Sign-in methods",
+    "profile.accountGoogleLinked": "Your Google account is linked. You can sign in with either your password or Google.",
+    "profile.accountGoogleNotLinked": "Link your Google account to sign in faster next time.",
+    "profile.accountLinkGoogle": "Link Google Account",
+    "profile.accountLinkGoogleError": "Couldn't link your Google account. Please try again.",
+    "profile.accountLoading": "Checking your linked accounts…",
 
     // ProgressGrid
     "progress.translation": "Translation",
@@ -414,6 +435,18 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "auth.or": "또는",
     "auth.continueGoogle": "Google로 계속하기",
     "auth.genericError": "문제가 발생했습니다. 다시 시도해주세요.",
+    "auth.forgotPassword": "비밀번호를 잊으셨나요?",
+    "auth.forgotPasswordTitle": "비밀번호 재설정",
+    "auth.forgotPasswordIntro": "가입 시 사용하신 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.",
+    "auth.sendResetLink": "재설정 링크 보내기",
+    "auth.resetLinkSent": "{email} 주소로 계정이 존재하는 경우 비밀번호 재설정 링크를 보내드렸습니다. 받은편지함을 확인해 주세요.",
+    "auth.backToSignIn": "로그인으로 돌아가기",
+    "auth.resetPasswordTitle": "새 비밀번호 설정",
+    "auth.resetPasswordIntro": "계정에 사용할 새 비밀번호를 입력해 주세요.",
+    "auth.newPassword": "새 비밀번호",
+    "auth.resetPasswordSubmit": "비밀번호 재설정",
+    "auth.resetPasswordSuccess": "비밀번호가 재설정되었습니다. 이제 새 비밀번호로 로그인하실 수 있습니다.",
+    "auth.resetPasswordInvalidToken": "이 재설정 링크는 유효하지 않거나 만료되었습니다. 새 링크를 요청해 주세요.",
 
     // Leaderboard
     "leaderboard.title": "리더보드",
@@ -560,6 +593,15 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "profile.tabProgress": "진행 상황",
     "profile.tabPublic": "공개 프로필",
     "profile.tabVerses": "구절",
+    "profile.tabAccount": "계정",
+
+    // Profile - Account tab
+    "profile.accountSignInMethods": "로그인 방법",
+    "profile.accountGoogleLinked": "Google 계정이 연결되어 있습니다. 비밀번호 또는 Google로 로그인하실 수 있습니다.",
+    "profile.accountGoogleNotLinked": "Google 계정을 연결하면 다음에 더 빠르게 로그인하실 수 있습니다.",
+    "profile.accountLinkGoogle": "Google 계정 연결",
+    "profile.accountLinkGoogleError": "Google 계정을 연결하지 못했습니다. 다시 시도해 주세요.",
+    "profile.accountLoading": "연결된 계정을 확인하는 중…",
 
     // ProgressGrid
     "progress.translation": "번역본",

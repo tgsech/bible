@@ -6,6 +6,7 @@ import { ProfileSettingsForm } from "../components/ProfileSettingsForm";
 import { BookmarkedVerseCard } from "../components/BookmarkedVerseCard";
 import { ProgressGrid } from "../components/ProgressGrid";
 import { Tabs, type TabDef } from "../components/Tabs";
+import { AccountTab } from "../components/AccountTab";
 import { meta as nivEn } from "../bible-data/translations/niv-en/meta";
 import { meta as krvKo } from "../bible-data/translations/krv-ko/meta";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -85,7 +86,7 @@ interface ProfileSummary {
   settings: ProfileSettings;
 }
 
-const TAB_IDS = ["overview", "progress", "public", "verses"] as const;
+const TAB_IDS = ["overview", "progress", "public", "verses", "account"] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 function isTabId(value: string | null): value is TabId {
@@ -116,6 +117,7 @@ export function ProfilePage() {
     { id: "progress", label: t("profile.tabProgress") },
     { id: "public", label: t("profile.tabPublic") },
     { id: "verses", label: t("profile.tabVerses") },
+    { id: "account", label: t("profile.tabAccount") },
   ];
 
   const handleToggleFeatured = async (bookmark: SavedVerse, next: boolean) => {
@@ -371,6 +373,12 @@ export function ProfilePage() {
               </ul>
             )}
           </section>
+        </div>
+      )}
+
+      {activeTab === "account" && (
+        <div className="profileTabPanel">
+          <AccountTab />
         </div>
       )}
     </div>

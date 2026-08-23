@@ -10,6 +10,8 @@ import { ReadPage } from "./pages/ReadPage";
 import { AboutPage } from "./pages/AboutPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AuthPage } from "./pages/AuthPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { PublicProfilePage } from "./pages/PublicProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -36,6 +38,8 @@ function App() {
                     <Route path="/leaderboard" element={<LeaderboardPage />} />
                     <Route path="/u/:username" element={<PublicProfilePage />} />
                     <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/directory" element={<LivWordersPage />} />
                     <Route path="/team/:id" element={<TeamDetailPage />} />

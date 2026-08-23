@@ -137,6 +137,12 @@ export function AuthPage() {
           />
         </label>
 
+        {mode === "signin" && (
+          <Link to="/forgot-password" className="authForgotLink">
+            {t("auth.forgotPassword")}
+          </Link>
+        )}
+
         {error && <p className="authError">{error}</p>}
 
         <button type="submit" className="authSubmit" disabled={loading}>
