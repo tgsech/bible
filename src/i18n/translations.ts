@@ -377,7 +377,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "sidebar.livworders": "살말꾼",
     "sidebar.typeEngine": "성경",
     "sidebar.memTool": "암기 도구",
-    "sidebar.tutorial": "이용 방법",
+    "sidebar.tutorial": "안내서",
     "sidebar.about": "소개",
     "sidebar.settings": "설정",
     "sidebar.brand": "살아있는 말씀",
@@ -449,7 +449,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "landing.customizeNote": "설정에서 테마와 글꼴 및 글자 크기를 마음대로 변경하실 수 있습니다.",
 
     // Tutorial
-    "tutorial.title": "이용 방법",
+    "tutorial.title": "안내서",
     "tutorial.intro": "사이트에서 무엇을 할 수 있는지, 어떻게 시작하면 좋을지 간단히 안내해 드립니다.",
     "tutorial.typing.title": "타이핑 모드",
     "tutorial.typing.body":
