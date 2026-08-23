@@ -38,6 +38,29 @@ export function scrollAboveKeyboard(el: Element | null, behavior: ScrollBehavior
 }
 
 /**
+ * Scrolls `el`'s vertical center to the vertical center of the visible
+ * (keyboard-aware) viewport, rather than only nudging it in once it nears
+ * an edge. Used for the active-verse autoscroll in ChapterView, so the
+ * verse being typed sits in the middle of the screen as you move through a
+ * chapter instead of hugging the bottom edge above the keyboard. Same
+ * visualViewport math as scrollAboveKeyboard, for the same reason (see file
+ * comment above) - it needs to center against what's actually visible
+ * above the on-screen keyboard, not the full layout viewport.
+ */
+export function centerInViewport(el: Element | null, behavior: ScrollBehavior = "smooth") {
+  if (!el) return;
+  const vv = window.visualViewport;
+  const rect = el.getBoundingClientRect();
+
+  const visibleTop = vv ? vv.offsetTop : 0;
+  const visibleHeight = vv ? vv.height : window.innerHeight;
+  const visibleCenter = visibleTop + visibleHeight / 2;
+  const elCenter = rect.top + rect.height / 2;
+
+  window.scrollBy({ top: elCenter - visibleCenter, behavior });
+}
+
+/**
  * Keeps a CSS variable (--keyboard-inset, in px) on <html> in sync with
  * however much of the bottom of the screen the on-screen keyboard is
  * currently covering. Components can add this as bottom padding/margin so

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { VerseRow } from "./VerseRow";
-import { scrollAboveKeyboard, useOnVisualViewportChange } from "../hooks/useKeyboardAwareScroll";
+import { centerInViewport, useOnVisualViewportChange } from "../hooks/useKeyboardAwareScroll";
 
 interface ChapterViewProps {
   verses: string[];
@@ -40,16 +40,18 @@ export function ChapterView({
   const activeRowRef = useRef<HTMLDivElement>(null);
 
   // Whenever the active verse advances (the previous one just got
-  // finished), bring the new one into view - scrolling only the minimum
-  // distance needed, same "page down once you reach the bottom" feel as
-  // scrollIntoView({block: "nearest"}) had. The difference is
-  // scrollAboveKeyboard measures against window.visualViewport instead of
-  // the full window, so on mobile it stops above the on-screen keyboard
-  // instead of scrolling the verse to a spot that's actually hidden behind
-  // it (see useKeyboardAwareScroll.ts for why plain scrollIntoView gets
-  // this wrong).
+  // finished), bring the new one into view - centered in the visible
+  // (keyboard-aware) viewport rather than just nudged in once it nears an
+  // edge, so the verse being typed stays in the middle of the screen as
+  // you move through a chapter instead of creeping down toward the bottom
+  // edge above the keyboard. centerInViewport measures against
+  // window.visualViewport instead of the full window, so on mobile it
+  // centers against the space actually visible above the on-screen
+  // keyboard instead of a spot that's hidden behind it (see
+  // useKeyboardAwareScroll.ts for why plain scrollIntoView gets this
+  // wrong).
   useEffect(() => {
-    scrollAboveKeyboard(activeRowRef.current);
+    centerInViewport(activeRowRef.current);
   }, [verseIndex]);
 
   // The keyboard doesn't reach its final height instantly - it animates in
@@ -60,7 +62,7 @@ export function ChapterView({
   // every visualViewport resize/scroll event catches the keyboard settling
   // into its final size and any orientation change while typing.
   useOnVisualViewportChange(() => {
-    scrollAboveKeyboard(activeRowRef.current, "auto");
+    centerInViewport(activeRowRef.current, "auto");
   });
 
   return (
