@@ -40,17 +40,22 @@ type Scope = "users" | "teams";
 // translation dictionary under `leaderboard.board.<id>.*` so it can switch
 // with the site language.
 interface BoardDef {
-  id: "streak" | "chapters" | "repeats" | "bible" | "wpm" | "cpm";
+  id: "streak" | "accuracy" | "chapters" | "repeats" | "wpm" | "cpm" | "bible";
   format: (row: LeaderboardRow) => string;
 }
 
+// Display order: streak, then average accuracy, then the speed/volume
+// boards in their existing relative order, with the full-Bible board
+// (the rarest achievement - most users will never place on it) moved to
+// the very end.
 const BOARDS: BoardDef[] = [
   { id: "streak", format: (r) => `${r.value} day${r.value === 1 ? "" : "s"}` },
+  { id: "accuracy", format: (r) => `${r.value.toFixed(1)}%` },
   { id: "chapters", format: (r) => `${r.value} chapter${r.value === 1 ? "" : "s"}` },
   { id: "repeats", format: (r) => `${r.value} completion${r.value === 1 ? "" : "s"}` },
-  { id: "bible", format: (r) => `${r.value}×` },
   { id: "wpm", format: (r) => r.value.toFixed(1) },
   { id: "cpm", format: (r) => r.value.toFixed(1) },
+  { id: "bible", format: (r) => `${r.value}×` },
 ];
 
 const MEDALS = ["🥇", "🥈", "🥉"];
