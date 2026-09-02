@@ -100,6 +100,33 @@ function pauseSince(prevActivityAt: number | null, now: number): number {
   return gap > PAUSE_THRESHOLD_MS ? gap - PAUSE_THRESHOLD_MS : 0;
 }
 
+// A handful of verse numbers (Matt 17:21, Mark 9:44/46, Acts 8:37, etc.)
+// have no body text - later manuscripts omit them, so the backend's
+// splitVersesFromHtml legitimately returns "" at that array position
+// rather than removing it (removing it would shift every later verse's
+// index, and therefore its displayed verse number, down by one - see the
+// backend's bible.ts). There's nothing a person could ever type to
+// "complete" a zero-length target, so landing on one needs to count as
+// instantly done and continue straight through it - possibly through
+// several in a row - rather than leaving the input stalled waiting for a
+// keystroke that can never come.
+//
+// Starts scanning AT fromIndex itself (not fromIndex + 1), so it works
+// the same whether called with "the index we're about to land on" (reset)
+// or "the index right after the one we just finished" (the two advance
+// call sites below). Stops at the last verse even if that one is also
+// empty - there's nowhere left to advance to, so the caller is
+// responsible for treating that as chapter-complete instead.
+function advancePastEmpty(verses: string[], fromIndex: number): { index: number; typedForSkipped: string[] } {
+  const typedForSkipped: string[] = [];
+  let index = fromIndex;
+  while (index < verses.length - 1 && (verses[index]?.length ?? 0) === 0) {
+    typedForSkipped.push("");
+    index++;
+  }
+  return { index, typedForSkipped };
+}
+
 export function useTypingSession(verses: string[], language: string, manualAdvance: boolean = false) {
   const [session, setSession] = useState<TypingSession>(initialSession);
 
@@ -114,7 +141,15 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
   // pausedMs resets to 0 for the same reason - via ...initialSession).
   const reset = useCallback((resume?: ResumeState) => {
     if (!resume || resume.verseIndex === 0) {
-      setSession(initialSession);
+      // Even a fresh start could in principle open on an empty verse
+      // (doesn't happen in practice - books don't open on an omitted
+      // verse - but stay consistent rather than assuming that).
+      const { index: startIndex } = advancePastEmpty(verses, 0);
+      if (startIndex === 0) {
+        setSession(initialSession);
+        return;
+      }
+      setSession({ ...initialSession, verseIndex: startIndex, completedTyped: Array(startIndex).fill("") });
       return;
     }
     const lastIndex = Math.max(verses.length - 1, 0);
@@ -126,12 +161,29 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
     // can never come (there's nowhere left to type).
     const alreadyComplete = clampedIndex === lastIndex && resume.typed.length >= verseText.length;
 
+    // The saved position can itself be sitting exactly on (or right
+    // before a run of) an untypeable empty verse - e.g. a save captured
+    // mid-chapter right as someone hit the Matthew 17:21 wall under the
+    // old behavior. Fast-forward past those the same way a fresh start
+    // does, so resuming doesn't just put them right back at the dead end.
+    // Skipped when already flagged done above - that case is already
+    // sitting on lastIndex with nothing after it to skip past.
+    const { index: resolvedIndex } = alreadyComplete ? { index: clampedIndex } : advancePastEmpty(verses, clampedIndex);
+    const skippedAhead = resolvedIndex !== clampedIndex;
+    // Landing on the last verse via a skip (rather than via resume.typed
+    // actually covering it) still means there's nothing left to type.
+    const resolvedAlreadyComplete =
+      alreadyComplete || (resolvedIndex === lastIndex && (verses[resolvedIndex]?.length ?? 0) === 0);
+
     setSession({
       ...initialSession,
-      verseIndex: clampedIndex,
-      typed: alreadyComplete ? "" : resume.typed,
-      completedTyped: Array(alreadyComplete ? verses.length : clampedIndex).fill(""),
-      endTime: alreadyComplete ? Date.now() : null,
+      verseIndex: resolvedIndex,
+      // resume.typed was captured for whatever verse sat at clampedIndex -
+      // if a skip moved us to a different verse instead, that typed text
+      // doesn't apply to it and needs to be dropped, not carried over.
+      typed: resolvedAlreadyComplete || skippedAhead ? "" : resume.typed,
+      completedTyped: Array(resolvedAlreadyComplete ? verses.length : resolvedIndex).fill(""),
+      endTime: resolvedAlreadyComplete ? Date.now() : null,
       // Seed this sitting's live-stat baseline from what was last saved,
       // so LiveStats/finalStats can keep counting up from a prior sitting
       // instead of restarting at zero. Not applied to correctKeystrokes/
@@ -141,9 +193,9 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
       // sitting's own counters. Skipped entirely for the already-complete
       // case: that resume is purely cosmetic (see alreadyComplete above),
       // not a real sitting to build on.
-      baseElapsedMs: alreadyComplete ? 0 : resume.elapsedMs ?? 0,
-      baseCorrectKeystrokes: alreadyComplete ? 0 : resume.correctKeystrokes ?? 0,
-      baseTotalKeystrokes: alreadyComplete ? 0 : resume.totalKeystrokes ?? 0,
+      baseElapsedMs: resolvedAlreadyComplete ? 0 : resume.elapsedMs ?? 0,
+      baseCorrectKeystrokes: resolvedAlreadyComplete ? 0 : resume.correctKeystrokes ?? 0,
+      baseTotalKeystrokes: resolvedAlreadyComplete ? 0 : resume.totalKeystrokes ?? 0,
     });
   }, [verses]);
 
@@ -220,13 +272,31 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
 
         if (isVerseComplete) {
           const isLastVerse = prev.verseIndex === verses.length - 1;
+          if (isLastVerse) {
+            return {
+              ...prev,
+              typed: value,
+              completedTyped: [...prev.completedTyped, value],
+              startTime,
+              endTime: now,
+              correctKeystrokes,
+              totalKeystrokes,
+              lastActivityAt: now,
+              pausedMs,
+            };
+          }
+          // The verse right after this one (or several in a row) might
+          // itself be an untypeable empty verse - fast-forward past those
+          // in the same transition instead of landing the person on one.
+          const { index: nextIndex, typedForSkipped } = advancePastEmpty(verses, prev.verseIndex + 1);
+          const chapterInstantlyDone = nextIndex === verses.length - 1 && (verses[nextIndex]?.length ?? 0) === 0;
           return {
             ...prev,
-            verseIndex: isLastVerse ? prev.verseIndex : prev.verseIndex + 1,
-            typed: isLastVerse ? value : "",
-            completedTyped: [...prev.completedTyped, value],
+            verseIndex: nextIndex,
+            typed: "",
+            completedTyped: [...prev.completedTyped, value, ...typedForSkipped],
             startTime,
-            endTime: isLastVerse ? now : prev.endTime,
+            endTime: chapterInstantlyDone ? now : prev.endTime,
             correctKeystrokes,
             totalKeystrokes,
             lastActivityAt: now,
@@ -288,12 +358,19 @@ export function useTypingSession(verses: string[], language: string, manualAdvan
 
       const now = Date.now();
       const isLastVerse = prev.verseIndex === verses.length - 1;
+      if (isLastVerse) {
+        return { ...prev, completedTyped: [...prev.completedTyped, prev.typed], endTime: now };
+      }
+      // Same empty-verse fast-forward as the auto-advance path in
+      // handleInput - see advancePastEmpty above.
+      const { index: nextIndex, typedForSkipped } = advancePastEmpty(verses, prev.verseIndex + 1);
+      const chapterInstantlyDone = nextIndex === verses.length - 1 && (verses[nextIndex]?.length ?? 0) === 0;
       return {
         ...prev,
-        verseIndex: isLastVerse ? prev.verseIndex : prev.verseIndex + 1,
-        typed: isLastVerse ? prev.typed : "",
-        completedTyped: [...prev.completedTyped, prev.typed],
-        endTime: isLastVerse ? now : prev.endTime,
+        verseIndex: nextIndex,
+        typed: "",
+        completedTyped: [...prev.completedTyped, prev.typed, ...typedForSkipped],
+        endTime: chapterInstantlyDone ? now : prev.endTime,
       };
     });
   }, [verses, language]);
