@@ -854,12 +854,14 @@ export function ReadPage() {
             //   field's caret into view on focus and on every keystroke.
             //   Pinned to the top of the screen, that yanked the page up
             //   on each letter, then centerInViewport yanked it back down.
+            // Leave width/height at the browser default: shrinking the
+            // field to ~1px makes Android keyboards (Gboard etc.) lose
+            // track of the caret and insert every character at the start,
+            // so the text comes out backwards.
             style={{
               position: "absolute",
               top: 0,
               left: 0,
-              width: "1px",
-              height: "1em",
               fontSize: "16px",
               opacity: 0,
               pointerEvents: "none",
