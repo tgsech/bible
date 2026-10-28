@@ -236,6 +236,20 @@ export function ReadPage() {
   // scroll to, so no amount of scroll math can lift it above the keyboard.
   useKeyboardInsetVar();
 
+  // Keeps the hidden typing input sitting on the active verse's line (see
+  // the input's style comment for why that matters on iOS). Measured from
+  // the first character cell of the active verse, relative to
+  // #secondBody, which is the input's positioning parent.
+  const secondBodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const body = secondBodyRef.current;
+    const input = inputRef.current;
+    const firstChar = body?.querySelector<HTMLElement>('[data-char-index="0"]');
+    if (!body || !input || !firstChar) return;
+    const top = firstChar.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    input.style.top = `${Math.max(0, top)}px`;
+  }, [session.verseIndex, verses.length, readMode]);
+
   // Autofocus the (visually hidden) typing input on landing so people can
   // start typing immediately without clicking first. This can't just key
   // off [bookId, chapter]: useChapter starts every navigation with
@@ -613,8 +627,9 @@ export function ReadPage() {
 
       <div
         id="secondBody"
+        ref={secondBodyRef}
         onClick={() => !readMode && inputRef.current?.focus({ preventScroll: true })}
-        style={!readMode ? { paddingBottom: "var(--keyboard-inset, 0px)" } : undefined}
+        style={!readMode ? { position: "relative", paddingBottom: "var(--keyboard-inset, 0px)" } : undefined}
       >
         <h2 className="bookText">
           {currentBook.name} {isKorean ? `${chapter}장` : `Chapter ${chapter}`}
@@ -831,7 +846,24 @@ export function ReadPage() {
               commitComposition(baseline, value);
             }}
             disabled={chapterDone}
-            style={{ position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none" }}
+            // Two iOS-specific details here:
+            // - fontSize 16px: iOS Safari/Chrome auto-zoom the whole page
+            //   when focusing any input under 16px, and never zoom back.
+            // - position absolute (not fixed at top:0), parked on the
+            //   active verse by the effect above: iOS scrolls the focused
+            //   field's caret into view on focus and on every keystroke.
+            //   Pinned to the top of the screen, that yanked the page up
+            //   on each letter, then centerInViewport yanked it back down.
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "1px",
+              height: "1em",
+              fontSize: "16px",
+              opacity: 0,
+              pointerEvents: "none",
+            }}
           />
         )}
 

@@ -72,38 +72,52 @@ export function useKeyboardInsetVar() {
     const vv = window.visualViewport;
     if (!vv) return;
 
+    // Resize only, and no vv.offsetTop in the math: on iOS the visual
+    // viewport pans around (offsetTop changes) on every scroll while the
+    // keyboard is up. Folding that in made the inset - and so #secondBody's
+    // padding - change mid-scroll, which shifted layout, which scrolled
+    // again: a jitter loop. innerHeight - vv.height alone is the keyboard.
     const update = () => {
-      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      const inset = Math.max(0, Math.round(window.innerHeight - vv.height));
       document.documentElement.style.setProperty("--keyboard-inset", `${inset}px`);
     };
 
     update();
     vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
     return () => {
       vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
     };
   }, []);
 }
 
 /**
- * Re-runs `onKeyboardChange` whenever the visual viewport resizes (keyboard
- * opening/closing/resizing) or scrolls. Used to re-check "is the active
- * verse still visible?" at the moment the keyboard finishes animating in -
- * a single scrollAboveKeyboard() call made at focus time is often too early,
- * since the keyboard hasn't reached its final height yet.
+ * Re-runs `onKeyboardChange` whenever the visual viewport's height changes
+ * (keyboard opening/closing/resizing, orientation change). Used to re-check
+ * "is the active verse still visible?" at the moment the keyboard finishes
+ * animating in - a single scrollAboveKeyboard() call made at focus time is
+ * often too early, since the keyboard hasn't reached its final height yet.
+ *
+ * Deliberately NOT wired to visualViewport "scroll": the callback itself
+ * scrolls the page, which on iOS fires a visualViewport scroll, which
+ * re-ran the callback - so the page fought every manual scroll and
+ * snapped back. iOS also fires "resize" for pinch-zoom and toolbar
+ * show/hide without the height meaningfully changing, hence the threshold.
  */
 export function useOnVisualViewportChange(onKeyboardChange: () => void) {
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
 
-    vv.addEventListener("resize", onKeyboardChange);
-    vv.addEventListener("scroll", onKeyboardChange);
+    let lastHeight = vv.height;
+    const onResize = () => {
+      if (Math.abs(vv.height - lastHeight) < 40) return;
+      lastHeight = vv.height;
+      onKeyboardChange();
+    };
+
+    vv.addEventListener("resize", onResize);
     return () => {
-      vv.removeEventListener("resize", onKeyboardChange);
-      vv.removeEventListener("scroll", onKeyboardChange);
+      vv.removeEventListener("resize", onResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
