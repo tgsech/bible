@@ -1,3 +1,4 @@
+import { Suspense, lazy, useEffect, type ComponentType } from "react";
 import { Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { ThemeProvider } from "./theme/ThemeContext";
@@ -6,27 +7,55 @@ import { EnvironmentProvider } from "./environment/EnvironmentContext";
 import { SoundProvider } from "./audio/SoundContext";
 import { Sidebar } from "./components/Sidebar";
 import { LandingPage } from "./pages/LandingPage";
-import { ReadPage } from "./pages/ReadPage";
-import { AboutPage } from "./pages/AboutPage";
-import { ProfilePage } from "./pages/ProfilePage";
-import { AuthPage } from "./pages/AuthPage";
-import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
-import { ResetPasswordPage } from "./pages/ResetPasswordPage";
-import { LeaderboardPage } from "./pages/LeaderboardPage";
-import { PublicProfilePage } from "./pages/PublicProfilePage";
-import { SettingsPage } from "./pages/SettingsPage";
-import { LivWordersPage } from "./pages/LivWordersPage";
-import { TeamDetailPage } from "./pages/TeamDetailPage";
-import { MemoryToolPage } from "./pages/MemoryToolPage";
-import { RainGame } from "./pages/memory/RainGame";
-import { OrderGame } from "./pages/memory/OrderGame";
-import { VanishMode, LettersMode } from "./pages/memory/StudyModes";
-import { FlashcardMode } from "./pages/memory/FlashcardMode";
-import { TestMode } from "./pages/memory/TestMode";
-import { TutorialPage } from "./pages/TutorialPage";
 import "./AppShell.css";
 
+// Every page except the landing page is its own chunk, fetched the first
+// time its route is visited, so a phone opening the site doesn't download
+// and parse the code for all fifteen pages up front. Pages use named
+// exports, hence the small adapter around React.lazy.
+function lazyPage<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
+  return lazy(() => load().then((m) => ({ default: m[name] })));
+}
+
+const ReadPage = lazyPage(() => import("./pages/ReadPage"), "ReadPage");
+const AboutPage = lazyPage(() => import("./pages/AboutPage"), "AboutPage");
+const ProfilePage = lazyPage(() => import("./pages/ProfilePage"), "ProfilePage");
+const AuthPage = lazyPage(() => import("./pages/AuthPage"), "AuthPage");
+const ForgotPasswordPage = lazyPage(() => import("./pages/ForgotPasswordPage"), "ForgotPasswordPage");
+const ResetPasswordPage = lazyPage(() => import("./pages/ResetPasswordPage"), "ResetPasswordPage");
+const LeaderboardPage = lazyPage(() => import("./pages/LeaderboardPage"), "LeaderboardPage");
+const PublicProfilePage = lazyPage(() => import("./pages/PublicProfilePage"), "PublicProfilePage");
+const SettingsPage = lazyPage(() => import("./pages/SettingsPage"), "SettingsPage");
+const LivWordersPage = lazyPage(() => import("./pages/LivWordersPage"), "LivWordersPage");
+const TeamDetailPage = lazyPage(() => import("./pages/TeamDetailPage"), "TeamDetailPage");
+const MemoryToolPage = lazyPage(() => import("./pages/MemoryToolPage"), "MemoryToolPage");
+const RainGame = lazyPage(() => import("./pages/memory/RainGame"), "RainGame");
+const OrderGame = lazyPage(() => import("./pages/memory/OrderGame"), "OrderGame");
+const VanishMode = lazyPage(() => import("./pages/memory/StudyModes"), "VanishMode");
+const LettersMode = lazyPage(() => import("./pages/memory/StudyModes"), "LettersMode");
+const FlashcardMode = lazyPage(() => import("./pages/memory/FlashcardMode"), "FlashcardMode");
+const TestMode = lazyPage(() => import("./pages/memory/TestMode"), "TestMode");
+const TutorialPage = lazyPage(() => import("./pages/TutorialPage"), "TutorialPage");
+
+// The two places people go next from the landing page. Fetching their
+// chunks once the browser is idle makes that first tap feel instant.
+function usePrefetchMainPages() {
+  useEffect(() => {
+    const prefetch = () => {
+      void import("./pages/ReadPage");
+      void import("./pages/MemoryToolPage");
+    };
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(prefetch, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(prefetch, 2500);
+    return () => clearTimeout(id);
+  }, []);
+}
+
 function App() {
+  usePrefetchMainPages();
   return (
     <LanguageProvider>
       <ThemeProvider>
@@ -36,6 +65,7 @@ function App() {
               <div className="appShell">
                 <Sidebar />
                 <main className="appMain">
+                  <Suspense fallback={null}>
                   <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/read/:translationId/:bookId/:chapter" element={<ReadPage />} />
@@ -58,6 +88,7 @@ function App() {
                     <Route path="/memory/cards" element={<FlashcardMode />} />
                     <Route path="/memory/test" element={<TestMode />} />
                   </Routes>
+                  </Suspense>
                 </main>
               </div>
             </ReadModeProvider>

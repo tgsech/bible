@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { VERSE_NUMBERS } from "../../memory/passage";
 import { recordPractice, useMemory } from "../../memory/store";
@@ -195,11 +195,13 @@ export function RainGame() {
               <span
                 key={d.i}
                 className={`memDrop${d.i === game.cur ? " isTarget" : ""}`}
-                style={{
-                  left: `${d.x}%`,
-                  transform: `translateX(-${d.x}%)`,
-                  animationDuration: `${FALL_SECONDS[speed]}s`,
-                }}
+                style={
+                  {
+                    left: `${d.x}%`,
+                    "--x": `-${d.x}%`,
+                    animationDuration: `${FALL_SECONDS[speed]}s`,
+                  } as CSSProperties
+                }
                 onAnimationEnd={() => resolve(d.i, false)}
               >
                 {shown(items[d.i].word)}

@@ -2,13 +2,14 @@ import { useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../i18n/LanguageContext";
 import { VERSE_NUMBERS } from "./passage";
-import { PASS_SCORE, estimate, daysUntilContest, useMemory, verseState, type LangState } from "./store";
+import { PASS_SCORE, estimate, daysUntilContest, useMemory, useMemoryAccountSync, verseState, type LangState } from "./store";
 import { fmtMinutes } from "./text";
 import "./memory.css";
 
 /** Page frame every mode shares: back link, title, one-line how-to. */
 export function ModeShell({ mode, children }: { mode: string; children: ReactNode }) {
   const { t } = useLanguage();
+  useMemoryAccountSync();
   return (
     <div id="mainBody" className="memPage">
       <Link to="/memory" className="memBack">

@@ -8,6 +8,7 @@ import {
   resetProgress,
   setPassageLang,
   useMemory,
+  useMemoryAccountSync,
   verseState,
 } from "../memory/store";
 import { fmtMinutes } from "../memory/text";
@@ -38,6 +39,7 @@ export function MemoryToolPage() {
   const { lang, ls, passage } = useMemory();
   const [now] = useState(() => Date.now());
   const [confirmReset, setConfirmReset] = useState(false);
+  const { signedIn } = useMemoryAccountSync();
 
   const overall = overallMastery(ls);
   const daysLeft = daysUntilContest(now);
@@ -80,6 +82,15 @@ export function MemoryToolPage() {
         <p className="memProgressSub">
           {t("memory.practiced", { time: fmtMinutes(Math.round(ls.practiceMs / 60_000), t) })}
           {ls.passedFull && <span className="memPill memPill--pass">🐑 {t("memory.passedBadge")}</span>}
+        </p>
+        <p className="memProgressSub">
+          {signedIn ? (
+            t("memory.sync.account")
+          ) : (
+            <>
+              {t("memory.sync.guest")} <Link to="/auth">{t("memory.sync.signIn")}</Link>
+            </>
+          )}
         </p>
         <ul className="memVerseBars">
           {VERSE_NUMBERS.map((v) => {

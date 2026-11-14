@@ -1,5 +1,6 @@
 /* 고딕s */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap');
+/* Noto Sans KR is linked from index.html (a CSS @import here would block
+   rendering on a second round trip). */
 @font-face {
     font-family: 'NanumSquareNeo';
     src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-cBd.woff2);

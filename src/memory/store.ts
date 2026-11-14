@@ -1,13 +1,19 @@
-// Memory-tool progress. Lives in localStorage only (no backend yet), one
-// record per passage language since memorizing the Korean text and the
-// English text are separate jobs.
+// Memory-tool progress, one record per passage language since memorizing
+// the Korean text and the English text are separate jobs.
+//
+// localStorage is always the working copy, so guests can use everything.
+// When someone is signed in, the same records are also saved to their
+// account (/api/memory-progress): on sign-in the account's copy is merged
+// with whatever is on this device, and every change after that is pushed.
 //
 // Per verse we keep a 0-100 "mastery" number. Practice with a visible aid
 // can only raise it, and only up to that mode's cap (typing a verse you
 // can see proves less than typing it from nothing). The unaided test sets
 // it directly and is the only thing that can lower it.
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { api } from "../lib/api";
+import { useSession } from "../lib/authClient";
 import { CONTEST_DATE, PASSAGE, VERSE_NUMBERS, type PassageLang } from "./passage";
 import { useLanguage } from "../i18n/LanguageContext";
 
@@ -42,6 +48,8 @@ export interface LangState {
 }
 
 interface MemState {
+  /** User id of the account this device's copy belongs to; null = guest. */
+  owner: string | null;
   passageLang: PassageLang | null;
   ko: LangState;
   en: LangState;
@@ -57,6 +65,7 @@ function load(): MemState {
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<MemState>;
       return {
+        owner: typeof parsed.owner === "string" ? parsed.owner : null,
         passageLang: parsed.passageLang === "ko" || parsed.passageLang === "en" ? parsed.passageLang : null,
         ko: { ...emptyLang(), ...parsed.ko },
         en: { ...emptyLang(), ...parsed.en },
@@ -65,7 +74,7 @@ function load(): MemState {
   } catch {
     /* unreadable or blocked storage - start fresh */
   }
-  return { passageLang: null, ko: emptyLang(), en: emptyLang() };
+  return { owner: null, passageLang: null, ko: emptyLang(), en: emptyLang() };
 }
 
 let state = load();
@@ -106,6 +115,102 @@ function withTime(ls: LangState, ms: number): LangState {
 
 function update(lang: PassageLang, fn: (ls: LangState) => LangState) {
   commit({ ...state, [lang]: fn(state[lang]) });
+  schedulePush(lang);
+}
+
+/* ---------- account sync ---------- */
+
+const LANGS: PassageLang[] = ["ko", "en"];
+const PUSH_DEBOUNCE_MS = 600;
+
+// undefined = not told yet, so the first answer (even "guest") is acted on.
+let syncUser: string | null | undefined;
+/** True once the account's copy has been merged in; pushes wait for it so
+ *  a stale device can't overwrite the account before reading it. */
+let pulled = false;
+const pushTimers: Partial<Record<PassageLang, number>> = {};
+
+function push(lang: PassageLang) {
+  api.put(`/memory-progress/${lang}`, state[lang]).catch((err) => {
+    console.error("Failed to save memory progress", err);
+  });
+}
+
+function schedulePush(lang: PassageLang) {
+  if (!syncUser || !pulled) return;
+  window.clearTimeout(pushTimers[lang]);
+  pushTimers[lang] = window.setTimeout(() => push(lang), PUSH_DEBOUNCE_MS);
+}
+
+/** Combines two copies of the same person's progress, keeping the better
+ *  of each: higher mastery, the later flashcard schedule, every test. */
+function mergeLang(a: LangState, b: LangState | null | undefined): LangState {
+  if (!b) return a;
+  const other = { ...emptyLang(), ...b };
+  const verses: Record<number, VerseState> = {};
+  for (const key of new Set([...Object.keys(a.verses), ...Object.keys(other.verses)])) {
+    const v = Number(key);
+    const x = verseState(a, v);
+    const y = verseState(other, v);
+    const schedule = y.due > x.due ? y : x;
+    verses[v] = { m: Math.max(x.m, y.m), box: schedule.box, due: schedule.due };
+  }
+  const tests = [...a.tests];
+  for (const t of other.tests) if (!tests.some((x) => x.t === t.t)) tests.push(t);
+  return {
+    verses,
+    practiceMs: Math.max(a.practiceMs, other.practiceMs),
+    days: [...new Set([...a.days, ...other.days])].sort(),
+    tests: tests.sort((x, y) => x.t - y.t).slice(-50),
+    passedFull: a.passedFull || other.passedFull,
+  };
+}
+
+/** Tell the store who is signed in (or null for a guest). */
+function setSyncUser(id: string | null) {
+  if (id === syncUser) return;
+  syncUser = id;
+  pulled = false;
+  LANGS.forEach((l) => window.clearTimeout(pushTimers[l]));
+
+  if (id === null) {
+    // Signed out: an account's progress shouldn't stay behind on a shared
+    // device. Guest progress (no owner) is left alone.
+    if (state.owner !== null) commit({ ...state, owner: null, ko: emptyLang(), en: emptyLang() });
+    return;
+  }
+
+  // Progress left here by a different account isn't this user's to inherit.
+  if (state.owner !== null && state.owner !== id) {
+    commit({ ...state, owner: null, ko: emptyLang(), en: emptyLang() });
+  }
+
+  api
+    .get<Partial<Record<PassageLang, LangState | null>>>("/memory-progress")
+    .then((server) => {
+      if (syncUser !== id) return;
+      const merged = { ...state, owner: id, ko: mergeLang(state.ko, server?.ko), en: mergeLang(state.en, server?.en) };
+      commit(merged);
+      pulled = true;
+      // Only write back the languages where this device added something.
+      for (const l of LANGS) {
+        if (JSON.stringify(merged[l]) !== JSON.stringify({ ...emptyLang(), ...server?.[l] })) push(l);
+      }
+    })
+    .catch((err) => console.error("Failed to load memory progress", err));
+}
+
+/** Mount once per memory page: keeps the store pointed at the signed-in
+ *  account. Does nothing until the session check has actually finished,
+ *  so a slow or failed check is never mistaken for "signed out". */
+export function useMemoryAccountSync(): { signedIn: boolean } {
+  const { data: session, isPending, error } = useSession();
+  const userId = session?.user?.id ?? null;
+  useEffect(() => {
+    if (isPending || error) return;
+    setSyncUser(userId);
+  }, [userId, isPending, error]);
+  return { signedIn: userId !== null };
 }
 
 export function setPassageLang(lang: PassageLang) {

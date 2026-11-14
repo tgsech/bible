@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>livingwords</title>
+    <!-- Open connections to the font hosts early; the default body font
+         (MaruBuri) comes from hangeul.pstatic.net. -->
+    <link rel="preconnect" href="https://hangeul.pstatic.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" media="print" onload="this.media='all'" />
   </head>
   <body>
     <div id="root"></div>
