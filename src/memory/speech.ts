@@ -11,8 +11,9 @@
 //    a one-time language-pack download if needed. Nothing leaves the phone.
 //  - Otherwise the browser uses its vendor's speech service (Chrome ->
 //    Google, Safari -> Apple). We can't change that, so the UI says so.
-//  - Some browsers have no speech recognition at all (Firefox, most in-app
-//    browsers such as KakaoTalk's on iOS). The mic simply isn't offered.
+//  - Some browsers have no working speech recognition (Firefox, and the
+//    in-app browsers of KakaoTalk and similar apps - see inAppBrowser).
+//    The mic simply isn't offered there.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PassageLang } from "./passage";
@@ -46,7 +47,30 @@ const LANG_TAG: Record<PassageLang, string> = { ko: "ko-KR", en: "en-US" };
 /** Safety net so a forgotten mic doesn't listen forever. */
 const MAX_LISTEN_MS = 120_000;
 
+/** True inside another app's built-in browser (KakaoTalk, Naver, Line,
+ *  Instagram, Facebook, or any plain Android/iOS webview).
+ *
+ *  These expose SpeechRecognition but can't actually use the microphone
+ *  for it, and asking takes the whole in-app browser down with it (seen
+ *  in KakaoTalk: the window just closes). So in them we never touch the
+ *  speech API at all and treat it as unsupported. */
+export function inAppBrowser(): boolean {
+  const ua = navigator.userAgent;
+  if (/KAKAOTALK|NAVER\(inapp|DaumApps|Line\/|Instagram|FBAN|FBAV|FB_IAB|; wv\)/i.test(ua)) return true;
+  // iOS: every real browser's UA carries a "Safari/" token; an app's
+  // embedded webview does not.
+  return /iPhone|iPad|iPod/.test(ua) && !/Safari\//.test(ua);
+}
+
+/** A link that reopens the current page in the phone's real browser, for
+ *  the in-app browsers that offer a way to do that (KakaoTalk). */
+export function externalBrowserUrl(): string | null {
+  if (!/KAKAOTALK/i.test(navigator.userAgent)) return null;
+  return `kakaotalk://web/openExternal?url=${encodeURIComponent(window.location.href)}`;
+}
+
 function getCtor(): RecognitionCtor | null {
+  if (inAppBrowser()) return null;
   const w = window as unknown as { SpeechRecognition?: RecognitionCtor; webkitSpeechRecognition?: RecognitionCtor };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }

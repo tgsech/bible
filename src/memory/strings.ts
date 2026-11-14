@@ -131,7 +131,8 @@ export const MEMORY_STRINGS_EN: Record<string, string> = {
   "memory.speech.denied": "The microphone is blocked. Allow microphone access for this site and try again.",
   "memory.speech.failed": "Speech recognition didn't work this time. Try again, or type instead.",
   "memory.speech.unsupported":
-    "This browser has no speech recognition. Open the site in Chrome or Safari (not inside KakaoTalk or another app) to recite aloud.",
+    "Speaking doesn't work in this browser. Open the site in Chrome or Safari itself (not inside KakaoTalk or another app) to recite aloud. Every other tool works here.",
+  "memory.speech.openExternal": "Open in my browser",
 
   "memory.mode.test.name": "Test",
   "memory.mode.test.desc": "Type the verses with no help at all and see your score and how much longer you need.",
@@ -280,7 +281,8 @@ export const MEMORY_STRINGS_KO: Record<string, string> = {
   "memory.speech.denied": "마이크가 차단되어 있어요. 이 사이트의 마이크 사용을 허용한 뒤 다시 해 보세요.",
   "memory.speech.failed": "이번에는 음성 인식이 되지 않았어요. 다시 해 보거나 직접 입력해 주세요.",
   "memory.speech.unsupported":
-    "이 브라우저는 음성 인식을 지원하지 않아요. 카카오톡 같은 앱 안이 아닌 Chrome이나 Safari에서 열어 주세요.",
+    "이 브라우저에서는 말로 암송하기를 쓸 수 없어요. 카카오톡 같은 앱 안이 아닌 Chrome이나 Safari에서 직접 열어 주세요. 다른 도구는 여기서도 모두 쓸 수 있어요.",
+  "memory.speech.openExternal": "기본 브라우저로 열기",
 
   "memory.mode.test.name": "테스트",
   "memory.mode.test.desc": "아무 도움 없이 말씀을 쓰고, 점수와 앞으로 얼마나 더 걸릴지 확인해요.",

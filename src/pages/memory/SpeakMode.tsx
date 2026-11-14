@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { nextVerse } from "../../memory/passage";
 import { PASS_SCORE, recordPractice, useMemory } from "../../memory/store";
-import { useDictation } from "../../memory/speech";
+import { externalBrowserUrl, useDictation } from "../../memory/speech";
 import { gradeAttempt, hintWord, nowMs, tokenize, type Grade } from "../../memory/text";
 import { ModeShell, SpeechNote, VersePicker } from "../../memory/ui";
 import { Feedback } from "./StudyModes";
@@ -38,7 +38,19 @@ function Round({ verse, hint, onNext }: { verse: number; hint: boolean; onNext: 
   const passed = last !== null && last.grade.score >= PASS_SCORE;
 
   if (!speech.supported) {
-    return <p className="memCard">{t("memory.speech.unsupported")}</p>;
+    const external = externalBrowserUrl();
+    return (
+      <div className="memCard memResult">
+        <p>{t("memory.speech.unsupported")}</p>
+        {external && (
+          <div className="memActions">
+            <a className="memButton memButton--primary" href={external}>
+              {t("memory.speech.openExternal")}
+            </a>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
