@@ -777,7 +777,7 @@
   }
 
   .memAttempt .memButton {
-    align-self: stretch;
+    flex: 1;
   }
 }
 
@@ -787,6 +787,8 @@
     display: none;
   }
 
+  .memMic.isListening,
+  .memMicBig.isListening,
   .memPopupSheep,
   .memPopupCard,
   .memChip.isWrong,
@@ -799,6 +801,126 @@
   .memModeCard {
     transition: none;
   }
+}
+
+/* ---------- Speaking ---------- */
+
+@keyframes memMicPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-incorrect) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+/* Small mic beside the text box. */
+.memMic {
+  align-self: flex-end;
+  width: 48px;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 2px solid var(--mem-line);
+  background: transparent;
+  color: var(--color-correct);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.memAttempt {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.memAttempt .memTextarea {
+  flex: 1 0 100%;
+}
+
+.memMic.isListening,
+.memMicBig.isListening {
+  border-color: var(--color-incorrect);
+  color: var(--color-incorrect);
+  animation: memMicPulse 1.4s ease-in-out infinite;
+}
+
+.memMic:disabled,
+.memMicBig:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.memMic:focus-visible,
+.memMicBig:focus-visible {
+  outline: 3px solid var(--color-untyped);
+  outline-offset: 2px;
+}
+
+.memSpeechNote {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.memSpeechNote.isError {
+  color: var(--color-incorrect);
+  opacity: 1;
+}
+
+/* Recite Aloud */
+.memSpeakHintToggle {
+  margin-bottom: 16px;
+}
+
+.memSpeakHint {
+  margin: 0;
+  max-width: 52ch;
+  opacity: 0.85;
+}
+
+.memSpeakHeard {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.memSpeakControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  text-align: center;
+}
+
+.memMicBig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 3px solid var(--color-correct);
+  background: var(--mem-surface);
+  color: var(--color-correct);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.memMicBig span {
+  font-size: 2.2rem;
+  line-height: 1.1;
+}
+
+.memSpeakControls .memSpeechNote {
+  flex: none;
+  max-width: 46ch;
 }
 
 /* ==========================================================================
@@ -946,6 +1068,15 @@
     margin: 0;
   }
 
+  .memFocus .memAttempt {
+    flex-wrap: wrap;
+  }
+
+  .memFocus .memMic {
+    align-self: stretch;
+    width: 44px;
+  }
+
   .memFocus .memTextarea {
     flex: 1;
     min-width: 0;
@@ -960,6 +1091,7 @@
   }
 
   .memFocus .memAttempt .memButton {
+    flex: none;
     align-self: stretch;
     padding: 8px 14px;
     border-radius: 14px;

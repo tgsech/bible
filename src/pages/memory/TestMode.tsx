@@ -85,6 +85,7 @@ export function TestMode() {
           </div>
           <div className="memFocusDock">
           <TypeAttempt
+            lang={lang}
             onSubmit={submit}
             submitLabel={answers.length + 1 === verses.length ? t("memory.test.finish") : t("memory.test.submitNext")}
             placeholder={t("memory.typePlaceholder")}

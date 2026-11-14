@@ -34,6 +34,7 @@ const OrderGame = lazyPage(() => import("./pages/memory/OrderGame"), "OrderGame"
 const VanishMode = lazyPage(() => import("./pages/memory/StudyModes"), "VanishMode");
 const LettersMode = lazyPage(() => import("./pages/memory/StudyModes"), "LettersMode");
 const FlashcardMode = lazyPage(() => import("./pages/memory/FlashcardMode"), "FlashcardMode");
+const SpeakMode = lazyPage(() => import("./pages/memory/SpeakMode"), "SpeakMode");
 const TestMode = lazyPage(() => import("./pages/memory/TestMode"), "TestMode");
 const TutorialPage = lazyPage(() => import("./pages/TutorialPage"), "TutorialPage");
 
@@ -86,6 +87,7 @@ function App() {
                     <Route path="/memory/vanish" element={<VanishMode />} />
                     <Route path="/memory/letters" element={<LettersMode />} />
                     <Route path="/memory/cards" element={<FlashcardMode />} />
+                    <Route path="/memory/speak" element={<SpeakMode />} />
                     <Route path="/memory/test" element={<TestMode />} />
                   </Routes>
                   </Suspense>

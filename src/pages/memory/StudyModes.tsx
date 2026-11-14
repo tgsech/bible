@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
-import { VERSE_NUMBERS } from "../../memory/passage";
+import { nextVerse } from "../../memory/passage";
 import { PASS_SCORE, recordPractice, useMemory } from "../../memory/store";
 import { gradeAttempt, hintWord, seededOrder, tokenize, type Grade } from "../../memory/text";
 import { DiffView, ModeShell, TypeAttempt, VersePicker } from "../../memory/ui";
@@ -17,12 +17,7 @@ const STAGES = [0, 0.3, 0.55, 0.8, 1];
 const STAGE_CAP = [25, 40, 55, 70, 90];
 const LETTERS_CAP = 75;
 
-function nextVerse(verse: number): number {
-  const idx = VERSE_NUMBERS.indexOf(verse as (typeof VERSE_NUMBERS)[number]);
-  return VERSE_NUMBERS[(idx + 1) % VERSE_NUMBERS.length];
-}
-
-function Feedback({ grade, typed }: { grade: Grade; typed: string }) {
+export function Feedback({ grade, typed, typedLabel }: { grade: Grade; typed: string; typedLabel?: string }) {
   const { t } = useLanguage();
   const passed = grade.score >= PASS_SCORE;
   return (
@@ -39,7 +34,7 @@ function Feedback({ grade, typed }: { grade: Grade; typed: string }) {
       <DiffView tokens={grade.tokens} marks={grade.marks} />
       {grade.score < 100 && (
         <p className="memTyped">
-          {t("memory.yourAnswer")}: {typed}
+          {typedLabel ?? t("memory.yourAnswer")}: {typed}
         </p>
       )}
     </div>
@@ -113,7 +108,7 @@ function VanishRound({ verse, onNext }: { verse: number; onNext: () => void }) {
       </div>
       {!finished && (
         <div className="memFocusDock">
-          <TypeAttempt onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
+          <TypeAttempt lang={lang} onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
         </div>
       )}
     </>
@@ -160,7 +155,7 @@ function LettersRound({ verse, onNext }: { verse: number; onNext: () => void }) 
       </div>
       {!passed && (
         <div className="memFocusDock">
-          <TypeAttempt onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
+          <TypeAttempt lang={lang} onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
         </div>
       )}
     </>

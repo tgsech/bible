@@ -130,3 +130,21 @@ export function fmtMinutes(min: number, t: T): string {
 export function nowMs(): number {
   return Date.now();
 }
+
+/** Spread onto every text box in the memory tool. Says plainly that this
+ *  is ordinary text - not a login, address or card field - so browsers
+ *  and password managers (1Password, LastPass, Bitwarden, Dashlane) don't
+ *  cover the screen with autofill or "save password" popups, and phone
+ *  keyboards don't autocorrect or capitalize scripture. */
+export const PLAIN_TEXT_FIELD = {
+  name: "memory-verse-answer",
+  autoComplete: "off",
+  autoCorrect: "off",
+  autoCapitalize: "off",
+  spellCheck: false,
+  inputMode: "text",
+  "data-1p-ignore": true,
+  "data-lpignore": "true",
+  "data-bwignore": true,
+  "data-form-type": "other",
+} as const;

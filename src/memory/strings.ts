@@ -109,6 +109,30 @@ export const MEMORY_STRINGS_EN: Record<string, string> = {
   "memory.cards.nextDue": "Next review: {when}",
   "memory.cards.practiceAnyway": "Go through all verses anyway",
 
+  "memory.mode.speak.name": "Recite Aloud",
+  "memory.mode.speak.desc": "Say the verse out loud instead of typing. Speech recognition checks what you said.",
+  "memory.mode.speak.science": "Saying it aloud (MacLeod et al., 2010) and retrieval practice",
+  "memory.mode.speak.howto":
+    "Tap the mic, say the verse, then tap again to stop. Your voice is turned into text and marked. No audio is saved.",
+  "memory.speak.prompt": "Tap the mic and recite this verse.",
+  "memory.speak.hintLabel": "Hint",
+  "memory.speak.noHint": "No hint",
+  "memory.speak.withHint": "First letters",
+  "memory.speech.start": "Speak",
+  "memory.speech.stop": "Stop",
+  "memory.speech.listening": "Listening...",
+  "memory.speech.heard": "Heard",
+  "memory.speech.local": "Recognized on this device. Nothing is sent or saved.",
+  "memory.speech.downloadable":
+    "This browser can recognize speech on the device. The first tap downloads its language pack.",
+  "memory.speech.installing": "Downloading the speech language pack. Tap the mic again when it finishes.",
+  "memory.speech.cloud":
+    "This browser sends your voice to its maker's speech service (Google or Apple) to turn it into text. This site never records or saves audio.",
+  "memory.speech.denied": "The microphone is blocked. Allow microphone access for this site and try again.",
+  "memory.speech.failed": "Speech recognition didn't work this time. Try again, or type instead.",
+  "memory.speech.unsupported":
+    "This browser has no speech recognition. Open the site in Chrome or Safari (not inside KakaoTalk or another app) to recite aloud.",
+
   "memory.mode.test.name": "Test",
   "memory.mode.test.desc": "Type the verses with no help at all and see your score and how much longer you need.",
   "memory.mode.test.howto": "You get a verse number and an empty box. Scores are shown at the end; {pass}% passes.",
@@ -234,6 +258,29 @@ export const MEMORY_STRINGS_KO: Record<string, string> = {
   "memory.cards.doneToday": "오늘 복습 끝!",
   "memory.cards.nextDue": "다음 복습: {when}",
   "memory.cards.practiceAnyway": "그래도 전체 절 연습하기",
+
+  "memory.mode.speak.name": "말로 암송",
+  "memory.mode.speak.desc": "타자 대신 소리 내어 말해요. 음성 인식이 말한 내용을 확인해 줘요.",
+  "memory.mode.speak.science": "소리 내어 말하기 (MacLeod 외, 2010) · 인출 연습",
+  "memory.mode.speak.howto":
+    "마이크를 누르고 말씀을 암송한 뒤 다시 눌러 멈추세요. 목소리를 글자로 바꿔 채점해요. 음성은 저장되지 않아요.",
+  "memory.speak.prompt": "마이크를 누르고 이 절을 암송해 보세요.",
+  "memory.speak.hintLabel": "힌트",
+  "memory.speak.noHint": "힌트 없이",
+  "memory.speak.withHint": "첫 글자 힌트",
+  "memory.speech.start": "말하기",
+  "memory.speech.stop": "멈추기",
+  "memory.speech.listening": "듣고 있어요...",
+  "memory.speech.heard": "들린 내용",
+  "memory.speech.local": "이 기기 안에서 인식해요. 아무것도 전송되거나 저장되지 않아요.",
+  "memory.speech.downloadable": "이 브라우저는 기기 안에서 음성을 인식할 수 있어요. 처음 누르면 언어 팩을 내려받아요.",
+  "memory.speech.installing": "음성 언어 팩을 내려받는 중이에요. 끝나면 마이크를 다시 눌러 주세요.",
+  "memory.speech.cloud":
+    "이 브라우저는 목소리를 글자로 바꾸기 위해 브라우저 회사(구글 또는 애플)의 음성 서비스로 보내요. 이 사이트는 음성을 녹음하거나 저장하지 않아요.",
+  "memory.speech.denied": "마이크가 차단되어 있어요. 이 사이트의 마이크 사용을 허용한 뒤 다시 해 보세요.",
+  "memory.speech.failed": "이번에는 음성 인식이 되지 않았어요. 다시 해 보거나 직접 입력해 주세요.",
+  "memory.speech.unsupported":
+    "이 브라우저는 음성 인식을 지원하지 않아요. 카카오톡 같은 앱 안이 아닌 Chrome이나 Safari에서 열어 주세요.",
 
   "memory.mode.test.name": "테스트",
   "memory.mode.test.desc": "아무 도움 없이 말씀을 쓰고, 점수와 앞으로 얼마나 더 걸릴지 확인해요.",

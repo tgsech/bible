@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../i18n/LanguageContext";
 import { VERSE_NUMBERS } from "./passage";
 import { PASS_SCORE, estimate, daysUntilContest, useMemory, useMemoryAccountSync, verseState, type LangState } from "./store";
-import { fmtMinutes } from "./text";
+import type { PassageLang } from "./passage";
+import { useDictation, type Dictation } from "./speech";
+import { PLAIN_TEXT_FIELD, fmtMinutes } from "./text";
 import "./memory.css";
 
 /** While a typing screen is up on a phone, tracks the part of the screen
@@ -167,22 +169,55 @@ export function TypeAttempt({
   onSubmit,
   submitLabel,
   placeholder,
+  lang,
 }: {
   onSubmit: (text: string) => void;
   submitLabel: string;
   placeholder?: string;
+  /** Passage language, for the speak-instead-of-type mic. */
+  lang: PassageLang;
 }) {
+  const { t } = useLanguage();
   const ref = useRef<HTMLTextAreaElement>(null);
   const enterPending = useRef(false);
+  // The mic writes what it hears into the same box, after whatever was
+  // already typed, so a spoken answer can be read (and fixed) before it's
+  // checked - speech recognition does mishear.
+  const spokenBase = useRef("");
+  const viaVoice = useRef(false);
+  const micLive = useRef(false);
+  const showHeard = (text: string) => {
+    // Ignore anything that arrives after the answer was already sent.
+    if (micLive.current && ref.current) ref.current.value = [spokenBase.current, text].filter(Boolean).join(" ");
+  };
+  const speech = useDictation(lang, showHeard, showHeard);
+  const toggleMic = () => {
+    const el = ref.current;
+    if (!el) return;
+    if (speech.listening) {
+      speech.stop();
+      return;
+    }
+    spokenBase.current = el.value.trim();
+    viaVoice.current = true;
+    micLive.current = true;
+    // Put the phone keyboard away while speaking.
+    el.blur();
+    speech.start();
+  };
   const submit = () => {
     const el = ref.current;
     if (!el || el.value.trim() === "") return;
     const text = el.value;
     el.value = "";
     onSubmit(text);
+    micLive.current = false;
+    if (speech.listening) speech.stop();
     // Stay in the box: on a phone, losing focus would drop the keyboard
-    // and it can't be reopened without another tap.
-    el.focus();
+    // and it can't be reopened without another tap. (Unless the answer
+    // was spoken - then the keyboard should stay out of the way.)
+    if (!viaVoice.current) el.focus();
+    viaVoice.current = false;
   };
   return (
     <div className="memAttempt">
@@ -193,10 +228,11 @@ export function TypeAttempt({
         autoFocus
         enterKeyHint="done"
         placeholder={placeholder}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck={false}
+        aria-label={placeholder}
+        {...PLAIN_TEXT_FIELD}
+        onInput={() => {
+          viaVoice.current = false;
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -210,6 +246,19 @@ export function TypeAttempt({
           submit();
         }}
       />
+      {speech.supported && (
+        <button
+          type="button"
+          className={`memMic${speech.listening ? " isListening" : ""}`}
+          aria-pressed={speech.listening}
+          aria-label={speech.listening ? t("memory.speech.stop") : t("memory.speech.start")}
+          title={speech.listening ? t("memory.speech.stop") : t("memory.speech.start")}
+          disabled={speech.installing}
+          onClick={toggleMic}
+        >
+          <span aria-hidden="true">{speech.listening ? "■" : "🎙️"}</span>
+        </button>
+      )}
       <button
         type="button"
         className="memButton memButton--primary"
@@ -219,7 +268,27 @@ export function TypeAttempt({
       >
         {submitLabel}
       </button>
+      {speech.supported && (speech.listening || speech.installing || speech.error) && <SpeechNote speech={speech} />}
     </div>
+  );
+}
+
+/** One line saying what the mic is doing and where the listening happens. */
+export function SpeechNote({ speech }: { speech: Dictation }) {
+  const { t } = useLanguage();
+  const key = speech.error
+    ? `memory.speech.${speech.error}`
+    : speech.installing
+      ? "memory.speech.installing"
+      : speech.engine === "local"
+        ? "memory.speech.local"
+        : speech.engine === "downloadable"
+          ? "memory.speech.downloadable"
+          : "memory.speech.cloud";
+  return (
+    <p className={`memSpeechNote${speech.error ? " isError" : ""}`} role={speech.error ? "alert" : undefined}>
+      {t(key)}
+    </p>
   );
 }
 

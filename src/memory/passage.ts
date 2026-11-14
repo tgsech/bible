@@ -62,3 +62,9 @@ export const PASSAGE: Record<PassageLang, Passage> = {
     },
   },
 };
+
+/** The verse after this one, wrapping from 27 back to 17. */
+export function nextVerse(verse: number): number {
+  const idx = VERSE_NUMBERS.indexOf(verse as (typeof VERSE_NUMBERS)[number]);
+  return VERSE_NUMBERS[(idx + 1) % VERSE_NUMBERS.length];
+}

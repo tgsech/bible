@@ -3,7 +3,7 @@ import { flushSync } from "react-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { VERSE_NUMBERS } from "../../memory/passage";
 import { recordPractice, useMemory } from "../../memory/store";
-import { hintWord, maskWord, norm, nowMs, tokenize } from "../../memory/text";
+import { PLAIN_TEXT_FIELD, hintWord, maskWord, norm, nowMs, tokenize } from "../../memory/text";
 import { ModeShell, VersePicker } from "../../memory/ui";
 
 // Word Rain: the verse's words fall in order and you type each one before
@@ -241,10 +241,9 @@ export function RainGame() {
             type="text"
             enterKeyHint="next"
             placeholder={t("memory.rain.inputPh")}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
+            aria-label={t("memory.rain.inputPh")}
+            {...PLAIN_TEXT_FIELD}
+            name="memory-next-word"
             // A space (which also commits a Korean syllable) or Enter
             // sends the word. If Enter lands while a syllable is still
             // being composed, wait for the IME to commit it first.

@@ -29,6 +29,7 @@ const MODE_GROUPS: { group: string; modes: { id: string; icon: string }[] }[] = 
       { id: "vanish", icon: "🫥" },
       { id: "letters", icon: "🔤" },
       { id: "cards", icon: "🗂️" },
+      { id: "speak", icon: "🎙️" },
     ],
   },
   { group: "test", modes: [{ id: "test", icon: "📝" }] },
