@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { flushSync } from "react-dom";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { VERSE_NUMBERS } from "../../memory/passage";
 import { recordPractice, useMemory } from "../../memory/store";
@@ -49,7 +50,6 @@ export function RainGame() {
   const [speed, setSpeed] = useState(1);
   const [phase, setPhase] = useState<"setup" | "playing" | "done">("setup");
   const [game, setGame] = useState<Game | null>(null);
-  const [shake, setShake] = useState(0);
   // The ref is the source of truth for handlers (timers and animation
   // events fire between renders); `game` state is just what's drawn.
   const gref = useRef<Game | null>(null);
@@ -88,8 +88,14 @@ export function RainGame() {
     startRef.current = nowMs();
     const g = spawn({ cur: 0, next: 0, drops: [], lives: LIVES, hits: [], lastMiss: null }, items.length);
     gref.current = g;
-    setGame(g);
-    setPhase("playing");
+    // Render the playing screen right now, inside the tap, so the input
+    // exists and can be focused as part of the same user gesture - the
+    // only way iOS Safari will bring up the keyboard.
+    flushSync(() => {
+      setGame(g);
+      setPhase("playing");
+    });
+    inputRef.current?.focus();
   };
 
   // Keep words coming on a steady beat while the round is live.
@@ -104,10 +110,6 @@ export function RainGame() {
     }, (FALL_SECONDS[speed] * 1000) / 4.5);
     return () => clearInterval(id);
   }, [phase, speed, items.length]);
-
-  useEffect(() => {
-    if (phase === "playing") inputRef.current?.focus();
-  }, [phase]);
 
   const resolve = (i: number, hit: boolean) => {
     const g = gref.current;
@@ -132,7 +134,20 @@ export function RainGame() {
     const typed = norm(raw);
     if (!g || phase !== "playing" || typed === "") return;
     if (typed === norm(items[g.cur].word)) resolve(g.cur, true);
-    else setShake((s) => s + 1);
+    else {
+      // Shake in place. (Not a remount: that would drop focus, and with
+      // it the phone keyboard.)
+      inputRef.current?.animate(
+        [
+          { transform: "translateX(0)", borderColor: "var(--color-incorrect)" },
+          { transform: "translateX(-6px)" },
+          { transform: "translateX(6px)" },
+          { transform: "translateX(-6px)" },
+          { transform: "translateX(0)", borderColor: "var(--color-incorrect)" },
+        ],
+        { duration: 300 },
+      );
+    }
   };
 
   const takeInput = () => {
@@ -151,7 +166,7 @@ export function RainGame() {
   const currentVerse = game ? items[Math.min(game.cur, total - 1)].verse : null;
 
   return (
-    <ModeShell mode="rain">
+    <ModeShell mode="rain" focus={phase === "playing"} onExitFocus={() => setPhase("setup")}>
       {phase === "setup" && (
         <div className="memCard memSetup">
           <h2>{t("memory.pickVerse")}</h2>
@@ -208,12 +223,23 @@ export function RainGame() {
               </span>
             ))}
           </div>
+          <p className="memRainBuilt" aria-live="polite">
+            <span className="memRainBuiltRef">
+              {passage.book} 1:{currentVerse}
+            </span>{" "}
+            {items.map((it, i) =>
+              i < game.cur && it.verse === currentVerse ? (
+                <span key={i} className={game.hits[i] ? "memHit" : "memMiss"}>
+                  {it.word}{" "}
+                </span>
+              ) : null,
+            )}
+          </p>
           <input
-            key={shake}
             ref={inputRef}
-            className={`memRainInput${shake > 0 ? " isShaking" : ""}`}
+            className="memRainInput"
             type="text"
-            autoFocus
+            enterKeyHint="next"
             placeholder={t("memory.rain.inputPh")}
             autoComplete="off"
             autoCorrect="off"
@@ -236,18 +262,6 @@ export function RainGame() {
               takeInput();
             }}
           />
-          <p className="memRainBuilt" aria-live="polite">
-            <span className="memRainBuiltRef">
-              {passage.book} 1:{currentVerse}
-            </span>{" "}
-            {items.map((it, i) =>
-              i < game.cur && it.verse === currentVerse ? (
-                <span key={i} className={game.hits[i] ? "memHit" : "memMiss"}>
-                  {it.word}{" "}
-                </span>
-              ) : null,
-            )}
-          </p>
           {game.lastMiss && <p className="memHint">{t("memory.rain.missed", { word: game.lastMiss })}</p>}
         </div>
       )}

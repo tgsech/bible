@@ -55,7 +55,7 @@ export function TestMode() {
   const passed = overall !== null && overall >= PASS_SCORE;
 
   return (
-    <ModeShell mode="test">
+    <ModeShell mode="test" focus={kind !== null && overall === null} onExitFocus={() => setKind(null)}>
       {kind === null && (
         <div className="memModeGrid">
           {(["full", "random", "quick"] as Kind[]).map((k) => (
@@ -69,6 +69,7 @@ export function TestMode() {
 
       {kind !== null && overall === null && (
         <>
+          <div className="memFocusBody">
           <div className="memTestProgress">
             <Meter value={(answers.length / verses.length) * 100} />
             <span>
@@ -81,12 +82,14 @@ export function TestMode() {
             </p>
             <p className="memFlashPrompt">{t("memory.test.noAid")}</p>
           </div>
+          </div>
+          <div className="memFocusDock">
           <TypeAttempt
-            key={answers.length}
             onSubmit={submit}
             submitLabel={answers.length + 1 === verses.length ? t("memory.test.finish") : t("memory.test.submitNext")}
             placeholder={t("memory.typePlaceholder")}
           />
+          </div>
         </>
       )}
 

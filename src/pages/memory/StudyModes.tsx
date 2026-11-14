@@ -26,7 +26,13 @@ function Feedback({ grade, typed }: { grade: Grade; typed: string }) {
   const { t } = useLanguage();
   const passed = grade.score >= PASS_SCORE;
   return (
-    <div className={`memCard memFeedback${passed ? " isPass" : ""}`} aria-live="polite">
+    <div
+      className={`memCard memFeedback${passed ? " isPass" : ""}`}
+      aria-live="polite"
+      // Bring each new result into view (it can be below the fold of the
+      // short space above a phone keyboard).
+      ref={(el) => el?.scrollIntoView({ block: "nearest" })}
+    >
       <p className="memFeedbackHead">
         <strong>{grade.score}%</strong> {passed ? t("memory.study.pass") : t("memory.study.fail")}
       </p>
@@ -67,6 +73,7 @@ function VanishRound({ verse, onNext }: { verse: number; onNext: () => void }) {
 
   return (
     <>
+      <div className="memFocusBody">
       <div className="memStageDots" aria-label={t("memory.vanish.stage", { n: stage + 1, total: STAGES.length })}>
         {STAGES.map((_, i) => (
           <span key={i} className={i < stage || finished ? "isDone" : i === stage ? "isNow" : ""} />
@@ -87,7 +94,6 @@ function VanishRound({ verse, onNext }: { verse: number; onNext: () => void }) {
               ),
             )}
           </div>
-          <TypeAttempt key={stage} onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
         </>
       )}
       {last && <Feedback grade={last.grade} typed={last.typed} />}
@@ -102,6 +108,12 @@ function VanishRound({ verse, onNext }: { verse: number; onNext: () => void }) {
               {t("memory.nextVerse")}
             </button>
           </div>
+        </div>
+      )}
+      </div>
+      {!finished && (
+        <div className="memFocusDock">
+          <TypeAttempt onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
         </div>
       )}
     </>
@@ -125,6 +137,7 @@ function LettersRound({ verse, onNext }: { verse: number; onNext: () => void }) 
 
   return (
     <>
+      <div className="memFocusBody">
       <div className="memCard memCue memCue--letters">
         <span className="memRainBuiltRef">
           {passage.book} 1:{verse}
@@ -133,7 +146,6 @@ function LettersRound({ verse, onNext }: { verse: number; onNext: () => void }) 
           .map((w) => hintWord(w, lang))
           .join(" ")}
       </div>
-      {!passed && <TypeAttempt onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />}
       {last && <Feedback grade={last.grade} typed={last.typed} />}
       {passed && (
         <div className="memActions">
@@ -143,6 +155,12 @@ function LettersRound({ verse, onNext }: { verse: number; onNext: () => void }) 
           <button type="button" className="memButton" onClick={() => setLast(null)}>
             {t("memory.retry")}
           </button>
+        </div>
+      )}
+      </div>
+      {!passed && (
+        <div className="memFocusDock">
+          <TypeAttempt onSubmit={submit} submitLabel={t("memory.submit")} placeholder={t("memory.typePlaceholder")} />
         </div>
       )}
     </>
@@ -159,7 +177,7 @@ function StudyMode({ mode }: { mode: "vanish" | "letters" }) {
   };
   const RoundView = mode === "vanish" ? VanishRound : LettersRound;
   return (
-    <ModeShell mode={mode}>
+    <ModeShell mode={mode} focus>
       <VersePicker value={verse} onChange={(v) => v !== "all" && go(v)} />
       <RoundView key={`${lang}-${verse}-${round}`} verse={verse} onNext={() => go(nextVerse(verse))} />
     </ModeShell>

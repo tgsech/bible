@@ -800,3 +800,248 @@
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Phones
+   ========================================================================== */
+
+/* iOS Safari zooms the page whenever a focused field's text is under 16px.
+   The site's text-size setting scales rem, so pin a 16px floor here. */
+.memTextarea,
+.memRainInput {
+  font-size: max(16px, 1.1rem);
+}
+
+/* No double-tap-to-zoom delay or grey flash on taps. */
+.memPage button,
+.memPage a {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.memFocusBar {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  #mainBody.memPage {
+    margin: 0 auto;
+    padding: 16px 16px calc(16px + var(--bottom-nav-height));
+  }
+
+  /* ---- Typing screens: an app-style layout fitted to the space above
+     the keyboard (variables come from useFocusViewport in ui.tsx). It
+     covers the bottom tab bar on purpose - every pixel counts once the
+     keyboard has taken half the screen. ---- */
+
+  html.memFocusActive,
+  html.memFocusActive body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  #mainBody.memPage.memFocus {
+    position: fixed;
+    z-index: 60;
+    left: 0;
+    right: 0;
+    top: var(--mem-vv-top, 0px);
+    height: var(--mem-vv-height, 100dvh);
+    max-width: none;
+    margin: 0;
+    padding: 4px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--color-bg);
+    background-image: var(--pattern-image);
+    background-size: var(--pattern-size);
+    overflow: hidden;
+  }
+
+  /* The keyboard already covers the home-indicator area. */
+  html.memKeyboardOpen #mainBody.memPage.memFocus {
+    padding-bottom: 8px;
+  }
+
+  .memFocus > .memBack,
+  .memFocus > .memModeTitle,
+  .memFocus > .memLead {
+    display: none;
+  }
+
+  .memFocusBar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+    min-height: 40px;
+  }
+
+  .memFocusClose {
+    width: 40px;
+    height: 40px;
+    margin-left: -8px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font-size: 1.15rem;
+    cursor: pointer;
+  }
+
+  .memFocusTitle {
+    font-weight: 700;
+  }
+
+  /* Scrolling middle + input pinned underneath it. */
+  .memFocusBody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .memFocusBody > * {
+    flex: none;
+  }
+
+  .memFocusDock {
+    flex: none;
+  }
+
+  /* Verse picker becomes one swipeable row, and steps aside entirely
+     while the keyboard is up. */
+  .memFocus .memVersePicker {
+    flex: none;
+    flex-wrap: nowrap;
+    margin: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .memFocus .memVersePicker::-webkit-scrollbar {
+    display: none;
+  }
+
+  .memFocus .memVerseChip {
+    flex: none;
+    height: 38px;
+    min-width: 42px;
+  }
+
+  html.memKeyboardOpen .memFocus .memVersePicker {
+    display: none;
+  }
+
+  /* Composer: text box with the button beside it, like a chat app. */
+  .memFocus .memAttempt {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .memFocus .memTextarea {
+    flex: 1;
+    min-width: 0;
+    height: 4.7em;
+    padding: 8px 12px;
+    line-height: 1.5;
+    resize: none;
+  }
+
+  .memFocus .memTextarea::placeholder {
+    font-size: 0.85rem;
+  }
+
+  .memFocus .memAttempt .memButton {
+    align-self: stretch;
+    padding: 8px 14px;
+    border-radius: 14px;
+  }
+
+  .memFocus .memCard {
+    padding: 12px 14px;
+  }
+
+  .memFocus .memCue {
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+
+  .memFocus .memFeedback,
+  .memFocus .memResult,
+  .memFocus .memActions {
+    margin-top: 0;
+  }
+
+  .memFocus .memStageDots,
+  .memFocus .memTestProgress {
+    margin: 0;
+  }
+
+  .memFocus .memFlash {
+    min-height: 0;
+    padding: 18px 14px;
+  }
+
+  /* Word Rain: the sky takes whatever height is left; the input is the
+     last thing on screen, directly on top of the keyboard. */
+  .memFocus .memRain {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .memFocus .memRainHud {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    height: 40px;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .memFocus .memRainSky {
+    flex: 1;
+    height: auto;
+    min-height: 96px;
+  }
+
+  /* One line, showing the most recent words. */
+  .memFocus .memRainBuilt {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.3em;
+    min-height: 1.6em;
+    margin: 0;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .memFocus .memRainBuilt .memRainBuiltRef {
+    display: none;
+  }
+
+  .memFocus .memRain .memHint {
+    display: none;
+  }
+
+  .memFocus .memRainInput {
+    margin: 0;
+    padding: 10px 14px;
+  }
+
+  .memFocus .memDrop {
+    font-size: 1rem;
+    padding: 3px 10px;
+  }
+}

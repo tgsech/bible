@@ -1,17 +1,92 @@
-import { useRef, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../i18n/LanguageContext";
 import { VERSE_NUMBERS } from "./passage";
 import { PASS_SCORE, estimate, daysUntilContest, useMemory, useMemoryAccountSync, verseState, type LangState } from "./store";
 import { fmtMinutes } from "./text";
 import "./memory.css";
 
-/** Page frame every mode shares: back link, title, one-line how-to. */
-export function ModeShell({ mode, children }: { mode: string; children: ReactNode }) {
+/** While a typing screen is up on a phone, tracks the part of the screen
+ *  that is actually visible above the on-screen keyboard and publishes it
+ *  as CSS variables, so the screen can be laid out to fit exactly that
+ *  space (see .memFocus in memory.css). iOS Safari doesn't resize the page
+ *  for the keyboard - it slides the visual viewport instead - so both its
+ *  height and its offset are followed. */
+function useFocusViewport(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const vv = window.visualViewport;
+    const root = document.documentElement;
+    let tallest = 0;
+    const apply = () => {
+      const height = vv ? vv.height : window.innerHeight;
+      tallest = Math.max(tallest, height);
+      root.style.setProperty("--mem-vv-height", `${height}px`);
+      root.style.setProperty("--mem-vv-top", `${vv ? vv.offsetTop : 0}px`);
+      // Noticeably shorter than the tallest we've seen = keyboard is up.
+      root.classList.toggle("memKeyboardOpen", height < tallest - 120);
+    };
+    const reset = () => {
+      tallest = 0;
+      apply();
+    };
+    apply();
+    root.classList.add("memFocusActive");
+    vv?.addEventListener("resize", apply);
+    vv?.addEventListener("scroll", apply);
+    window.addEventListener("resize", apply);
+    window.addEventListener("orientationchange", reset);
+    return () => {
+      vv?.removeEventListener("resize", apply);
+      vv?.removeEventListener("scroll", apply);
+      window.removeEventListener("resize", apply);
+      window.removeEventListener("orientationchange", reset);
+      root.classList.remove("memFocusActive", "memKeyboardOpen");
+      root.style.removeProperty("--mem-vv-height");
+      root.style.removeProperty("--mem-vv-top");
+    };
+  }, [active]);
+}
+
+/** Page frame every mode shares: back link, title, one-line how-to.
+ *
+ *  `focus` marks a screen where the user is typing. On a desktop it
+ *  changes nothing. On a phone the page becomes a full-screen, app-style
+ *  layout sized to the space above the keyboard: a slim top bar, a
+ *  scrolling middle (.memFocusBody) and the input pinned to the bottom
+ *  (.memFocusDock) - so the text box is never hidden behind the keyboard
+ *  and the page never has to scroll or zoom to reach it. */
+export function ModeShell({
+  mode,
+  focus = false,
+  onExitFocus,
+  children,
+}: {
+  mode: string;
+  focus?: boolean;
+  /** What the top bar's close button does in the phone layout (default: back to the hub). */
+  onExitFocus?: () => void;
+  children: ReactNode;
+}) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   useMemoryAccountSync();
+  useFocusViewport(focus);
   return (
-    <div id="mainBody" className="memPage">
+    <div id="mainBody" className={`memPage${focus ? " memFocus" : ""}`}>
+      {focus && (
+        <div className="memFocusBar">
+          <button
+            type="button"
+            className="memFocusClose"
+            aria-label={t("memory.close")}
+            onClick={onExitFocus ?? (() => navigate("/memory"))}
+          >
+            ✕
+          </button>
+          <span className="memFocusTitle">{t(`memory.mode.${mode}.name`)}</span>
+        </div>
+      )}
       <Link to="/memory" className="memBack">
         ← {t("memory.back")}
       </Link>
@@ -105,6 +180,9 @@ export function TypeAttempt({
     const text = el.value;
     el.value = "";
     onSubmit(text);
+    // Stay in the box: on a phone, losing focus would drop the keyboard
+    // and it can't be reopened without another tap.
+    el.focus();
   };
   return (
     <div className="memAttempt">
@@ -113,6 +191,7 @@ export function TypeAttempt({
         className="memTextarea"
         rows={4}
         autoFocus
+        enterKeyHint="done"
         placeholder={placeholder}
         autoComplete="off"
         autoCorrect="off"
@@ -131,7 +210,13 @@ export function TypeAttempt({
           submit();
         }}
       />
-      <button type="button" className="memButton memButton--primary" onClick={submit}>
+      <button
+        type="button"
+        className="memButton memButton--primary"
+        // Keep focus (and the phone keyboard) in the textarea when tapped.
+        onPointerDown={(e) => e.preventDefault()}
+        onClick={submit}
+      >
         {submitLabel}
       </button>
     </div>

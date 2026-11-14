@@ -4,6 +4,7 @@
 export const MEMORY_STRINGS_EN: Record<string, string> = {
   "memory.title": "Memory Tool",
   "memory.back": "Memory Tool",
+  "memory.close": "Close",
   "memory.eyebrow": "2026 Scripture Memory Challenge",
   "memory.contestInfo": "Sunday, Nov 29, after worship",
   "memory.dday": "D-{n}",
@@ -131,6 +132,7 @@ export const MEMORY_STRINGS_EN: Record<string, string> = {
 export const MEMORY_STRINGS_KO: Record<string, string> = {
   "memory.title": "암송 도구",
   "memory.back": "암송 도구",
+  "memory.close": "닫기",
   "memory.eyebrow": "2026 전교인 성경 암송 대회",
   "memory.contestInfo": "11월 29일 주일 예배 후",
   "memory.dday": "D-{n}",

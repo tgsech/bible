@@ -133,3 +133,85 @@
 .memFooter p {
   margin: 0 0 8px;
 }
+
+/* ---------- Phones: tools first ----------
+   Most people open this page to jump straight into a mode, so on a phone
+   the mode tiles come right under the title (as a compact two-column
+   grid) and the progress card moves below them. */
+@media (max-width: 600px) {
+  #mainBody.memHub {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .memHubHero {
+    margin-bottom: 4px;
+  }
+
+  .memHubMeta {
+    margin: 6px 0 12px;
+    font-size: 0.92rem;
+  }
+
+  .memHub .memGroup {
+    order: 1;
+    margin-top: 18px;
+  }
+
+  .memHub .memProgress {
+    order: 2;
+    margin-top: 24px;
+  }
+
+  .memHub .memPassage {
+    order: 3;
+    margin-top: 16px;
+  }
+
+  .memHub .memFooter {
+    order: 4;
+  }
+
+  .memHub .memGroup h2 {
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+  }
+
+  .memHub .memGroupNote,
+  .memHub .memModeScience {
+    display: none;
+  }
+
+  .memHub .memModeGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .memHub .memModeCard {
+    gap: 2px;
+    padding: 12px;
+  }
+
+  /* An odd one out takes the full row instead of leaving a hole. */
+  .memHub .memModeCard:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .memHub .memModeIcon {
+    font-size: 1.5rem;
+  }
+
+  .memHub .memModeName {
+    flex-wrap: wrap;
+    font-size: 1.02rem;
+  }
+
+  .memHub .memModeDesc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+}
