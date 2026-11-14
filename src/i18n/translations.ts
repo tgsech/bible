@@ -1,3 +1,5 @@
+import { MEMORY_STRINGS_EN, MEMORY_STRINGS_KO } from "../memory/strings";
+
 export type Lang = "en" | "ko";
 
 // Flat key -> string dictionary for each supported UI language. Keep keys
@@ -279,9 +281,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "leaderboard.teamMembersCol": "Members",
     "leaderboard.teamsEmpty": "No teams have any activity on this board yet.",
 
-    // Memory tool
-    "memory.title": "Memory Tool",
-    "memory.body": "Feature coming soon!",
+    // Memory tool - copy lives in memory/strings.ts
+    ...MEMORY_STRINGS_EN,
 
     // Profile
     "profile.title": "Profile",
@@ -666,9 +667,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "leaderboard.teamMembersCol": "인원",
     "leaderboard.teamsEmpty": "아직 이 보드에서 활동한 팀이 없습니다.",
 
-    // Memory tool
-    "memory.title": "암기 도구",
-    "memory.body": "기능이 곧 제공됩니다!",
+    // Memory tool - copy lives in memory/strings.ts
+    ...MEMORY_STRINGS_KO,
 
     // Profile
     "profile.title": "프로필",

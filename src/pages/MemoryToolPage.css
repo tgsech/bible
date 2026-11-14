@@ -1,19 +1,135 @@
-.memoryToolPage {
-  max-width: 600px;
-  margin: 0 auto;
+/* Memory tool hub. Shared pieces (cards, buttons, meters, mode cards)
+   live in src/memory/memory.css. */
+
+.memHubHero {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.memEyebrow {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-untyped);
+}
+
+.memHubTitle {
+  font-size: clamp(2rem, 4vw + 1rem, 2.9rem);
+  letter-spacing: -0.01em;
+}
+
+.memHubMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 18px;
+  opacity: 0.85;
+}
+
+.memProgressHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.memProgressPct {
+  font-size: 1.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.memProgressSub {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  opacity: 0.8;
+}
+
+/* One little column per verse, filling from the bottom. */
+.memVerseBars {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 6px;
+  margin: 18px 0 0;
+  padding: 0;
+}
+
+.memVerseBars li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.memVerseBarTrack {
+  position: relative;
+  width: 100%;
+  height: 54px;
+  border-radius: 8px;
+  background: var(--mem-line);
+  overflow: hidden;
+}
+
+.memVerseBarFill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-untyped);
+  transition: height 0.5s ease;
+}
+
+.memVerseBarNum {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.memGroup {
+  margin-top: 30px;
+}
+
+.memGroup h2 {
+  font-size: 1.3rem;
+}
+
+.memGroupNote {
+  margin: 2px 0 12px;
+  font-size: 0.92rem;
+  opacity: 0.75;
+}
+
+.memPassage {
+  margin-top: 30px;
+}
+
+.memPassage summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.memPassage ol {
+  margin: 14px 0 0;
+  padding-left: 2.2em;
+  line-height: 1.9;
+}
+
+.memPassage li::marker {
+  font-weight: 700;
+  color: var(--color-untyped);
+}
+
+.memFooter {
+  margin-top: 26px;
+  font-size: 0.8rem;
+  opacity: 0.7;
   text-align: center;
 }
 
-.memoryToolPage h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-.memoryToolPage p {
-  font-size: 1.1rem;
-  margin-bottom: 32px;
-}
-
-.memoryToolPage a {
-  color: var(--color-text);
+.memFooter p {
+  margin: 0 0 8px;
 }

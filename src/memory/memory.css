@@ -1,0 +1,797 @@
+/* Shared styles for the memory tool (hub + every mode). Everything is
+   built from the theme variables so it follows whichever palette and font
+   the user picked in Settings. */
+
+.memPage {
+  --mem-surface: color-mix(in srgb, var(--color-correct) 7%, transparent);
+  --mem-line: color-mix(in srgb, var(--color-correct) 22%, transparent);
+  --mem-accent-soft: color-mix(in srgb, var(--color-untyped) 22%, transparent);
+  color: var(--color-correct);
+  line-height: 1.6;
+  /* Korean: break lines between words, never mid-word */
+  word-break: keep-all;
+}
+
+.memPopupOverlay {
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+#mainBody.memPage {
+  max-width: 760px;
+}
+
+.memPage h1,
+.memPage h2 {
+  margin: 0;
+  text-wrap: balance;
+}
+
+.memPage h2 {
+  font-size: 1.05rem;
+}
+
+.memBack {
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.memBack:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.memModeTitle {
+  font-size: clamp(1.7rem, 3vw + 1rem, 2.3rem);
+}
+
+.memLead {
+  margin: 6px 0 22px;
+  opacity: 0.8;
+  max-width: 60ch;
+}
+
+.memHint {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.memCard {
+  background: var(--mem-surface);
+  border: 1px solid var(--mem-line);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.memPill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--mem-accent-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.memPill--pass {
+  margin-left: 10px;
+}
+
+/* ---------- Buttons ---------- */
+
+.memButton {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 22px;
+  border-radius: 999px;
+  border: 2px solid var(--color-correct);
+  background: transparent;
+  color: var(--color-correct);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.memButton:hover {
+  transform: translateY(-2px);
+}
+
+.memButton--primary {
+  background: var(--color-correct);
+  color: var(--color-bg);
+}
+
+.memButton:focus-visible,
+.memChip:focus-visible,
+.memVerseChip:focus-visible,
+.memSeg button:focus-visible,
+.memModeCard:focus-visible,
+.memLinkButton:focus-visible {
+  outline: 3px solid var(--color-untyped);
+  outline-offset: 2px;
+}
+
+.memLinkButton {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.memActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* Segmented control (passage language, difficulty, speed) */
+.memSeg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--mem-line);
+}
+
+.memSeg button {
+  min-height: 36px;
+  padding: 4px 16px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-correct);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.memSeg button.isActive {
+  background: var(--color-correct);
+  color: var(--color-bg);
+}
+
+/* ---------- Progress ---------- */
+
+.memMeter {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--mem-line);
+  overflow: hidden;
+  flex: 1;
+}
+
+.memMeterFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-untyped);
+  transition: width 0.5s ease;
+}
+
+.memPace {
+  margin: 12px 0 0;
+}
+
+/* ---------- Verse picker ---------- */
+
+.memVersePicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 18px;
+}
+
+.memVerseChip {
+  position: relative;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 2px solid var(--mem-line);
+  background: transparent;
+  color: var(--color-correct);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.memVerseChip.isActive {
+  border-color: var(--color-correct);
+  font-weight: 700;
+}
+
+.memVerseChipFill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--mem-accent-soft);
+  transition: height 0.4s ease;
+}
+
+.memVerseChipLabel {
+  position: relative;
+}
+
+/* ---------- Typing a whole verse ---------- */
+
+.memAttempt {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.memAttempt .memButton {
+  align-self: flex-end;
+}
+
+.memTextarea,
+.memRainInput {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid var(--mem-line);
+  background: color-mix(in srgb, var(--color-bg) 70%, white);
+  color: var(--color-composing);
+  /* 16px+ keeps iOS from zooming the page when the field takes focus */
+  font-size: 1.1rem;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.memTextarea:focus,
+.memRainInput:focus {
+  outline: none;
+  border-color: var(--color-untyped);
+}
+
+.memDiff {
+  margin: 8px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.memMiss {
+  color: var(--color-incorrect);
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 4px;
+  font-weight: 700;
+}
+
+.memTyped {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  overflow-wrap: anywhere;
+}
+
+.memFeedback {
+  margin-top: 16px;
+}
+
+.memFeedback.isPass {
+  border-color: var(--color-untyped);
+}
+
+.memFeedbackHead {
+  margin: 0;
+}
+
+.memFeedbackHead strong {
+  font-size: 1.3rem;
+  margin-right: 6px;
+}
+
+/* ---------- Cue cards (vanishing words / first letters) ---------- */
+
+.memCue {
+  font-size: 1.15rem;
+  line-height: 2;
+}
+
+.memCue--letters {
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+
+.memRainBuiltRef {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: var(--mem-accent-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.8;
+  vertical-align: middle;
+}
+
+.memBlank {
+  display: inline-block;
+  height: 1.1em;
+  margin-right: 0.35em;
+  border-bottom: 2px solid var(--color-correct);
+  vertical-align: baseline;
+  opacity: 0.6;
+}
+
+.memStageDots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.memStageDots span:not(.memStageLabel) {
+  width: 28px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--mem-line);
+}
+
+.memStageDots span.isDone {
+  background: var(--color-untyped);
+}
+
+.memStageDots span.isNow {
+  background: var(--color-correct);
+}
+
+.memStageLabel {
+  margin-left: 8px;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+/* ---------- Result cards ---------- */
+
+.memResult {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.memResult.isPass {
+  border-color: var(--color-untyped);
+}
+
+.memResultEmoji {
+  margin: 0;
+  font-size: 2.6rem;
+  line-height: 1.2;
+}
+
+.memResultScore {
+  margin: 4px 0;
+  font-size: 2.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.memResult p {
+  margin: 6px 0 0;
+}
+
+/* ---------- Setup card ---------- */
+
+.memSetup h2 {
+  margin: 18px 0 8px;
+}
+
+.memSetup h2:first-child {
+  margin-top: 0;
+}
+
+.memStart {
+  display: flex;
+  margin: 24px auto 0;
+  min-width: 160px;
+}
+
+/* ---------- Word Rain ---------- */
+
+@keyframes memFall {
+  from {
+    top: -48px;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+@keyframes memShake {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.memRainHud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.memHearts {
+  color: var(--color-incorrect);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+
+.memHeartsLost {
+  opacity: 0.2;
+}
+
+.memRainSky {
+  position: relative;
+  height: min(46vh, 420px);
+  min-height: 260px;
+  border-radius: 16px;
+  border: 1px solid var(--mem-line);
+  border-bottom: 4px solid var(--color-correct);
+  background: linear-gradient(var(--mem-accent-soft), transparent 70%);
+  overflow: hidden;
+}
+
+.memDrop {
+  position: absolute;
+  top: -48px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--mem-line);
+  background: var(--color-bg);
+  font-size: 1.1rem;
+  white-space: nowrap;
+  animation: memFall linear forwards;
+}
+
+.memDrop.isTarget {
+  border-color: var(--color-correct);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+}
+
+.memRainInput {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.memRainInput.isShaking {
+  animation: memShake 0.3s ease;
+  border-color: var(--color-incorrect);
+}
+
+.memRainBuilt {
+  min-height: 3.4em;
+  margin: 12px 0 0;
+  font-size: 1.05rem;
+}
+
+/* ---------- Word Puzzle ---------- */
+
+.memOrderBuilt {
+  min-height: 5.5em;
+  font-size: 1.15rem;
+  line-height: 1.9;
+}
+
+.memOrderCaret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 4px;
+  background: var(--color-cursor);
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+.memChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.memChip {
+  min-height: 44px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 2px solid var(--mem-line);
+  background: var(--color-bg);
+  color: var(--color-correct);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.memChip:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-correct);
+}
+
+.memChip.isWrong {
+  animation: memShake 0.3s ease;
+  border-color: var(--color-incorrect);
+  color: var(--color-incorrect);
+}
+
+/* ---------- Flashcards / test prompt ---------- */
+
+.memFlash {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.memFlashRef {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.memFlashPrompt {
+  margin: 0;
+  opacity: 0.75;
+}
+
+.memFlashText {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.9;
+  max-width: 52ch;
+}
+
+.memRate {
+  flex: 1 1 120px;
+}
+
+.memRate small {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.memRate--again {
+  border-color: var(--color-incorrect);
+  color: var(--color-incorrect);
+}
+
+.memRate--good {
+  background: var(--color-correct);
+  color: var(--color-bg);
+}
+
+.memTestProgress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.memTestRows {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.memTestRowHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.memTestRowHead strong {
+  white-space: nowrap;
+}
+
+/* ---------- Mode cards (hub + test picker) ---------- */
+
+.memModeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.memModeCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 2px solid var(--mem-line);
+  background: var(--mem-surface);
+  color: var(--color-correct);
+  font-size: 1rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.memModeCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-correct);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.memModeCard--test {
+  background: var(--mem-accent-soft);
+}
+
+.memModeIcon {
+  font-size: 1.8rem;
+  line-height: 1.2;
+}
+
+.memModeName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.memModeDesc {
+  font-size: 0.93rem;
+  opacity: 0.85;
+}
+
+.memModeScience {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px dashed var(--mem-line);
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+/* ---------- Pass popup ---------- */
+
+@keyframes memPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(16px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes memBounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(6deg);
+  }
+}
+
+@keyframes memConfettiFall {
+  from {
+    transform: translateY(-10vh) rotate(0deg);
+  }
+  to {
+    transform: translateY(110vh) rotate(540deg);
+  }
+}
+
+.memPopupOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.memConfetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.memConfetti span {
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  animation: memConfettiFall linear infinite both;
+}
+
+.memPopupCard {
+  position: relative;
+  width: min(360px, 100%);
+  padding: 30px 28px;
+  border-radius: 20px;
+  background: var(--color-bg);
+  color: var(--color-correct);
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  animation: memPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.memPopupSheep {
+  font-size: 4.2rem;
+  line-height: 1.2;
+  animation: memBounce 0.9s ease-in-out infinite;
+}
+
+.memPopupTitle {
+  margin: 8px 0 4px;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.memPopupBody {
+  margin: 0 0 20px;
+}
+
+@media (max-width: 600px) {
+  .memCard {
+    padding: 16px;
+  }
+
+  .memAttempt .memButton {
+    align-self: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memConfetti,
+  .memOrderCaret {
+    display: none;
+  }
+
+  .memPopupSheep,
+  .memPopupCard,
+  .memChip.isWrong,
+  .memRainInput.isShaking {
+    animation: none;
+  }
+
+  .memButton,
+  .memChip,
+  .memModeCard {
+    transition: none;
+  }
+}

@@ -18,6 +18,11 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { LivWordersPage } from "./pages/LivWordersPage";
 import { TeamDetailPage } from "./pages/TeamDetailPage";
 import { MemoryToolPage } from "./pages/MemoryToolPage";
+import { RainGame } from "./pages/memory/RainGame";
+import { OrderGame } from "./pages/memory/OrderGame";
+import { VanishMode, LettersMode } from "./pages/memory/StudyModes";
+import { FlashcardMode } from "./pages/memory/FlashcardMode";
+import { TestMode } from "./pages/memory/TestMode";
 import { TutorialPage } from "./pages/TutorialPage";
 import "./AppShell.css";
 
@@ -46,6 +51,12 @@ function App() {
                     <Route path="/directory" element={<LivWordersPage />} />
                     <Route path="/team/:id" element={<TeamDetailPage />} />
                     <Route path="/memory" element={<MemoryToolPage />} />
+                    <Route path="/memory/rain" element={<RainGame />} />
+                    <Route path="/memory/order" element={<OrderGame />} />
+                    <Route path="/memory/vanish" element={<VanishMode />} />
+                    <Route path="/memory/letters" element={<LettersMode />} />
+                    <Route path="/memory/cards" element={<FlashcardMode />} />
+                    <Route path="/memory/test" element={<TestMode />} />
                   </Routes>
                 </main>
               </div>

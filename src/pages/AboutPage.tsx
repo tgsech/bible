@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "../i18n/LanguageContext";
+import { PASSAGE } from "../memory/passage";
 import "./AboutPage.css";
 
 export function AboutPage() {
@@ -13,6 +14,8 @@ export function AboutPage() {
       </p>
       <p>{t("about.licensing")}</p>
       <p>성경전서 개역한글판 (Korean Revised Version, KRV)</p>
+      {/* Only James 1:17-27 of this version is on the site, for the memory tool. */}
+      <p>{PASSAGE.ko.source}</p>
       <Link to="/">{t("common.backHome")}</Link>
     </div>
   );
