@@ -30,6 +30,7 @@ interface Recognition {
   interimResults: boolean;
   maxAlternatives: number;
   processLocally?: boolean;
+  onstart: (() => void) | null;
   onresult: ((e: RecEvent) => void) | null;
   onerror: ((e: { error: string }) => void) | null;
   onend: (() => void) | null;
@@ -69,8 +70,72 @@ export function externalBrowserUrl(): string | null {
   return `kakaotalk://web/openExternal?url=${encodeURIComponent(window.location.href)}`;
 }
 
+/* ---------- crash guard ----------
+   In some browsers a speech call doesn't fail politely - it kills the tab
+   ("탭이 중지된 상태입니다" in Samsung Internet, a closed window in
+   KakaoTalk). Code can't catch that, but it can notice it afterwards: a
+   marker is written just before each risky call and removed as soon as
+   the page is still alive after it. If the marker is still there when the
+   site next loads, the last call took the tab down, so speech is switched
+   off in this browser (for a week, in case a browser update fixes it). */
+
+const GUARD_KEY = "livingwords:speech-guard";
+const BROKEN_FOR_MS = 7 * 86_400_000;
+
+function readGuard(): string | null {
+  try {
+    return localStorage.getItem(GUARD_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeGuard(value: string | null) {
+  try {
+    if (value === null) localStorage.removeItem(GUARD_KEY);
+    else localStorage.setItem(GUARD_KEY, value);
+  } catch {
+    /* storage blocked - the guard just can't help here */
+  }
+}
+
+// Runs once per page load.
+if (readGuard() === "pending") writeGuard(`broken:${Date.now()}`);
+// Leaving the page normally mid-call is not a crash.
+window.addEventListener("pagehide", () => {
+  if (readGuard() === "pending") writeGuard(null);
+});
+
+function speechBroken(): boolean {
+  const guard = readGuard();
+  if (!guard?.startsWith("broken:")) return false;
+  if (Date.now() - Number(guard.slice(7)) < BROKEN_FOR_MS) return true;
+  writeGuard(null);
+  return false;
+}
+
+/** Marks a risky call as in flight; call the returned function once the
+ *  page has clearly survived it. Also clears itself after a few seconds. */
+function riskyCall(): () => void {
+  writeGuard("pending");
+  const done = () => {
+    if (readGuard() === "pending") writeGuard(null);
+  };
+  setTimeout(done, 4000);
+  return done;
+}
+
+/** The on-device check (SpeechRecognition.available) is only trusted in
+ *  Google Chrome itself. Other Chromium browsers (Samsung Internet, app
+ *  webviews) expose the method without anything behind it, and calling it
+ *  is what crashed their tabs. */
+function isGoogleChrome(): boolean {
+  const data = (navigator as unknown as { userAgentData?: { brands?: { brand: string }[] } }).userAgentData;
+  return data?.brands?.some((b) => b.brand === "Google Chrome") ?? false;
+}
+
 function getCtor(): RecognitionCtor | null {
-  if (inAppBrowser()) return null;
+  if (inAppBrowser() || speechBroken()) return null;
   const w = window as unknown as { SpeechRecognition?: RecognitionCtor; webkitSpeechRecognition?: RecognitionCtor };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
@@ -129,10 +194,13 @@ export function useDictation(
       engineRef.current = next;
       setEngine(next);
     };
-    if (!Ctor.available) {
+    if (!Ctor.available || !isGoogleChrome()) {
       decide("unavailable");
     } else {
-      Ctor.available({ langs: [LANG_TAG[lang]], processLocally: true }).then(decide, () => decide("unavailable"));
+      const survived = riskyCall();
+      Ctor.available({ langs: [LANG_TAG[lang]], processLocally: true })
+        .then(decide, () => decide("unavailable"))
+        .finally(survived);
     }
     return () => {
       cancelled = true;
@@ -166,7 +234,10 @@ export function useDictation(
       if (engineRef.current === "local") rec.processLocally = true;
 
       let sessionText = "";
+      const survived = riskyCall();
+      rec.onstart = survived;
       rec.onresult = (e) => {
+        survived();
         // Everything heard this session, finalized or not: some browsers
         // (iOS Safari) never mark results final.
         sessionText = Array.from(e.results, (r) => r[0].transcript.trim())
@@ -175,11 +246,13 @@ export function useDictation(
         handlers.current.onText([committed, sessionText].filter(Boolean).join(" "));
       };
       rec.onerror = (e) => {
+        survived();
         if (e.error === "no-speech" || e.error === "aborted") return;
         wantRef.current = false;
         setError(e.error === "not-allowed" || e.error === "service-not-allowed" ? "denied" : "failed");
       };
       rec.onend = () => {
+        survived();
         committed = [committed, sessionText].filter(Boolean).join(" ");
         if (wantRef.current && Date.now() - startedAt < MAX_LISTEN_MS) {
           session();
@@ -193,6 +266,7 @@ export function useDictation(
       try {
         rec.start();
       } catch {
+        survived();
         wantRef.current = false;
         setListening(false);
         setError("failed");
