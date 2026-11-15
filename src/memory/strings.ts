@@ -122,6 +122,11 @@ export const MEMORY_STRINGS_EN: Record<string, string> = {
   "memory.speech.stop": "Stop",
   "memory.speech.listening": "Listening...",
   "memory.speech.heard": "Heard",
+  "memory.speech.whisper":
+    "Your voice is sent to this site's server only to be turned into text. It is never saved. Tap again when you finish.",
+  "memory.speech.transcribing": "Turning your voice into text...",
+  "memory.speech.fallback":
+    "High-accuracy recognition isn't available right now. Tap the mic again to use this browser's speech recognition.",
   "memory.speech.local": "Recognized on this device. Nothing is sent or saved.",
   "memory.speech.downloadable":
     "This browser can recognize speech on the device. The first tap downloads its language pack.",
@@ -273,6 +278,11 @@ export const MEMORY_STRINGS_KO: Record<string, string> = {
   "memory.speech.stop": "멈추기",
   "memory.speech.listening": "듣고 있어요...",
   "memory.speech.heard": "들린 내용",
+  "memory.speech.whisper":
+    "목소리는 글자로 바꾸기 위해서만 이 사이트 서버로 보내고, 저장하지 않아요. 다 말했으면 다시 눌러 주세요.",
+  "memory.speech.transcribing": "목소리를 글자로 바꾸는 중이에요...",
+  "memory.speech.fallback":
+    "지금은 고정밀 음성 인식을 쓸 수 없어요. 마이크를 다시 누르면 브라우저 음성 인식으로 들어요.",
   "memory.speech.local": "이 기기 안에서 인식해요. 아무것도 전송되거나 저장되지 않아요.",
   "memory.speech.downloadable": "이 브라우저는 기기 안에서 음성을 인식할 수 있어요. 처음 누르면 언어 팩을 내려받아요.",
   "memory.speech.installing": "음성 언어 팩을 내려받는 중이에요. 끝나면 마이크를 다시 눌러 주세요.",

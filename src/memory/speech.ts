@@ -1,11 +1,16 @@
-// Speech-to-text for reciting a verse out loud, built on the browser's own
-// SpeechRecognition (Web Speech API).
+// Speech-to-text for reciting a verse out loud. Two engines:
 //
-// Privacy: this file never touches the audio. The browser listens and
-// hands back text only, so there is no recording for us to store or
-// delete - and the transcript itself is only kept long enough to grade it.
+// 1. Whisper, through this site's backend (POST /api/transcribe). The most
+//    accurate, so it is used whenever it's available. The recording is held
+//    in memory, sent once, and dropped as soon as the text comes back -
+//    neither this page nor the server saves it. It can be unavailable (no
+//    backend in local dev, the day's free allowance used up, a daily cap
+//    reached); then the mic falls back to engine 2.
 //
-// Where the listening happens depends on the browser:
+// 2. The browser's own SpeechRecognition (Web Speech API). Here this file
+//    never touches the audio: the browser listens and hands back text.
+//
+// Where engine 2 listens depends on the browser:
 //  - If it offers on-device recognition for the language
 //    (SpeechRecognition.available / processLocally), we require it, after
 //    a one-time language-pack download if needed. Nothing leaves the phone.
@@ -15,7 +20,8 @@
 //    in-app browsers of KakaoTalk and similar apps - see inAppBrowser).
 //    The mic simply isn't offered there.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { API_URL } from "../lib/api";
 import type { PassageLang } from "./passage";
 
 interface RecResult {
@@ -140,10 +146,118 @@ function getCtor(): RecognitionCtor | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
-/** "local": on-device, ready. "downloadable": on-device after a language
- *  pack download. "cloud": only the browser vendor's service. */
-export type SpeechEngine = "local" | "downloadable" | "cloud";
-export type SpeechError = "denied" | "failed" | null;
+/* ---------- Whisper (engine 1) ---------- */
+
+/** A forgotten mic shouldn't spend the shared allowance. */
+const WHISPER_MAX_MS = 45_000;
+const WHISPER_RATE = 16_000;
+
+function canRecord(): boolean {
+  return (
+    !inAppBrowser() &&
+    typeof MediaRecorder !== "undefined" &&
+    typeof navigator.mediaDevices?.getUserMedia === "function"
+  );
+}
+
+// null = not asked yet. Shared by every mic on the page, and asked once
+// per page load.
+let whisperOk: boolean | null = null;
+let whisperAsked = false;
+const whisperListeners = new Set<() => void>();
+
+function setWhisper(ok: boolean) {
+  whisperOk = ok;
+  whisperListeners.forEach((fn) => fn());
+}
+
+function askWhisper() {
+  if (whisperAsked) return;
+  whisperAsked = true;
+  if (!canRecord()) {
+    setWhisper(false);
+    return;
+  }
+  fetch(`${API_URL}/api/transcribe`, { credentials: "include" })
+    .then((res) => (res.ok ? res.json() : { available: false }))
+    .then(
+      (body: { available?: boolean }) => setWhisper(body.available === true),
+      () => setWhisper(false),
+    );
+}
+
+function subscribeWhisper(fn: () => void) {
+  whisperListeners.add(fn);
+  return () => {
+    whisperListeners.delete(fn);
+  };
+}
+
+/** Re-encodes a recording as 16 kHz mono WAV: the one format every
+ *  speech model reads, whatever container this browser records in. */
+async function toWav(recording: Blob): Promise<Blob> {
+  const w = window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext };
+  const Ctx = w.AudioContext ?? w.webkitAudioContext;
+  if (!Ctx) throw new Error("no AudioContext");
+  const ctx = new Ctx();
+  try {
+    const decoded = await ctx.decodeAudioData(await recording.arrayBuffer());
+    const offline = new OfflineAudioContext(1, Math.max(1, Math.ceil(decoded.duration * WHISPER_RATE)), WHISPER_RATE);
+    const source = offline.createBufferSource();
+    source.buffer = decoded;
+    source.connect(offline.destination);
+    source.start();
+    const samples = (await offline.startRendering()).getChannelData(0);
+
+    const view = new DataView(new ArrayBuffer(44 + samples.length * 2));
+    const ascii = (at: number, s: string) => {
+      for (let i = 0; i < s.length; i++) view.setUint8(at + i, s.charCodeAt(i));
+    };
+    ascii(0, "RIFF");
+    view.setUint32(4, 36 + samples.length * 2, true);
+    ascii(8, "WAVEfmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true); // PCM
+    view.setUint16(22, 1, true); // mono
+    view.setUint32(24, WHISPER_RATE, true);
+    view.setUint32(28, WHISPER_RATE * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    ascii(36, "data");
+    view.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) {
+      const s = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    }
+    return new Blob([view], { type: "audio/wav" });
+  } finally {
+    void ctx.close();
+  }
+}
+
+/** Sends a recording to the backend and returns the text. Throws when
+ *  Whisper can't be used right now. */
+async function transcribe(recording: Blob, lang: PassageLang): Promise<string> {
+  // If this browser can't re-encode, send what it recorded as is.
+  const audio = await toWav(recording).catch(() => recording);
+  const res = await fetch(`${API_URL}/api/transcribe?lang=${lang}`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": audio.type || "application/octet-stream" },
+    body: audio,
+  });
+  if (!res.ok) throw new Error(`transcribe ${res.status}`);
+  const body = (await res.json()) as { text?: string };
+  return body.text ?? "";
+}
+
+/** "whisper": this site's backend. "local": on-device, ready.
+ *  "downloadable": on-device after a language pack download. "cloud": only
+ *  the browser vendor's service. */
+export type SpeechEngine = "whisper" | "local" | "downloadable" | "cloud";
+/** "fallback": Whisper just became unavailable; the next tap uses the
+ *  browser's recognition instead. */
+export type SpeechError = "denied" | "failed" | "fallback" | null;
 
 export interface Dictation {
   supported: boolean;
@@ -151,6 +265,8 @@ export interface Dictation {
   listening: boolean;
   /** True while the on-device language pack is downloading. */
   installing: boolean;
+  /** True after a Whisper recording stops, until its text arrives. */
+  transcribing: boolean;
   error: SpeechError;
   /** Must be called from a tap/click. */
   start: () => void;
@@ -158,19 +274,30 @@ export interface Dictation {
 }
 
 /**
- * Speak-to-text. `onText` gets the transcript so far every time it grows;
- * `onDone` gets the final transcript once, when listening ends.
+ * Speak-to-text. `onText` gets the transcript so far every time it grows
+ * (browser engines only - Whisper answers once, at the end); `onDone` gets
+ * the final transcript once, when listening ends.
  */
 export function useDictation(
   lang: PassageLang,
   onText: (text: string) => void,
   onDone: (text: string) => void,
 ): Dictation {
-  const [supported] = useState(() => getCtor() !== null);
-  const [engine, setEngine] = useState<SpeechEngine | null>(null);
+  const [hasBrowserEngine] = useState(() => getCtor() !== null);
+  const [couldRecord] = useState(canRecord);
+  const whisper = useSyncExternalStore(subscribeWhisper, () => whisperOk);
+  useEffect(askWhisper, []);
+  const supported = hasBrowserEngine || whisper === true || (whisper === null && couldRecord);
+
+  const [browserEngine, setEngine] = useState<SpeechEngine | null>(null);
+  const engine = whisper === true ? "whisper" : browserEngine;
   const [listening, setListening] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const [error, setError] = useState<SpeechError>(null);
+
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const aliveRef = useRef(true);
 
   const recRef = useRef<Recognition | null>(null);
   const wantRef = useRef(false);
@@ -207,14 +334,90 @@ export function useDictation(
     };
   }, [lang]);
 
-  // Leaving the page stops the mic.
-  useEffect(
-    () => () => {
+  // Leaving the page stops the mic (and throws away a recording in
+  // progress rather than sending it).
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
       wantRef.current = false;
       recRef.current?.abort();
-    },
-    [],
-  );
+      if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    };
+  }, []);
+
+  const record = useCallback(() => {
+    wantRef.current = true;
+    setError(null);
+    setListening(true);
+
+    const fail = (kind: SpeechError) => {
+      wantRef.current = false;
+      if (!aliveRef.current) return;
+      setListening(false);
+      setTranscribing(false);
+      setError(kind);
+    };
+
+    navigator.mediaDevices
+      .getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
+      .then((stream) => {
+        const release = () => stream.getTracks().forEach((track) => track.stop());
+        // Stop was tapped (or the page left) before the mic opened.
+        if (!wantRef.current || !aliveRef.current) {
+          release();
+          if (aliveRef.current) setListening(false);
+          return;
+        }
+        const rec = new MediaRecorder(stream);
+        recorderRef.current = rec;
+        const chunks: Blob[] = [];
+        const startedAt = Date.now();
+        const timer = setTimeout(() => rec.state === "recording" && rec.stop(), WHISPER_MAX_MS);
+        rec.ondataavailable = (e) => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+        rec.onstop = () => {
+          clearTimeout(timer);
+          release();
+          recorderRef.current = null;
+          wantRef.current = false;
+          if (!aliveRef.current) return;
+          setListening(false);
+          // A tap-tap with nothing said isn't worth a request.
+          if (chunks.length === 0 || Date.now() - startedAt < 500) {
+            handlers.current.onDone("");
+            return;
+          }
+          setTranscribing(true);
+          transcribe(new Blob(chunks, { type: rec.mimeType }), lang).then(
+            (text) => {
+              if (!aliveRef.current) return;
+              setTranscribing(false);
+              if (text === "") setError("failed");
+              handlers.current.onDone(text);
+            },
+            () => {
+              // Whisper is out for now (cap, allowance, network): use the
+              // browser's recognition for the rest of this visit.
+              setWhisper(false);
+              fail(getCtor() ? "fallback" : "failed");
+            },
+          );
+        };
+        rec.start();
+      })
+      .catch((err: unknown) => {
+        const name = (err as { name?: string } | null)?.name;
+        if (name === "NotAllowedError" || name === "SecurityError") {
+          fail("denied");
+          return;
+        }
+        // No usable microphone through this path; let the browser try.
+        setWhisper(false);
+        fail(getCtor() ? "fallback" : "failed");
+      });
+  }, [lang]);
 
   const listen = useCallback(() => {
     const Ctor = getCtor();
@@ -280,8 +483,13 @@ export function useDictation(
   }, [lang]);
 
   const start = useCallback(() => {
+    if (wantRef.current || installing || transcribing) return;
+    if (whisperOk === true) {
+      record();
+      return;
+    }
     const Ctor = getCtor();
-    if (!Ctor || wantRef.current || installing) return;
+    if (!Ctor) return;
     if (engineRef.current === "downloadable" && Ctor.install) {
       // One-time language pack download, then the user taps again to
       // speak (a download can outlast the tap that started it).
@@ -300,12 +508,13 @@ export function useDictation(
       return;
     }
     listen();
-  }, [lang, installing, listen]);
+  }, [lang, installing, transcribing, listen, record]);
 
   const stop = useCallback(() => {
     wantRef.current = false;
     recRef.current?.stop();
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
   }, []);
 
-  return { supported, engine, listening, installing, error, start, stop };
+  return { supported, engine, listening, installing, transcribing, error, start, stop };
 }

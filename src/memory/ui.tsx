@@ -253,7 +253,7 @@ export function TypeAttempt({
           aria-pressed={speech.listening}
           aria-label={speech.listening ? t("memory.speech.stop") : t("memory.speech.start")}
           title={speech.listening ? t("memory.speech.stop") : t("memory.speech.start")}
-          disabled={speech.installing}
+          disabled={speech.installing || speech.transcribing}
           onClick={toggleMic}
         >
           <span aria-hidden="true">{speech.listening ? "■" : "🎙️"}</span>
@@ -268,7 +268,9 @@ export function TypeAttempt({
       >
         {submitLabel}
       </button>
-      {speech.supported && (speech.listening || speech.installing || speech.error) && <SpeechNote speech={speech} />}
+      {speech.supported && (speech.listening || speech.installing || speech.transcribing || speech.error) && (
+        <SpeechNote speech={speech} />
+      )}
     </div>
   );
 }
@@ -280,7 +282,11 @@ export function SpeechNote({ speech }: { speech: Dictation }) {
     ? `memory.speech.${speech.error}`
     : speech.installing
       ? "memory.speech.installing"
-      : speech.engine === "local"
+      : speech.transcribing
+        ? "memory.speech.transcribing"
+        : speech.engine === "whisper"
+          ? "memory.speech.whisper"
+          : speech.engine === "local"
         ? "memory.speech.local"
         : speech.engine === "downloadable"
           ? "memory.speech.downloadable"

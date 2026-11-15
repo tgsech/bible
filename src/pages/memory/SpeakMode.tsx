@@ -8,8 +8,8 @@ import { ModeShell, SpeechNote, VersePicker } from "../../memory/ui";
 import { Feedback } from "./StudyModes";
 
 // Recite Aloud: no keyboard at all. Tap the mic, say the verse, tap again;
-// the browser's speech recognition turns it into text and it's marked the
-// same way a typed answer is.
+// speech recognition (see memory/speech.ts) turns it into text and it's
+// marked the same way a typed answer is.
 
 /** Reciting from nothing proves more than reciting from first letters. */
 const CAP_NO_HINT = 90;
@@ -67,7 +67,11 @@ function Round({ verse, hint, onNext }: { verse: number; hint: boolean; onNext: 
           </p>
         )}
         <p className={speech.listening ? "memSpeakHeard" : "memFlashPrompt"} aria-live="polite">
-          {speech.listening ? heard || t("memory.speech.listening") : t("memory.speak.prompt")}
+          {speech.listening
+            ? heard || t("memory.speech.listening")
+            : speech.transcribing
+              ? t("memory.speech.transcribing")
+              : t("memory.speak.prompt")}
         </p>
       </div>
 
@@ -76,7 +80,7 @@ function Round({ verse, hint, onNext }: { verse: number; hint: boolean; onNext: 
           type="button"
           className={`memMicBig${speech.listening ? " isListening" : ""}`}
           aria-pressed={speech.listening}
-          disabled={speech.installing}
+          disabled={speech.installing || speech.transcribing}
           onClick={() => {
             if (speech.listening) {
               speech.stop();
@@ -93,7 +97,7 @@ function Round({ verse, hint, onNext }: { verse: number; hint: boolean; onNext: 
         <SpeechNote speech={speech} />
       </div>
 
-      {last && !speech.listening && <Feedback grade={last.grade} typed={last.typed} typedLabel={t("memory.speech.heard")} />}
+      {last && !speech.listening && !speech.transcribing && <Feedback grade={last.grade} typed={last.typed} typedLabel={t("memory.speech.heard")} />}
       {passed && !speech.listening && (
         <div className="memActions">
           <button type="button" className="memButton memButton--primary" onClick={onNext}>
